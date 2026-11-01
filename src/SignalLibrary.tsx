@@ -1,11 +1,8 @@
+import ScenePlayer from "./ScenePlayer";
 import { PosterArt } from "./CosmicArt";
 import { useEffect, useRef, useState } from "react";
 import {
   ArrowUpRight,
-  ArrowLeft,
-  ArrowRight,
-  Play,
-  Pause,
   X,
   Plus,
   Search,
@@ -14,7 +11,7 @@ import {
 } from "lucide-react";
 import data from "../data/signals.json";
 import { localize, useLocale, t } from "./i18n";
-import { scenes, type Scene } from "./scenes";
+import { scenes } from "./scenes";
 type Entry = (typeof data)[number];
 const tabs = [
   ["all", "全部"],
@@ -23,197 +20,6 @@ const tabs = [
   ["defense", "防御"],
   ["resource", "模型 / 产品"],
 ];
-function ProcessScene({
-  scene,
-  step,
-  playing,
-  onAdvance,
-  motion,
-}: {
-  scene: Scene;
-  step: number;
-  playing: boolean;
-  onAdvance: () => void;
-  motion: boolean;
-}) {
-  useLocale();
-  const [progress, setProgress] = useState(0);
-  const advance = useRef(onAdvance);
-  advance.current = onAdvance;
-  useEffect(() => {
-    setProgress(0);
-    if (!playing) return;
-    const start = performance.now();
-    let frame = 0;
-    const tick = (now: number) => {
-      const p = Math.min(1, (now - start) / 2400);
-      setProgress(p);
-      if (p === 1) advance.current();
-      else frame = requestAnimationFrame(tick);
-    };
-    frame = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(frame);
-  }, [step, playing]);
-  const event = scene.steps[step];
-  const points = scene.nodes.map((_, i) => ({
-    x: 65 + (i * 470) / Math.max(1, scene.nodes.length - 1),
-    y: i % 2 === 0 ? 105 : 145,
-  }));
-  const from = points[event.from],
-    to = points[event.to];
-  const q = motion ? (playing ? progress : 1) : 1;
-  const ease = q * q * (3 - 2 * q);
-  const mx = (from.x + to.x) / 2,
-    my = Math.min(from.y, to.y) - 55;
-  const px =
-      (1 - ease) * (1 - ease) * from.x +
-      2 * (1 - ease) * ease * mx +
-      ease * ease * to.x,
-    py =
-      (1 - ease) * (1 - ease) * from.y +
-      2 * (1 - ease) * ease * my +
-      ease * ease * to.y;
-  return localize(
-    <div className={`process-scene ${event.signal}`}>
-      <svg viewBox="0 0 600 245" role="img" aria-label={event.title}>
-        <defs>
-          <linearGradient id="node-chrome" x1="0" y1="0" x2="1" y2="1">
-            <stop stopColor="#fff1c9" />
-            <stop offset=".25" stopColor="#9ba895" />
-            <stop offset=".48" stopColor="#eff0d8" />
-            <stop offset=".51" stopColor="#2c4c45" />
-            <stop offset=".75" stopColor="#c3d5b8" />
-            <stop offset="1" stopColor="#f4e8c0" />
-          </linearGradient>
-          <pattern
-            id="scene-grid"
-            width="25"
-            height="25"
-            patternUnits="userSpaceOnUse"
-          >
-            <path
-              d="M25 0H0V25"
-              stroke="currentColor"
-              strokeWidth=".4"
-              fill="none"
-            />
-          </pattern>
-        </defs>
-        <rect width="600" height="245" fill="url(#scene-grid)" opacity=".13" />
-        <ellipse
-          cx="300"
-          cy="125"
-          rx="275"
-          ry="103"
-          fill="none"
-          stroke="#b7ca9d"
-          strokeWidth=".6"
-          opacity=".3"
-        />
-        <path
-          d="M10 235 300 25 590 235M80 235 300 25 520 235M170 235 300 25 430 235"
-          stroke="#9cba7f"
-          opacity=".13"
-          fill="none"
-        />
-        <path
-          d="M22 40A24 24 0 0 1 70 40"
-          stroke="#c2cc9e"
-          fill="none"
-          strokeWidth="2"
-        />
-        <path
-          d="M46 40h21"
-          transform={`rotate(${-180 + progress * 180} 46 40)`}
-          stroke="currentColor"
-          strokeWidth="2"
-        />
-        <circle cx="46" cy="40" r="3" fill="currentColor" />
-        <path
-          d={points.map((p, i) => `${i ? "L" : "M"}${p.x} ${p.y}`).join(" ")}
-          fill="none"
-          stroke="#697b64"
-          strokeWidth="2"
-          strokeDasharray="5 7"
-        />
-        {event.signal !== "neutral" && (
-          <>
-            <rect
-              x={(from.x + to.x) / 2 - 3}
-              y="55"
-              width="6"
-              height="140"
-              fill="currentColor"
-              opacity=".25"
-            />
-            <path
-              d={`M${(from.x + to.x) / 2} 55V195`}
-              stroke="currentColor"
-              strokeDasharray="5 5"
-            />
-          </>
-        )}
-        <path
-          d={`M${from.x} ${from.y}Q${mx} ${my} ${to.x} ${to.y}`}
-          stroke="currentColor"
-          strokeWidth="3"
-          opacity=".6"
-          fill="none"
-        />
-        {points.map((p, i) => (
-          <g key={i}>
-            <circle cx={p.x} cy={p.y} r="33" fill="url(#node-chrome)" />
-            <circle
-              cx={p.x}
-              cy={p.y}
-              r="26"
-              fill="#15251c"
-              stroke={i === event.to ? "currentColor" : "#7f9176"}
-              strokeWidth={i === event.to ? 3 : 1}
-            />
-            <text
-              x={p.x}
-              y={p.y + 6}
-              textAnchor="middle"
-              className="scene-number"
-            >
-              {String(i + 1).padStart(2, "0")}
-            </text>
-            <foreignObject x={p.x - 48} y={p.y + 38} width="96" height="45">
-              <div className="scene-label">{scene.nodes[i]}</div>
-            </foreignObject>
-          </g>
-        ))}
-        <path
-          d={`M${px} ${py - 12}L${px + 5} ${py - 4}L${px + 14} ${py}L${px + 5} ${py + 4}L${px} ${py + 12}L${px - 5} ${py + 4}L${px - 14} ${py}L${px - 5} ${py - 4}Z`}
-          fill="currentColor"
-        />
-        <circle cx={px} cy={py} r="4" fill="#fff1c9" />
-        <circle
-          cx={px}
-          cy={py}
-          r="17"
-          fill="none"
-          stroke="currentColor"
-          opacity=".3"
-        />
-        <path
-          d={`m${px - 4} ${py - 4} 8 4-8 4`}
-          stroke="#13231a"
-          strokeWidth="2"
-          fill="none"
-        />
-      </svg>
-      <span className="scene-caption">
-        {event.signal === "risk"
-          ? "越过边界"
-          : event.signal === "check"
-            ? "检查位置"
-            : "信号流动"}
-      </span>
-    </div>,
-  );
-}
 export default function SignalLibrary({
   onContribute,
   featured,
@@ -227,8 +33,6 @@ export default function SignalLibrary({
   const [filter, setFilter] = useState("all"),
     [query, setQuery] = useState(""),
     [selected, setSelected] = useState<Entry | null>(null),
-    [step, setStep] = useState(0),
-    [playing, setPlaying] = useState(false),
     [saved, setSaved] = useState<string[]>(() => {
       try {
         const v = JSON.parse(
@@ -255,12 +59,9 @@ export default function SignalLibrary({
   function open(entry: Entry) {
     focus.current = document.activeElement as HTMLElement;
     setSelected(entry);
-    setStep(0);
-    setPlaying(false);
   }
   function close() {
     setSelected(null);
-    setPlaying(false);
   }
   useEffect(() => {
     if (featured.id) {
@@ -426,73 +227,12 @@ export default function SignalLibrary({
                 </button>
               </div>
               <h2 id="signal-title">{selected.title}</h2>
-              <ProcessScene
+              <ScenePlayer
+                key={selected.id}
+                caseId={selected.id}
                 scene={scene}
-                step={step}
-                playing={playing}
                 motion={motion}
-                onAdvance={() => {
-                  if (step < scene.steps.length - 1) setStep((s) => s + 1);
-                  else setPlaying(false);
-                }}
               />
-              <div className="scene-controls">
-                <button
-                  className="scene-play"
-                  aria-label={playing ? "暂停演示" : "播放演示"}
-                  onClick={() => {
-                    if (step === scene.steps.length - 1) setStep(0);
-                    setPlaying(!playing);
-                  }}
-                >
-                  {playing ? <Pause size={19} /> : <Play size={19} />}
-                </button>
-                <div className="scene-steps">
-                  {scene.steps.map((s, i) => (
-                    <button
-                      key={i}
-                      className={step === i ? "active" : ""}
-                      aria-label={`第${i + 1}步：${s.title}`}
-                      aria-pressed={step === i}
-                      onClick={() => {
-                        setStep(i);
-                        setPlaying(false);
-                      }}
-                    >
-                      {i + 1}
-                    </button>
-                  ))}
-                </div>
-                <button
-                  className="icon-btn"
-                  aria-label="上一步"
-                  disabled={step === 0}
-                  onClick={() => {
-                    setStep((s) => s - 1);
-                    setPlaying(false);
-                  }}
-                >
-                  <ArrowLeft size={19} />
-                </button>
-                <button
-                  className="icon-btn"
-                  aria-label="下一步"
-                  disabled={step === scene.steps.length - 1}
-                  onClick={() => {
-                    setStep((s) => s + 1);
-                    setPlaying(false);
-                  }}
-                >
-                  <ArrowRight size={19} />
-                </button>
-              </div>
-              <div className="stage-caption" aria-live="polite">
-                <span>{String(step + 1).padStart(2, "0")}</span>
-                <div>
-                  <h3>{scene.steps[step].title}</h3>
-                  <p>{scene.steps[step].body}</p>
-                </div>
-              </div>
               <div className="detail-disclosures">
                 <details>
                   <summary>

@@ -1,0 +1,225 @@
+/* One family of materials, with hierarchy carried by scale and composition. */
+:root {
+  --red: #cd4a31;
+  --ink: #17212a;
+  --cream: #ede7d9;
+}
+body,
+.site {
+  background: #111b24;
+}
+.masthead {
+  background: #ede7d9;
+  border-bottom: 3px solid #cd4a31;
+}
+.brand-icon {
+  background: #cd4a31;
+}
+.hero {
+  min-height: min(860px, calc(100svh - 85px));
+}
+.hero .hero-text {
+  padding-top: 85px;
+  padding-bottom: 100px;
+  width: 55%;
+}
+.hero h1 {
+  font-size: clamp(68px, 7.7vw, 112px);
+  line-height: 1.14;
+  letter-spacing: -4px;
+  text-shadow: 0 2px 28px #111b15;
+}
+.hero h1 > span {
+  color: #e45736;
+}
+.hero .hero-text > p {
+  margin: 28px 0 34px;
+  letter-spacing: 3px;
+}
+.hero .big-word {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 32px;
+  margin-top: 65px;
+  letter-spacing: 1px;
+  width: auto;
+}
+.hero .big-word br {
+  display: none;
+}
+.hero .big-word .word-star {
+  position: static;
+  font-size: 29px;
+}
+.hero .hero-art img {
+  object-position: 58% center;
+}
+.hero:after {
+  background: linear-gradient(transparent, #111b24);
+}
+.signal-library {
+  background-color: #111b24;
+  background-image: radial-gradient(#e5e0d332 0.7px, transparent 1px);
+  background-size: 113px 127px;
+}
+.library-heading h2 {
+  color: #ece3cd;
+  text-shadow: 2px 2px 0 #783d2d;
+}
+.library-controls {
+  border-color: #9d9c8366;
+}
+.library-tabs button[aria-pressed="true"] {
+  background: #ede7d9;
+  color: #17212a;
+}
+.signal-poster[class*="palette-"] {
+  background: #17212a;
+  border-color: #b9b9ad;
+  color: #ede7d9;
+}
+.poster-open {
+  border-color: #24241e;
+}
+.poster-title {
+  background-color: #ede7d9;
+  color: #17212a;
+}
+.signal-poster.attack .poster-title,
+.signal-poster.defense .poster-title,
+.signal-poster.resource .poster-title {
+  border-top-color: #b74730;
+}
+.poster-title h3 {
+  color: #17212a;
+  text-shadow: 1px 1px #f7eedb;
+}
+.poster-title > span {
+  background: #17212a;
+}
+.poster-category {
+  background: #17212aeb;
+  color: #ede7d9;
+}
+.poster-number {
+  color: #22251e;
+  background: #e8dfc7;
+  box-shadow: 3px 3px #bc4b31;
+}
+.cover-telemetry {
+  color: #b74830;
+}
+.cosmic-cover:after {
+  background: linear-gradient(
+    #22241f12,
+    transparent 20%,
+    transparent 85%,
+    #22241f15
+  );
+}
+.poster-invite {
+  color: #e5dcc3;
+  border-color: #9e9c87;
+}
+.signal-detail,
+.submit-dialog {
+  background: #17232e;
+  color: #ede7d9;
+  border-color: #b4bcc0;
+  box-shadow:
+    0 0 0 6px #253442,
+    0 0 0 7px #81929c,
+    12px 14px #0007;
+}
+.detail-top > span {
+  background: #ede7d9;
+  color: #17212a;
+}
+.detail-disclosures a,
+.related-signal {
+  background: #101b25;
+}
+dialog::backdrop {
+  background: #080e16da;
+}
+.detail-wrap,
+.submit-dialog .dialog-wrap {
+  background-image: radial-gradient(#dbe2e906 0.6px, transparent 1px);
+}
+.signal-detail h2,
+.simple-composer h2,
+.detail-disclosures,
+.detail-actions,
+.scene-player .stage-caption p {
+  color: #ede7d9;
+}
+.theatre-chapters i {
+  background: #627988;
+}
+.theatre-chapters button,
+.theatre-counter {
+  color: #b6c5cd;
+}
+.site footer {
+  background: #ede7d9;
+  color: #17212a;
+  border-top-color: #b74730;
+}
+.site:lang(en) .hero h1 {
+  font-size: clamp(57px, 6.4vw, 93px);
+  letter-spacing: -4px;
+}
+@media (min-width: 1500px) {
+  .hero .hero-text {
+    padding-top: 90px;
+  }
+}
+@media (max-width: 1100px) and (min-width: 761px) {
+  .hero {
+    min-height: 730px;
+  }
+  .hero .hero-text {
+    padding-top: 75px;
+  }
+  .hero .big-word {
+    font-size: 29px;
+  }
+}
+@media (max-width: 760px) {
+  .hero {
+    min-height: 740px;
+  }
+  .hero .hero-text {
+    padding-top: 37px;
+    padding-bottom: 340px;
+    width: 100%;
+  }
+  .hero h1 {
+    font-size: clamp(43px, 11.7vw, 74px);
+    letter-spacing: -2px;
+  }
+  .hero .hero-text > p {
+    font-size: 10px;
+    letter-spacing: 1.2px;
+    margin: 19px 0 25px;
+  }
+  .hero .big-word {
+    display: none;
+  }
+  .hero .hero-art img {
+    object-position: 70% 100%;
+  }
+  .site:lang(en) .hero h1 {
+    font-size: clamp(39px, 10.6vw, 65px);
+    letter-spacing: -2px;
+  }
+}
+@media (max-width: 370px) {
+  .hero {
+    min-height: 710px;
+  }
+  .hero .hero-text {
+    padding-bottom: 320px;
+  }
+}

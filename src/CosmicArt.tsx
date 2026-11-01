@@ -30,7 +30,7 @@ export function PosterArt({ id }: { id: string; kind?: string }) {
       <div
         className="cosmic-illustration"
         style={{
-          backgroundImage: `url(${import.meta.env.BASE_URL}airbrush-atlas.webp)`,
+          backgroundImage: `url(${import.meta.env.BASE_URL}cosmonaut-atlas.webp)`,
         }}
       />
       <div className="cover-halftone" />

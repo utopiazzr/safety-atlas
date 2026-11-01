@@ -455,5 +455,8 @@
   "代理模式可结合敏感信息检测、工具限制与自定义策略。": "Proxy mode can combine sensitive-data detection, tool restrictions and custom policy.",
   "人类掌舵。发现威胁，共建防线。": "Human agency. Shared vigilance. Stronger defenses.",
   "让未来保有人类的选择。": "Keep the future in human hands.",
-  "相关资源": "Related resources"
+  "相关资源": "Related resources",
+  "机制示意 · 非实测": "Illustration · not a live test",
+  "拖动时间轴": "Scrub timeline",
+  "重新播放": "Replay"
 }
