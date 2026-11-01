@@ -1,0 +1,445 @@
+[
+  {
+    "schemaVersion": "1.0",
+    "id": "echoleak",
+    "kind": "report",
+    "title": "EchoLeak / CVE-2025-32711",
+    "summary": "M365 Copilot 的信息泄露漏洞披露",
+    "verification": "source-linked",
+    "review": "approved",
+    "checkedAt": "2026-11-01",
+    "resources": [
+      {
+        "type": "product",
+        "url": "https://msrc.microsoft.com/update-guide/vulnerability/CVE-2025-32711",
+        "label": "受影响产品"
+      }
+    ],
+    "sources": [
+      {
+        "url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2025/32xxx/CVE-2025-32711.json",
+        "label": "Microsoft CNA 记录"
+      },
+      {
+        "url": "https://msrc.microsoft.com/update-guide/vulnerability/CVE-2025-32711",
+        "label": "厂商通告"
+      }
+    ],
+    "relationships": [],
+    "storyboard": null,
+    "evidenceType": "vendor-advisory",
+    "environment": {
+      "product": "Microsoft 365 Copilot",
+      "versions": "托管服务；CVE 未列出客户端版本号",
+      "access": "网络远程",
+      "entryPoint": "AI 指令注入",
+      "requirements": "具体触发链以披露材料为准"
+    },
+    "lifecycle": {
+      "disclosedAt": "2025-06-11",
+      "fixStatus": "厂商通告关联修复信息",
+      "asOf": "2026-11-01"
+    },
+    "limitations": [
+      "漏洞披露不等于已确认真实用户数据被盗。",
+      "此条目基于 Microsoft CNA 记录；未在本项目复现。"
+    ]
+  },
+  {
+    "schemaVersion": "1.0",
+    "id": "spaiware",
+    "kind": "report",
+    "title": "SpAIware",
+    "summary": "不可信内容 → 长期记忆 → 跨会话影响",
+    "verification": "source-linked",
+    "review": "approved",
+    "checkedAt": "2026-11-01",
+    "resources": [
+      {
+        "type": "link",
+        "url": "https://embracethered.com/blog/posts/2024/chatgpt-macos-app-persistent-data-exfiltration/",
+        "label": "报告 / 视频入口"
+      }
+    ],
+    "sources": [
+      {
+        "url": "https://embracethered.com/blog/posts/2024/chatgpt-macos-app-persistent-data-exfiltration/",
+        "label": "研究者披露",
+        "excerpt": "untrusted website | malicious data exfiltration memory | future chat conversations | version 1.2024.247"
+      }
+    ],
+    "relationships": [],
+    "storyboard": {
+      "disclaimer": "按研究者披露整理的历史过程示意；非本项目复现，非真实用户失窃统计。",
+      "steps": [
+        {
+          "title": "外部内容",
+          "body": "用户访问不可信网页；作者演示了由网页触发的提示注入。",
+          "sourceIndex": 0,
+          "evidence": "untrusted website"
+        },
+        {
+          "title": "写入记忆",
+          "body": "研究者描述：恶意外传指令进入长期记忆。",
+          "sourceIndex": 0,
+          "evidence": "malicious data exfiltration memory"
+        },
+        {
+          "title": "跨会话传播",
+          "body": "该记忆可影响后续会话，风险超出单次响应。",
+          "sourceIndex": 0,
+          "evidence": "future chat conversations",
+          "loopTo": 1
+        },
+        {
+          "title": "修复边界",
+          "body": "作者报告该 macOS 版本缓解外传通道；记忆注入本身需另行评估。",
+          "sourceIndex": 0,
+          "evidence": "version 1.2024.247"
+        }
+      ]
+    },
+    "evidenceType": "research-poc",
+    "environment": {
+      "product": "ChatGPT macOS（历史版本）",
+      "versions": "作者称 1.2024.247 缓解外传通道",
+      "access": "第三方网页 / 文档",
+      "entryPoint": "记忆写入与远程图片",
+      "requirements": "启用记忆并接触攻击者控制的内容"
+    },
+    "lifecycle": {
+      "disclosedAt": "2024-09-20",
+      "fixStatus": "作者报告外传通道已缓解；不代表所有记忆注入已解决",
+      "asOf": "2024-09-20"
+    },
+    "limitations": [
+      "历史研究演示，不能推断当前客户端仍然受影响。",
+      "记忆污染与外传通道是两个独立问题。"
+    ]
+  },
+  {
+    "schemaVersion": "1.0",
+    "id": "whatsapp-mcp",
+    "kind": "report",
+    "title": "WhatsApp MCP 工具投毒",
+    "summary": "恶意工具描述影响另一台可信服务器",
+    "verification": "source-linked",
+    "review": "approved",
+    "checkedAt": "2026-11-01",
+    "resources": [
+      {
+        "type": "link",
+        "url": "https://invariantlabs.ai/blog/whatsapp-mcp-exploited",
+        "label": "图解 / 代码入口"
+      }
+    ],
+    "sources": [
+      {
+        "url": "https://invariantlabs.ai/blog/whatsapp-mcp-exploited",
+        "label": "研究者演示",
+        "excerpt": "trusted WhatsApp MCP instance | another MCP server | tool descriptions | chat history"
+      }
+    ],
+    "relationships": [],
+    "storyboard": {
+      "disclaimer": "依据研究者实验整理的简化演示，不运行攻击，不代表本项目独立复现。",
+      "steps": [
+        {
+          "title": "可信连接",
+          "body": "智能体连接 WhatsApp MCP，拥有读取和发送消息的工具。",
+          "sourceIndex": 0,
+          "evidence": "trusted WhatsApp MCP instance"
+        },
+        {
+          "title": "第二个来源",
+          "body": "实验同时接入由攻击者控制的另一台 MCP 服务器。",
+          "sourceIndex": 0,
+          "evidence": "another MCP server"
+        },
+        {
+          "title": "描述跨界",
+          "body": "研究者展示：工具描述中的指令影响智能体对可信工具的使用。",
+          "sourceIndex": 0,
+          "evidence": "tool descriptions"
+        },
+        {
+          "title": "发送被改变",
+          "body": "研究者演示了聊天内容被带入外发消息的结果。",
+          "sourceIndex": 0,
+          "evidence": "chat history"
+        }
+      ]
+    },
+    "evidenceType": "research-poc",
+    "environment": {
+      "product": "Cursor / Claude Desktop + WhatsApp MCP（实验设置）",
+      "versions": "2025-04 披露设置，未固定完整版本",
+      "access": "可控制另一台 MCP 服务器的工具描述",
+      "entryPoint": "工具元数据",
+      "requirements": "智能体同时连接可信 WhatsApp MCP 与攻击者服务器"
+    },
+    "lifecycle": {
+      "disclosedAt": "2025-04-07",
+      "fixStatus": "研究演示；不适用于推断所有当前客户端",
+      "asOf": "2025-04-09"
+    },
+    "limitations": [
+      "这是受控研究演示，不是已证实的普遍 WhatsApp 泄露事故。",
+      "隔离恶意服务器的执行环境，并不能单独消除模型上下文中的指令影响。"
+    ]
+  },
+  {
+    "schemaVersion": "1.0",
+    "id": "gcg",
+    "kind": "attack",
+    "title": "GCG",
+    "summary": "梯度引导的对抗后缀搜索",
+    "verification": "source-linked",
+    "review": "approved",
+    "checkedAt": "2026-11-01",
+    "resources": [
+      {
+        "type": "repository",
+        "url": "https://github.com/llm-attacks/llm-attacks",
+        "label": "代码 / Notebook"
+      },
+      {
+        "type": "dataset",
+        "url": "https://github.com/llm-attacks/llm-attacks/tree/main/data",
+        "label": "实验数据"
+      }
+    ],
+    "sources": [
+      {
+        "url": "https://arxiv.org/abs/2307.15043",
+        "label": "原始论文"
+      },
+      {
+        "url": "https://github.com/llm-attacks/llm-attacks",
+        "label": "官方代码"
+      }
+    ],
+    "relationships": [],
+    "storyboard": null,
+    "evidenceType": "paper",
+    "environment": {
+      "product": "论文测试模型；具体型号见实验配置",
+      "versions": "2023 论文 / 官方代码",
+      "access": "优化阶段白盒；另评估迁移",
+      "entryPoint": "用户提示后缀",
+      "requirements": "模型权重、分词器、计算资源与评测集"
+    },
+    "limitations": [
+      "原仓库说明训练仅支持 LLaMA / Pythia 系模型，分词差异可能导致错误。",
+      "论文结果不能直接推广到今日所有模型；本项目未重跑评测。"
+    ]
+  },
+  {
+    "schemaVersion": "1.0",
+    "id": "pair",
+    "kind": "attack",
+    "title": "PAIR",
+    "summary": "攻击者模型迭代查询目标模型",
+    "verification": "source-linked",
+    "review": "approved",
+    "checkedAt": "2026-11-01",
+    "resources": [
+      {
+        "type": "repository",
+        "url": "https://github.com/patrickrchao/JailbreakingLLMs",
+        "label": "代码"
+      },
+      {
+        "type": "api",
+        "url": "https://github.com/patrickrchao/JailbreakingLLMs",
+        "label": "模型服务依赖"
+      }
+    ],
+    "sources": [
+      {
+        "url": "https://arxiv.org/abs/2310.08419",
+        "label": "原始论文"
+      },
+      {
+        "url": "https://github.com/patrickrchao/JailbreakingLLMs",
+        "label": "官方代码"
+      }
+    ],
+    "relationships": [],
+    "storyboard": null,
+    "evidenceType": "paper",
+    "environment": {
+      "product": "攻击模型 + 目标模型 + 判定模型",
+      "versions": "2023 论文，后续修订",
+      "access": "黑盒查询",
+      "entryPoint": "多轮候选提示",
+      "requirements": "API / 本地模型、查询预算、判定标准"
+    },
+    "limitations": [
+      "查询次数与成功率依赖目标模型、数据集和判定器。",
+      "只记录论文方法与源码，不声称当前模型可被稳定绕过。"
+    ]
+  },
+  {
+    "schemaVersion": "1.0",
+    "id": "ecosystem-garak",
+    "kind": "attack",
+    "title": "garak",
+    "summary": "可扩展的 LLM 漏洞扫描与探测框架",
+    "verification": "source-linked",
+    "review": "approved",
+    "checkedAt": "2026-11-01",
+    "resources": [
+      {
+        "type": "repository",
+        "url": "https://github.com/NVIDIA/garak",
+        "label": "代码"
+      }
+    ],
+    "sources": [
+      {
+        "url": "https://github.com/NVIDIA/garak",
+        "label": "官方项目"
+      }
+    ],
+    "relationships": [],
+    "storyboard": null,
+    "evidenceType": "project",
+    "environment": {
+      "product": "多种 LLM 生成器适配器",
+      "access": "取决于生成器",
+      "requirements": "探针、检测器和模型连接配置"
+    },
+    "limitations": [
+      "框架包含多种探针，不是一条单独的攻击。",
+      "扫描结果需绑定模型版本、探针与检测器。"
+    ]
+  },
+  {
+    "schemaVersion": "1.0",
+    "id": "ecosystem-nemo",
+    "kind": "defense",
+    "title": "NeMo Guardrails",
+    "summary": "在输入、检索、工具和输出层编排规则",
+    "verification": "source-linked",
+    "review": "approved",
+    "checkedAt": "2026-11-01",
+    "resources": [
+      {
+        "type": "repository",
+        "url": "https://github.com/NVIDIA-NeMo/Guardrails",
+        "label": "代码"
+      },
+      {
+        "type": "product",
+        "url": "https://github.com/NVIDIA-NeMo/Guardrails",
+        "label": "编排工具"
+      }
+    ],
+    "sources": [
+      {
+        "url": "https://github.com/NVIDIA-NeMo/Guardrails",
+        "label": "官方项目"
+      }
+    ],
+    "relationships": [],
+    "storyboard": null,
+    "evidenceType": "project",
+    "environment": {
+      "product": "LLM 应用 / 对话系统",
+      "versions": "按项目版本固定配置",
+      "access": "应用侧集成",
+      "entryPoint": "输入 / 对话 / 检索 / 执行 / 输出",
+      "requirements": "Python、模型配置和实际启用的 rails"
+    },
+    "limitations": [
+      "安装库不等于启用防御；未配置 rails 时会直接转发请求。",
+      "效果取决于规则、模型和业务环境，需要单独评测。"
+    ]
+  },
+  {
+    "schemaVersion": "1.0",
+    "id": "prompt-guard-2",
+    "kind": "resource",
+    "title": "Prompt Guard 2",
+    "summary": "用于提示攻击检测的分类模型",
+    "verification": "source-linked",
+    "review": "approved",
+    "checkedAt": "2026-11-01",
+    "resources": [
+      {
+        "type": "model",
+        "url": "https://huggingface.co/meta-llama/Llama-Prompt-Guard-2-86M",
+        "label": "86M 模型"
+      },
+      {
+        "type": "repository",
+        "url": "https://github.com/meta-llama/PurpleLlama/tree/main/Llama-Prompt-Guard-2",
+        "label": "代码 / 许可"
+      }
+    ],
+    "sources": [
+      {
+        "url": "https://github.com/meta-llama/PurpleLlama/blob/main/Llama-Prompt-Guard-2/86M/MODEL_CARD.md",
+        "label": "官方模型卡"
+      }
+    ],
+    "relationships": [],
+    "storyboard": null,
+    "facets": ["defense", "model"],
+    "evidenceType": "model-card",
+    "environment": {
+      "product": "Llama Prompt Guard 2 86M / 22M",
+      "versions": "Prompt Guard 2",
+      "access": "本地模型权重 / Transformers",
+      "entryPoint": "输入内容分类",
+      "requirements": "512 token 窗口；长输入需分段，部署需遵守模型许可"
+    },
+    "limitations": [
+      "分类为恶意不等于攻击必然成功，也不等于工具权限已受控。",
+      "模型卡说明自适应攻击与业务分布变化仍可能影响效果。",
+      "22M 与 86M 的多语言表现不同；不能用一个分数概括。"
+    ]
+  },
+  {
+    "schemaVersion": "1.0",
+    "id": "mcp-scan",
+    "kind": "defense",
+    "title": "MCP-Scan",
+    "summary": "扫描工具描述、监测变更与运行时策略",
+    "verification": "source-linked",
+    "review": "approved",
+    "checkedAt": "2026-11-01",
+    "resources": [
+      {
+        "type": "product",
+        "url": "https://invariantlabs-ai.github.io/docs/mcp-scan/",
+        "label": "扫描 / 代理"
+      }
+    ],
+    "sources": [
+      {
+        "url": "https://invariantlabs-ai.github.io/docs/mcp-scan/",
+        "label": "官方文档"
+      }
+    ],
+    "relationships": [
+      {
+        "type": "related-to",
+        "target": "whatsapp-mcp"
+      }
+    ],
+    "storyboard": null,
+    "evidenceType": "project",
+    "environment": {
+      "product": "MCP 客户端与服务器",
+      "access": "配置扫描 / 代理模式",
+      "entryPoint": "工具描述 / 调用与响应",
+      "requirements": "需接入对应扫描或代理流程"
+    },
+    "limitations": [
+      "扫描与运行时代理是不同部署方式。",
+      "关联工具投毒案例是机制相关性，不是对该实验的独立阻断证明。"
+    ]
+  }
+]

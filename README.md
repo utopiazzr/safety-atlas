@@ -1,52 +1,38 @@
 # Safety Atlas · 越界档案
 
-一个可交互的智能体安全案例观测站。以朱红构成、太空时代轨道、镜面机器人和模拟仪表为视觉语言，让发现、理解和分享安全案例更直观。
+[在线观测站](https://utopiazzr.github.io/safety-atlas/) · 人类掌舵，发现威胁，共建防线。
 
-网站：https://utopiazzr.github.io/safety-atlas/
+一个以复古科幻视觉呈现智能体安全案例、攻击研究、防御方案和生态资源的社区项目。GitHub Pages 托管页面，GitHub Issues 接收投稿，GitHub Actions 处理与构建；日常使用不需要本机服务器。
 
-## 当前功能
+## 现在可以做什么
 
-- 点击雷达信号或转动调频旋钮，发现案例。
-- 风险频段滑杆、关键词搜索和本机收藏。
-- 四步事件回放：播放、暂停、拖动进度、查看防御建议、复制案例链接。
-- 三步投稿：记录发现 → 补充依据 → 预览后前往 GitHub 确认公开提交。
-- 可选本机草稿与 JSON 下载；手机布局、键盘操作、减少动态效果支持。
+- 浏览九个有公开来源的案例、论文、工具或模型；筛选、搜索、收藏。
+- 点击科幻海报，播放不同长度的机制示意；查看来源、版本、运行条件、局限和相关资源。
+- 用一句怀疑、链接、代码或文件开始投稿；分类和其他信息可选。
+- 图片、视频可在浏览器预览，原文件仍需在 GitHub 附上。网站不代替用户公开发布。
+- 中英文界面、移动端布局、键盘操作、减少动态效果。
+- 维护者可在云端把公开 Issue 整理成待审候选；兼容模型的分镜接口已预留。
 
-目前四个案例均为原创教学示意，不代表已核验的真实事故。防御视角展示可能的干预措施，不代表实测结果。
+**来源可追溯不等于本站独立复现。** 当前条目的 verification 为 source-linked；研究 PoC、厂商通告、模型卡与真实事故分别描述。插画是艺术隐喻，过程动画是基于来源的机制示意。
 
-## 本地运行
+## 云端维护
 
-需要 Node.js 22.13+。
+编辑源码或数据并推送 main 后，Pages 工作流测试、构建和发布。Settings → Pages → Source 使用 GitHub Actions。
 
-```sh
-npm ci
-npm run dev
-npm test
-npm run build
-```
+社区提交在 GitHub 最后确认，维护者审核后通过 PR 更新 data/signals.json；机制场景位于 src/scenes.ts。不要直接把未经核验的投稿设为 verified。详见 [云端流程](docs/CLOUD.md) 与 [真实资料兼容性调研](docs/RESEARCH.md)。
 
-默认投稿目标为 `utopiazzr/safety-atlas`。Fork 后可设置 `VITE_GITHUB_REPOSITORY=owner/repository`；Pages 工作流会自动使用当前仓库。
+模型服务尚未配置，当前不会调用付费模型。未来只需在仓库配置 Variables ATLAS_MODEL_BASE_URL、ATLAS_MODEL_ID 和 Secret ATLAS_MODEL_API_KEY。密钥不进入网页。
 
-## GitHub Pages
+## 开发与验证
 
-仓库 Settings → Pages → Source 选择 **GitHub Actions**。推送到 `main` 后，`.github/workflows/pages.yml` 自动测试、构建和发布。首次启用托管后，若此前运行失败，可在 Actions 中重新运行。
+需要 Node.js 22.13+。运行 npm ci、npm run dev；npm test 校验投稿和数据流程，npm run build 检查 TypeScript 并构建。无需本机常驻服务或下载模型权重。默认投稿仓库是 utopiazzr/safety-atlas，Fork 可设置 VITE_GITHUB_REPOSITORY；Pages 构建自动使用当前仓库。
 
-这是静态 React + TypeScript + Vite 网站，使用相对资源路径，支持 `/safety-atlas/` 子路径部署。没有服务端数据库、账户系统或私有投稿接口。
+浏览器验证覆盖搜索、筛选、分步回放、链接与代码单独投稿、图片/视频/文本文件预览、移除和导出、语言持久化、390px/320px 布局。不会通过测试发布真实 Issue。
 
-## 参与社区
+收藏仅在浏览器保存 ID；文字草稿仅在主动保存时写入浏览器。表单文件不自动上传。较长投稿可复制全文或导出 JSON，再到 GitHub 完成。未公开漏洞请通过受影响项目的私密渠道披露。
 
-网站表单会生成带标题和正文的 GitHub Issue 链接。用户在 GitHub 最后确认提交；未登录者先登录。较长材料可以下载 JSON 后手动附到 Issue。也可以直接使用仓库的案例 Issue 模板。
+## 设计与资源
 
-提交不会自动变成网站上的已核验案例。维护者检查公开证据、去重和脱敏后，通过 PR 更新 `src/cases.ts`。未来可逐步增加真实案例、攻击/防御方法库和审核工具。
+故事线：人机共处的未来 → 发现异常 → 理解边界 → 连接防御与社区。
 
-请勿公开访问令牌、私人日志或个人隐私。未公开漏洞应先通过受影响项目的私密披露渠道处理。
-
-收藏只保存案例 ID。本机草稿仅在用户点击保存时写入浏览器；它没有加密，公共设备请及时清除。页面不把表单发送到自己的服务器，也不集成分析追踪。
-
-## 视觉资源
-
-主视觉为 AI 生成的原创机器人插画，来源及完整生成提示见 [docs/ASSETS.md](docs/ASSETS.md)。图标使用 Lucide，插画示意图和交互动画由 SVG/CSS 实现。
-
-## 验证
-
-`npm test` 验证投稿 URL 的编码、仓库目标限制和长材料完整性。发布前另在 Edge 中验证了雷达、捕获、回放、防御切换、筛选、收藏持久化、投稿确认、草稿下载，以及 390px/320px 手机布局。
+以深空和镜面机器人承接科幻感，以朱红构成、暖白标题条、机械刻度和半调网点保留复古漫画的平面感。设计依据见 [视觉研究](docs/DESIGN.md)，生成插画的工具与完整提示见 [资源记录](docs/ASSETS.md)。

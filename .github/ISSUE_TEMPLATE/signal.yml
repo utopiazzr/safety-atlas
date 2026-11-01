@@ -1,0 +1,33 @@
+name: 投递信号 / Share a signal
+description: 怀疑、案例、报道、攻击、防御、模型或产品，都可以从一条线索开始。
+title: "[信号] "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        一句话、一个链接、一段代码，或拖入图片视频。内容将公开；请先移除敏感信息。
+        A note, a link, code, or an image/video attachment is enough to start. Remove private information before posting publicly.
+  - type: dropdown
+    id: kind
+    attributes:
+      label: 信号类型
+      options:
+        - 怀疑线索
+        - 经历的事件
+        - 外部报道
+        - 攻击方法
+        - 防御方案
+        - 模型与产品
+      default: 0
+  - type: textarea
+    id: material
+    attributes:
+      label: 你的线索 / Your signal
+      description: 支持文字、链接、代码和 GitHub 支持的附件。无需完整报告。
+    validations:
+      required: true
+  - type: textarea
+    id: context
+    attributes:
+      label: 补充信息（可选）/ Context (optional)
+      placeholder: 目标、版本、权限、来源、运行条件或局限。
