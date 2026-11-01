@@ -97,42 +97,6 @@
 .long-signal p {
   flex-basis: 100%;
 }
-.evidence-state {
-  display: flex;
-  justify-content: space-between;
-  gap: 15px;
-  margin: 0 0 14px;
-  font-size: 12px;
-}
-.evidence-state span {
-  padding: 5px 9px;
-  background: #e2dcc7;
-  color: #263339;
-}
-.evidence-state code {
-  align-self: center;
-  opacity: 0.6;
-}
-.source-first {
-  position: relative;
-  overflow: hidden;
-  background: #15232b;
-  color: #f0e8d4;
-  padding: 24px;
-}
-.source-first .cosmic-cover {
-  height: 220px;
-  max-width: 330px;
-  margin: auto;
-}
-.source-first p {
-  font-size: 18px;
-  line-height: 1.7;
-}
-.source-first > span {
-  font-size: 12px;
-  opacity: 0.75;
-}
 .evidence-sequence {
   padding: 20px 20px 20px 40px;
 }
@@ -260,9 +224,6 @@
   display: inline-block;
   margin: 0 20px 10px 0;
 }
-.detail-actions {
-  flex-wrap: wrap;
-}
 @media (max-width: 600px) {
   .review-desk {
     padding: 0 20px;
@@ -287,9 +248,6 @@
   }
   .submission-handoff {
     padding: 12px;
-  }
-  .evidence-state {
-    flex-wrap: wrap;
   }
   .review-issues a {
     flex-wrap: wrap;

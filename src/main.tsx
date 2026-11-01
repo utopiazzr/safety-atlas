@@ -8,6 +8,7 @@ import "./cosmic.css";
 import "./theatre.css";
 import "./constructivist.css";
 import "./intake.css";
+import "./gallery.css";
 createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <App />

@@ -58,71 +58,6 @@ body,
 .hero:after {
   background: linear-gradient(transparent, #111b24);
 }
-.signal-library {
-  background-color: #111b24;
-  background-image: radial-gradient(#e5e0d332 0.7px, transparent 1px);
-  background-size: 113px 127px;
-}
-.library-heading h2 {
-  color: #ece3cd;
-  text-shadow: 2px 2px 0 #783d2d;
-}
-.library-controls {
-  border-color: #9d9c8366;
-}
-.library-tabs button[aria-pressed="true"] {
-  background: #ede7d9;
-  color: #17212a;
-}
-.signal-poster[class*="palette-"] {
-  background: #17212a;
-  border-color: #b9b9ad;
-  color: #ede7d9;
-}
-.poster-open {
-  border-color: #24241e;
-}
-.poster-title {
-  background-color: #ede7d9;
-  color: #17212a;
-}
-.signal-poster.attack .poster-title,
-.signal-poster.defense .poster-title,
-.signal-poster.resource .poster-title {
-  border-top-color: #b74730;
-}
-.poster-title h3 {
-  color: #17212a;
-  text-shadow: 1px 1px #f7eedb;
-}
-.poster-title > span {
-  background: #17212a;
-}
-.poster-category {
-  background: #17212aeb;
-  color: #ede7d9;
-}
-.poster-number {
-  color: #22251e;
-  background: #e8dfc7;
-  box-shadow: 3px 3px #bc4b31;
-}
-.cover-telemetry {
-  color: #b74830;
-}
-.cosmic-cover:after {
-  background: linear-gradient(
-    #22241f12,
-    transparent 20%,
-    transparent 85%,
-    #22241f15
-  );
-}
-.poster-invite {
-  color: #e5dcc3;
-  border-color: #9e9c87;
-}
-.signal-detail,
 .submit-dialog {
   background: #17232e;
   color: #ede7d9;
@@ -132,34 +67,14 @@ body,
     0 0 0 7px #81929c,
     12px 14px #0007;
 }
-.detail-top > span {
-  background: #ede7d9;
-  color: #17212a;
-}
-.detail-disclosures a,
-.related-signal {
-  background: #101b25;
-}
 dialog::backdrop {
   background: #080e16da;
 }
-.detail-wrap,
 .submit-dialog .dialog-wrap {
   background-image: radial-gradient(#dbe2e906 0.6px, transparent 1px);
 }
-.signal-detail h2,
-.simple-composer h2,
-.detail-disclosures,
-.detail-actions,
-.scene-player .stage-caption p {
+.simple-composer h2 {
   color: #ede7d9;
-}
-.theatre-chapters i {
-  background: #627988;
-}
-.theatre-chapters button,
-.theatre-counter {
-  color: #b6c5cd;
 }
 .site footer {
   background: #ede7d9;

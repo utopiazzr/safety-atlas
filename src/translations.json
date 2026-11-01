@@ -627,5 +627,16 @@
   "草稿审阅中": "Draft in review",
   "尚未核验": "Unverified",
   "提案列表暂时无法读取，可打开 GitHub 协作区。": "Proposal feed is unavailable. Open the GitHub collaboration area.",
-  "GitHub 进度暂不可用；下方提案仍待核验。": "GitHub progress is unavailable; proposals below remain unverified."
+  "GitHub 进度暂不可用；下方提案仍待核验。": "GitHub progress is unavailable; proposals below remain unverified.",
+  "信息越界": "Data beyond boundaries",
+  "记忆污染": "Corrupted memory",
+  "工具信任": "Trust between tools",
+  "对抗优化": "Adversarial optimization",
+  "反馈迭代": "The feedback loop",
+  "风险探测": "Exploring vulnerabilities",
+  "层层防线": "Layers of protection",
+  "识别攻击": "Recognizing attacks",
+  "工具审视": "Inspecting tools",
+  "社区发现": "Community discovery",
+  "艺术演绎 · 非事件影像": "Artistic interpretation · not event footage"
 }

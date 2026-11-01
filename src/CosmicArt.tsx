@@ -1,4 +1,3 @@
-import type { CSSProperties } from "react";
 const ids = [
   "echoleak",
   "spaiware",
@@ -10,7 +9,7 @@ const ids = [
   "prompt-guard-2",
   "mcp-scan",
 ];
-// One compressed atlas. Interactive telemetry is rendered as code, not video.
+// Individually lazy-loaded original illustrations; never used as case evidence.
 export function PosterArt({ id, kind }: { id: string; kind?: string }) {
   const index = ids.includes(id)
     ? ids.indexOf(id)
@@ -25,28 +24,18 @@ export function PosterArt({ id, kind }: { id: string; kind?: string }) {
   const scan =
     id.includes("scan") || id.includes("garak") || id === "prompt-guard-2";
   return (
-    <div
-      className={`cosmic-cover mechanism-${id}`}
-      aria-hidden="true"
-      style={
-        {
-          "--art-x": `${(index % 3) * 50}%`,
-          "--art-y": `${Math.floor(index / 3) * 50}%`,
-        } as CSSProperties
-      }
-    >
-      <div
+    <div className={`cosmic-cover mechanism-${id}`} aria-hidden="true">
+      <img
         className="cosmic-illustration"
-        style={{
-          backgroundImage: `url(${import.meta.env.BASE_URL}cosmonaut-atlas.webp?v=orbital)`,
-        }}
+        src={`${import.meta.env.BASE_URL}case-art/${ids[index]}.webp`}
+        width="418"
+        height="418"
+        loading="lazy"
+        decoding="async"
+        alt=""
       />
       <div className="cover-halftone" />
       <svg className="cover-telemetry" viewBox="0 0 400 400">
-        <path
-          className="cover-corners"
-          d="M24 62V24h38m276 0h38v38M24 338v38h38m276 0h38v-38"
-        />
         {loop ? (
           <>
             <ellipse
