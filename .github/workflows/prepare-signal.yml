@@ -16,13 +16,14 @@ permissions:
   issues: read
 jobs:
   prepare:
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
           persist-credentials: false
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: "22"
       - run: node scripts/prepare-signal.mjs
@@ -33,7 +34,7 @@ jobs:
           ATLAS_MODEL_BASE_URL: ${{ vars.ATLAS_MODEL_BASE_URL }}
           ATLAS_MODEL_ID: ${{ vars.ATLAS_MODEL_ID }}
           ATLAS_MODEL_API_KEY: ${{ secrets.ATLAS_MODEL_API_KEY }}
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: signal-candidate
           path: work/candidate/

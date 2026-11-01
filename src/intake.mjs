@@ -126,7 +126,9 @@ export function readIntake(body, title = "") {
     )?.[0] ||
     "suspicion";
   const related =
-    metadata.relatedId || formField(body, "关联档案 ID（可选）/ Related entry");
+    metadata.relatedId ||
+    formField(body, "关联档案 ID / Related entry") ||
+    formField(body, "关联档案 ID（可选）/ Related entry");
   return {
     kind,
     intent:

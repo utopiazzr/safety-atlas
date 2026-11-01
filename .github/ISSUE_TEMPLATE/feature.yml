@@ -1,0 +1,27 @@
+name: Improve the project / 功能、动画或生态接入
+description: Propose a concrete change to Safety Atlas and volunteer to help.
+title: "[Proposal] "
+labels: ["kind:improvement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: 谁在什么场景遇到了问题 / User and problem
+      description: "先描述真实需求；开放讨论也可以去 Discussions。"
+    validations:
+      required: true
+  - type: textarea
+    id: change
+    attributes:
+      label: 建议的改动与验收方式 / Change and acceptance
+      placeholder: "完成后，用户应该能…；可以这样验证…"
+    validations:
+      required: true
+  - type: checkboxes
+    id: help
+    attributes:
+      label: 我可以参与 / I can help
+      options:
+        - label: 提供真实材料或测试 / Evidence or testing
+        - label: 设计、翻译或文档 / Design, translation or docs
+        - label: 代码实现 / Implementation

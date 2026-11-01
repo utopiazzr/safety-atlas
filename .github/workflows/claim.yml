@@ -1,0 +1,32 @@
+name: Community task claim
+on:
+  issue_comment:
+    types: [created]
+permissions:
+  contents: read
+  issues: write
+concurrency:
+  group: claim-${{ github.event.issue.number }}
+  cancel-in-progress: false
+jobs:
+  claim:
+    if: >-
+      github.repository == 'utopiazzr/safety-atlas' &&
+      github.event.issue.pull_request == null &&
+      github.event.issue.state == 'open' &&
+      github.event.comment.user.type != 'Bot' &&
+      ((github.event.comment.body == '/claim' && contains(github.event.issue.labels.*.name, 'help wanted') && github.event.issue.assignees[0] == null) ||
+      (github.event.comment.body == '/unclaim' && contains(github.event.issue.assignees.*.login, github.event.comment.user.login)))
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: "22"
+      - run: node scripts/claim-issue.mjs
+        env:
+          GITHUB_TOKEN: ${{ github.token }}

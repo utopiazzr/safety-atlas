@@ -1,0 +1,30 @@
+name: Product bug / 网站或协作流程故障
+description: Report a broken page, upload problem or workflow issue. No secrets or private receipts.
+title: "[Bug] "
+labels: ["kind:bug"]
+body:
+  - type: markdown
+    attributes:
+      value: "如果可能涉及越权、数据泄露或未修复的可利用漏洞，请改用 Security 私密报告。不要附回执、Token 或原始私人日志。"
+  - type: textarea
+    id: problem
+    attributes:
+      label: 哪一步出了问题 / What broke
+      description: "写出预期与实际结果，附公开页面地址。"
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: 最小复现步骤 / Minimal steps
+      placeholder: "1. 打开… 2. 点击… 3. 看到…"
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: 浏览器、设备与版本 / Environment
+  - type: textarea
+    id: evidence
+    attributes:
+      label: 脱敏截图或错误信息（可选）/ Redacted evidence

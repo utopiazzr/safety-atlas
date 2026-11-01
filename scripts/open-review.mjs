@@ -1,10 +1,30 @@
 import fs from "node:fs/promises";
 import { github, summary } from "./github.mjs";
 import { revisionOf } from "./review.mjs";
+import { boundedJson, validateProposalArtifact } from "./proposal-artifact.mjs";
+const isolated = process.env.ATLAS_ISOLATED_REVIEW === "true";
+if (process.env.GITHUB_ACTIONS === "true" && !isolated)
+  throw Error("Publication requires an isolated job");
 const client = github(),
-  context = JSON.parse(
-    await fs.readFile("work/candidate/proposal-context.json", "utf8"),
+  context = await boundedJson(
+    isolated
+      ? "work/review-artifact/proposal-context.json"
+      : "work/candidate/proposal-context.json",
+    16000,
   );
+let content = await fs.readFile("data/signals.json", "utf8");
+if (isolated) {
+  const proposed = await boundedJson(
+    "work/review-artifact/catalogue.json",
+    2 * 1024 * 1024,
+  );
+  validateProposalArtifact(JSON.parse(content), proposed, context, {
+    actor: process.env.GITHUB_ACTOR,
+    baseSha: process.env.GITHUB_SHA,
+    repo: client.repo,
+  });
+  content = JSON.stringify(proposed, null, 2) + "\n";
+}
 const current = await client.issueSnapshot(context.number);
 if (revisionOf(current.issue, current.comments) !== context.revision)
   throw Error("Issue changed during review. Rerun with the latest evidence.");
@@ -41,7 +61,7 @@ const tree = await client.api("/git/trees", "POST", {
       path: "data/signals.json",
       mode: "100644",
       type: "blob",
-      content: await fs.readFile("data/signals.json", "utf8"),
+      content,
     },
   ],
 });

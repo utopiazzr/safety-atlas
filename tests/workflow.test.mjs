@@ -59,8 +59,18 @@ function setup() {
   );
   fs.writeFileSync(path.join(dir, "fixture.json"), JSON.stringify(fixture));
   fs.writeFileSync(path.join(dir, "mock.mjs"), mock);
-  const run = (script, extra = {}) =>
-    spawnSync(
+  const isolate = () => {
+    const target = path.join(dir, "work/review-artifact");
+    if (!fs.existsSync(target))
+      fs.cpSync(path.join(dir, "work/candidate"), target, { recursive: true });
+    fs.copyFileSync(
+      path.join(root, "data/signals.json"),
+      path.join(dir, "data/signals.json"),
+    );
+  };
+  const run = (script, extra = {}) => {
+    if (script === "open-review.mjs") isolate();
+    return spawnSync(
       process.execPath,
       [
         "--import",
@@ -79,11 +89,14 @@ function setup() {
           GITHUB_ACTOR: "reviewer",
           GITHUB_RUN_ID: "99",
           GITHUB_RUN_ATTEMPT: "1",
+          GITHUB_ACTIONS: "true",
+          ATLAS_ISOLATED_REVIEW: "true",
           GITHUB_STEP_SUMMARY: path.join(dir, "summary.md"),
           ...extra,
         },
       },
     );
+  };
   const calls = () =>
     fs.existsSync(path.join(dir, "calls.jsonl"))
       ? fs
@@ -100,7 +113,7 @@ function setup() {
       throw Error("Unexpected test directory");
     fs.rmSync(dir, { recursive: true });
   };
-  return { dir, run, calls, cleanup };
+  return { dir, run, calls, cleanup, isolate };
 }
 test("cloud review prepares a tested-data branch and draft PR without publishing main", () => {
   const t = setup();
@@ -116,6 +129,14 @@ test("cloud review prepares a tested-data branch and draft PR without publishing
     const calls = t.calls();
     const pr = calls.find((x) => x.route === "/pulls" && x.method === "POST");
     assert.equal(pr.body.draft, true);
+    const tree = calls.find(
+      (x) => x.route === "/git/trees" && x.method === "POST",
+    );
+    assert.deepEqual(
+      tree.body.tree.map((x) => x.path),
+      ["data/signals.json"],
+    );
+    assert.equal(JSON.parse(tree.body.tree[0].content).at(-1).id, "issue-42");
     assert.ok(
       calls.some(
         (x) =>
@@ -132,6 +153,69 @@ test("cloud review prepares a tested-data branch and draft PR without publishing
       !calls.some(
         (x) => x.method === "DELETE" && x.route.includes("human-label"),
       ),
+    );
+  } finally {
+    t.cleanup();
+  }
+});
+
+test("isolated publisher rejects tampered artifacts before any GitHub writes", () => {
+  for (const mutate of [
+    (entries) => {
+      entries[0].title += " injected";
+    },
+    (entries) => {
+      entries.at(-1).submission.reviewedBy = "attacker";
+    },
+    (entries, context) => {
+      context.baseSha = "another-commit";
+    },
+    (entries, context) => {
+      context.number = 43;
+    },
+  ]) {
+    const t = setup();
+    try {
+      assert.equal(t.run("review-signal.mjs").status, 0);
+      t.isolate();
+      const folder = path.join(t.dir, "work/review-artifact");
+      const entries = JSON.parse(
+        fs.readFileSync(path.join(folder, "catalogue.json")),
+      );
+      const context = JSON.parse(
+        fs.readFileSync(path.join(folder, "proposal-context.json")),
+      );
+      mutate(entries, context);
+      fs.writeFileSync(
+        path.join(folder, "catalogue.json"),
+        JSON.stringify(entries),
+      );
+      fs.writeFileSync(
+        path.join(folder, "proposal-context.json"),
+        JSON.stringify(context),
+      );
+      const result = t.run("open-review.mjs");
+      assert.notEqual(result.status, 0);
+      assert.equal(
+        t.calls().some((x) => x.method !== "GET"),
+        false,
+      );
+    } finally {
+      t.cleanup();
+    }
+  }
+});
+
+test("Actions cannot publish from the dependency-installing prepare job", () => {
+  const t = setup();
+  try {
+    assert.equal(t.run("review-signal.mjs").status, 0);
+    const result = t.run("open-review.mjs", { ATLAS_ISOLATED_REVIEW: "false" });
+    assert.notEqual(result.status, 0);
+    assert.match(result.stderr, /isolated job/);
+    assert.equal(
+      t.calls().some((x) => x.method !== "GET"),
+      false,
     );
   } finally {
     t.cleanup();

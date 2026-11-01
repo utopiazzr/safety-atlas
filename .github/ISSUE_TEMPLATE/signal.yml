@@ -1,6 +1,7 @@
 name: Submit material / 提交一份材料
 description: A suspicion, incident, paper, attack, defense or tool. Incomplete evidence is welcome.
 title: "[线索] "
+labels: ["kind:signal"]
 body:
   - type: markdown
     attributes:

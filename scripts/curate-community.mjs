@@ -42,11 +42,13 @@ for (const url of prepared.sources)
   )
     proposal.entry.sources.push({ url, label: "社区提供的来源" });
 validateCatalogue(proposal.catalogue);
+await artifact("catalogue.json", proposal.catalogue);
 await fs.writeFile(
   "data/signals.json",
   JSON.stringify(proposal.catalogue, null, 2) + "\n",
 );
 await artifact("proposal-context.json", {
+  baseSha: process.env.GITHUB_SHA,
   number,
   revision,
   entryId: proposal.entry.id,

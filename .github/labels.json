@@ -1,0 +1,72 @@
+[
+  {
+    "name": "kind:signal",
+    "color": "a37c4b",
+    "description": "Security case, attack, defense or ecosystem resource"
+  },
+  {
+    "name": "kind:correction",
+    "color": "706855",
+    "description": "Evidence or correction for an existing entry"
+  },
+  {
+    "name": "kind:bug",
+    "color": "b74a37",
+    "description": "A problem in the website or collaboration workflow"
+  },
+  {
+    "name": "kind:improvement",
+    "color": "587279",
+    "description": "Product, design, documentation or integration proposal"
+  },
+  {
+    "name": "help wanted",
+    "color": "65774c",
+    "description": "Open task: comment /claim to volunteer"
+  },
+  {
+    "name": "good first issue",
+    "color": "85765c",
+    "description": "A bounded task with acceptance criteria for newcomers"
+  },
+  {
+    "name": "atlas:triage",
+    "color": "b88748",
+    "description": "Maintainer requests intake analysis"
+  },
+  {
+    "name": "atlas:propose",
+    "color": "b88748",
+    "description": "Collaborator requests a tested draft catalogue PR"
+  },
+  {
+    "name": "atlas:received",
+    "color": "4b5964",
+    "description": "Received for community discussion; not verified"
+  },
+  {
+    "name": "atlas:needs-info",
+    "color": "b78636",
+    "description": "More evidence or context is needed"
+  },
+  {
+    "name": "atlas:in-review",
+    "color": "4b5964",
+    "description": "A draft catalogue change is under review"
+  },
+  {
+    "name": "atlas:duplicate",
+    "color": "716e66",
+    "description": "Linked to an existing entry or proposal"
+  },
+  {
+    "name": "atlas:declined",
+    "color": "716e66",
+    "description": "Not included; further evidence can reopen discussion"
+  },
+  {
+    "name": "atlas:published",
+    "color": "227766",
+    "description": "Merged into the catalogue; not a verification badge"
+  }
+]

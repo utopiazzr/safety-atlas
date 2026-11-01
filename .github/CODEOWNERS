@@ -4,3 +4,9 @@
 /cloud/ @utopiazzr
 /data/ @utopiazzr
 /src/scenes.ts @utopiazzr
+
+/SECURITY.md @utopiazzr
+/CODE_OF_CONDUCT.md @utopiazzr
+/docs/COMMUNITY.md @utopiazzr
+/package*.json @utopiazzr
+/tests/ @utopiazzr

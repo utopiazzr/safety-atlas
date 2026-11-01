@@ -1,0 +1,32 @@
+name: Evidence or correction / 补证与更正
+description: Add evidence, scope a claim, or correct an existing entry.
+title: "[更正] "
+labels: ["kind:correction"]
+body:
+  - type: markdown
+    attributes:
+      value: "公开讨论只放脱敏证据。本站漏洞请使用 Security → Report a vulnerability。Public evidence only; report vulnerabilities in Safety Atlas privately through Security."
+  - type: input
+    id: related
+    attributes:
+      label: 关联档案 ID / Related entry
+      description: "填写 data/signals.json 中现有档案的 id，如 echoleak；不是 Issue 编号 / Existing catalogue entry ID, not an Issue number"
+    validations:
+      required: true
+  - type: dropdown
+    id: purpose
+    attributes:
+      label: 投稿目的 / Purpose
+      options: ["补充证据 / Evidence", "更正信息 / Correction"]
+  - type: textarea
+    id: material
+    attributes:
+      label: 材料 / Material
+      description: "哪一句需要修正？新增证据是什么？附原始来源，区分观察与推测。"
+    validations:
+      required: true
+  - type: textarea
+    id: context
+    attributes:
+      label: 条件与局限（可选）/ Context and limitations
+      placeholder: "受影响版本、时间、配置、复现范围或未确定之处"

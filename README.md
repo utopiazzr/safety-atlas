@@ -4,13 +4,32 @@
 
 **人类掌舵。发现越界，连接解法。**
 
-一个可以探索、演示、投稿的智能体安全观测站。
+社区共同维护的智能体安全档案：发现问题、补充证据、连接攻击研究与防御。
 
-[进入观测站](https://utopiazzr.github.io/safety-atlas/) · [免登录投稿](https://utopiazzr.github.io/safety-atlas/#contribute) · [参与指南](docs/CONTRIBUTING.md) · [安全边界](SECURITY.md)
+A community-maintained atlas of agent safety incidents, research and defenses.
 
-![深空轨道与银铬机器人：Safety Atlas 的复古未来观测站](public/orbital-observatory.webp)
+[探索档案](https://utopiazzr.github.io/safety-atlas/) · [免登录投稿](https://utopiazzr.github.io/safety-atlas/#contribute) · [社区讨论](https://github.com/utopiazzr/safety-atlas/discussions) · [参与协作](docs/COMMUNITY.md)
+
+<img src="public/orbital-observatory.webp" width="760" alt="深空轨道与银铬机器人：Safety Atlas 社区观测站" />
 
 </div>
+
+## 从这里参与 · Join in
+
+| 想做什么                           | 直接入口                                                                                                                                                                                                                                                           |
+| ---------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 有发现、论文、代码、模型或防御工具 | [站内免登录投稿](https://utopiazzr.github.io/safety-atlas/#contribute) · [GitHub 投稿](https://github.com/utopiazzr/safety-atlas/issues/new?template=signal.yml)                                                                                                   |
+| 档案有遗漏或不准确                 | [补证 / 更正](https://github.com/utopiazzr/safety-atlas/issues/new?template=correction.yml)                                                                                                                                                                        |
+| 想帮忙，但不知道从哪里开始         | [待认领任务](https://github.com/utopiazzr/safety-atlas/issues?q=is%3Aissue%20is%3Aopen%20label%3A%22help%20wanted%22%20no%3Aassignee) · [新人任务](https://github.com/utopiazzr/safety-atlas/issues?q=is%3Aissue%20is%3Aopen%20label%3A%22good%20first%20issue%22) |
+| 有疑问、想法或生态合作建议         | [Discussions](https://github.com/utopiazzr/safety-atlas/discussions) · [改进提案](https://github.com/utopiazzr/safety-atlas/issues/new?template=feature.yml)                                                                                                       |
+| 网站 / 工作流坏了                  | [报告故障](https://github.com/utopiazzr/safety-atlas/issues/new?template=bug.yml)                                                                                                                                                                                  |
+| 发现本站可利用的安全漏洞           | [私密漏洞报告](https://github.com/utopiazzr/safety-atlas/security/advisories/new)                                                                                                                                                                                  |
+
+**认领很简单：** 在开放且未分配的 `help wanted` Issue 下评论 `/claim`，自动认领自己；`/unclaim` 退出。无需认领也能补充证据、参与讨论或提交 PR。任务认领不会授予仓库写入权限。
+
+**协作队列：** [待分流](https://github.com/utopiazzr/safety-atlas/issues?q=is%3Aissue%20is%3Aopen%20label%3Aatlas%3Areceived) · [待补证](https://github.com/utopiazzr/safety-atlas/issues?q=is%3Aissue%20is%3Aopen%20label%3Aatlas%3Aneeds-info) · [待审阅 PR](https://github.com/utopiazzr/safety-atlas/pulls) · [发布记录](https://github.com/utopiazzr/safety-atlas/commits/main/data/signals.json)
+
+公开队列可能暂时没有任务；不会用演示投稿冒充社区贡献。认领规则、角色和处理路径见 [社区协作指南](docs/COMMUNITY.md)。
 
 ## 从真实材料出发
 
@@ -48,12 +67,12 @@ flowchart LR
 
 ## 云端系统
 
-| 组件                        | 职责                                        | 源码 / 入口                                                                                                                |
-| --------------------------- | ------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
-| GitHub Pages                | 公共网站、案例、机制动画、投稿界面          | [src/](src/)                                                                                                               |
-| Sites Worker + D1 + 私有 R2 | 匿名接收、分块文件、回执、限额、审核        | [cloud/](cloud/) · [维护者接收台](https://safety-atlas-intake.aurora-scarf-6347.chatgpt.site/admin)                        |
-| GitHub Actions              | OIDC 同步公开提案、生成草稿、清理与部署 | [工作流](.github/workflows/)                                                                                               |
-| GitHub Issues / PR          | 公开讨论、证据快照、可追溯变更              | [公开摘要](https://github.com/utopiazzr/safety-atlas/issues) · [审核变更](https://github.com/utopiazzr/safety-atlas/pulls) |
+| 组件                             | 职责                                    | 源码 / 入口                                                                                                                |
+| -------------------------------- | --------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| GitHub Pages                     | 公共网站、案例、机制动画、投稿界面      | [src/](src/)                                                                                                               |
+| Sites Worker + D1 + 私有 R2      | 匿名接收、分块文件、回执、限额、审核    | [cloud/](cloud/) · [维护者接收台](https://safety-atlas-intake.aurora-scarf-6347.chatgpt.site/admin)                        |
+| GitHub Actions                   | OIDC 同步公开提案、生成草稿、清理与部署 | [工作流](.github/workflows/)                                                                                               |
+| GitHub Discussions / Issues / PR | 公开讨论、证据快照、可追溯变更          | [公开摘要](https://github.com/utopiazzr/safety-atlas/issues) · [审核变更](https://github.com/utopiazzr/safety-atlas/pulls) |
 
 使用与维护均在云端进行，不需要本机常驻服务或下载模型。正文和附件在点击提交后上传。未完成上传保留 24 小时，完成后的原始材料保留 30 天，由定时任务清理；公开提案与审核摘要持续保留。回执是访问凭证，请私下保存。
 
@@ -77,4 +96,4 @@ flowchart LR
 
 ## 开发
 
-Node.js 22.13+（后端测试推荐 24）：`npm ci`、`npm test`、`npm run build`。预览用 `npm run dev`。后端在 `cloud/` 单独安装、测试和构建；部署需要自己的 Sites 项目、存储与服务端环境配置。Fork 不应复用原站接收地址或项目 ID。日常参与直接使用网站即可。
+Node.js 22.13+（后端测试推荐 24）：`npm ci --ignore-scripts`、`npm test`、`npm run build`。预览用 `npm run dev`。后端在 `cloud/` 单独安装、测试和构建；部署需要自己的 Sites 项目、存储与服务端环境配置。Fork 不应复用原站接收地址或项目 ID。日常参与直接使用网站即可。

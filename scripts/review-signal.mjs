@@ -51,11 +51,13 @@ if (["request-info", "duplicate", "decline"].includes(input.decision)) {
   });
   validateCatalogue(proposal.catalogue);
   await artifact("proposal.json", proposal.entry);
+  await artifact("catalogue.json", proposal.catalogue);
   await fs.writeFile(
     "data/signals.json",
     JSON.stringify(proposal.catalogue, null, 2) + "\n",
   );
   await artifact("proposal-context.json", {
+    baseSha: process.env.GITHUB_SHA,
     number,
     revision,
     entryId: proposal.entry.id,

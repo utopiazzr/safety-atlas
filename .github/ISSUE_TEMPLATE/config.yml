@@ -1,5 +1,11 @@
 blank_issues_enabled: false
 contact_links:
+  - name: Discuss an idea / 开放讨论与问答
+    url: https://github.com/utopiazzr/safety-atlas/discussions
+    about: Questions, ideas, research notes and ecosystem connections / 问答、想法与生态交流
+  - name: Report a vulnerability in Safety Atlas / 私密报告本站漏洞
+    url: https://github.com/utopiazzr/safety-atlas/security/advisories/new
+    about: Use private reporting for access bypass, data leaks and exploitable bugs / 不要公开未修复漏洞细节
   - name: Visual submission / 可视化投稿
     url: https://utopiazzr.github.io/safety-atlas/#contribute
     about: Start with a link, observation, code or media / 一份材料就能开始
