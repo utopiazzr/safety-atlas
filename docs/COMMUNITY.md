@@ -25,7 +25,7 @@
 
 1. 公开提案在站内可见，定时同步为 GitHub Issue；原始私密附件不进入仓库。
 2. 社区核对来源、补充版本和局限、指出重复或反例。
-3. triage / write / maintain / admin 协作者确认可整理后添加 `atlas:propose`。自动化复用公开字段、检查重复、测试并生成草稿 PR。普通 GitHub 材料或需改写的摘要使用维护者的 Review community signal 工作流。
+3. 完整的站内公开提案自动进入拟稿队列，复用公开字段、检查重复、测试并创建草稿 PR。每次最多一份，每小时尝试一次；已有 10 个机器人 PR 时暂停新建。异常提案标记已尝试并暂停重试，社区可以补证。triage / write / maintain / admin 协作者可用 `atlas:propose` 重新整理；普通 GitHub 材料或需改写的摘要使用 Review community signal 工作流。
 4. 大家检查 PR 的具体差异；维护者核对证据与检查结果后合并。源码和档案都通过 PR 变更，合并后触发 Pages 更新。
 
 网站投递者无需登录 GitHub。GitHub 讨论、认领和 PR 使用 GitHub 账户。匿名身份不伪装成 GitHub 用户；桥接 Issue 明确由机器人创建，并保留公开提案来源。
@@ -47,6 +47,14 @@
 
 首次部署或新建 Fork，由维护者运行 **Set up community labels** 工作流补齐标签；已存在的标签不会被覆盖。Fork 需要将该工作流的仓库条件改为自己的仓库。仓库需要启用 Discussions、私密漏洞报告及 main 保护，详见 [安全边界](../SECURITY.md)。
 
-若仓库禁止 Actions 创建 PR，整理任务会保留已检查的候选分支，在 Issue 和运行摘要提供创建 PR 的链接，由维护者点开创建。不会为了自动化擅自开启机器人审批权限。自动生成的 PR 可能还需批准运行检查；检查未运行时不能合并。
+若仓库禁止 Actions 创建 PR，整理任务会保留已检查的候选分支，在 Issue 和运行摘要提供创建 PR 的链接，由维护者点开创建。GitHub 将机器人创建与批准 PR 放在同一个设置开关中；本项目的工作流只创建草稿，不调用批准或合并接口，不绕过主分支保护。自动生成的 PR 可能还需批准运行检查；检查未运行时不能合并。
 
 遵守 [行为准则](../CODE_OF_CONDUCT.md)。不上传凭据或受害者数据，不要求贡献者运行不明项目，不把人气或机器人通过校验当成事实认证。
+
+## 自动拟稿的防滥用边界
+
+只有完成公开许可并通过云端限额与工作证明的站内提案，才会由可信桥接生成 Issue 并候选自动拟稿。普通 Issue、普通评论、伪造机器人标记、私密附件都不能启动该权限路径。`atlas:hold` 可暂停单条提案；禁用 Prepare automatic community drafts 工作流可暂停整个队列。
+
+每个 Issue 默认只尝试一次（`atlas:auto-attempted`），不会因反复编辑或评论重复运行。补充完成后由协作者用原整理入口重试，或在确认安全后移除该标记并恢复 `atlas:received`。已存在的机器人 PR 会复用，不重复开卡；已撤回、隐藏或快照变化的材料会在建 PR 前再次拦截。
+
+自动拟稿明确记为机器人操作，不伪装成人工核对；草稿不是核验结果。GitHub 使用 `GITHUB_TOKEN` 创建的 PR 可能要求有写权限的协作者点击 **Approve workflows to run**，之后仍需检查通过才能合并。本项目不使用长期 PAT、不自动批准检查运行，也不把这一步伪装成自动完成。见 [GitHub 触发工作流规则](https://docs.github.com/en/actions/how-tos/write-workflows/choose-when-workflows-run/trigger-a-workflow)。

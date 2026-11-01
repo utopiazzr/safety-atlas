@@ -2,6 +2,9 @@ import fs from "node:fs/promises";
 import { github, summary } from "./github.mjs";
 import { revisionOf } from "./review.mjs";
 import { boundedJson, validateProposalArtifact } from "./proposal-artifact.mjs";
+import { automaticMode, eligibleAutomaticIssue } from "./auto-draft.mjs";
+import { INTAKE, recordReference, prepareCommunity } from "./community.mjs";
+const automatic = automaticMode();
 const isolated = process.env.ATLAS_ISOLATED_REVIEW === "true";
 if (process.env.GITHUB_ACTIONS === "true" && !isolated)
   throw Error("Publication requires an isolated job");
@@ -12,6 +15,11 @@ const client = github(),
       : "work/candidate/proposal-context.json",
     16000,
   );
+if (
+  Boolean(context.automatic) !== automatic ||
+  (automatic && context.number !== Number(process.env.ATLAS_ISSUE_NUMBER))
+)
+  throw Error("Proposal context does not match the selected workflow");
 let content = await fs.readFile("data/signals.json", "utf8");
 if (isolated) {
   const proposed = await boundedJson(
@@ -19,18 +27,40 @@ if (isolated) {
     2 * 1024 * 1024,
   );
   validateProposalArtifact(JSON.parse(content), proposed, context, {
-    actor: process.env.GITHUB_ACTOR,
+    actor: automatic ? "github-actions[bot]" : process.env.GITHUB_ACTOR,
     baseSha: process.env.GITHUB_SHA,
     repo: client.repo,
   });
   content = JSON.stringify(proposed, null, 2) + "\n";
 }
 const current = await client.issueSnapshot(context.number);
+if (current.issue.state === "closed")
+  throw Error("Issue is closed; do not prepare a new proposal");
 if (revisionOf(current.issue, current.comments) !== context.revision)
   throw Error("Issue changed during review. Rerun with the latest evidence.");
+if (automatic) {
+  if (!eligibleAutomaticIssue(current.issue))
+    throw Error("Public proposal is no longer eligible");
+  const ref = recordReference(current.issue);
+  const response = await fetch(`${INTAKE}/public/records/${ref.id}`, {
+    redirect: "error",
+    signal: AbortSignal.timeout(20000),
+  });
+  if (!response.ok) throw Error("Public proposal unavailable or withdrawn");
+  prepareCommunity(
+    current.issue,
+    current.comments,
+    await response.json(),
+    JSON.parse(await fs.readFile("data/signals.json", "utf8")),
+  );
+}
 // Do not create a second draft for the same Issue snapshot on retries.
+let openBotPRs = 0;
 for (let page = 1; page <= 10; page++) {
   const batch = await client.api(`/pulls?state=open&per_page=100&page=${page}`);
+  openBotPRs += batch.filter(
+    (pr) => pr.user?.login === "github-actions[bot]",
+  ).length;
   const previous = batch.find(
     (pr) =>
       pr.user?.login === "github-actions[bot]" &&
@@ -46,6 +76,8 @@ for (let page = 1; page <= 10; page++) {
   if (page === 10)
     throw Error("Too many open PRs; inspect existing proposals manually");
 }
+if (automatic && openBotPRs >= 10)
+  throw Error("Automatic draft capacity reached; review existing PRs first");
 const repo = await client.api(""),
   base = repo.default_branch;
 const head = await client.api(`/git/ref/heads/${encodeURIComponent(base)}`);
