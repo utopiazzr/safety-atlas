@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   ArrowUpRight,
   RefreshCw,
@@ -41,6 +41,9 @@ export default function ReviewDesk({ repository }: { repository: string }) {
     [busy, setBusy] = useState(false),
     [error, setError] = useState("");
   const root = `https://github.com/${repository}`;
+  useEffect(() => {
+    void load();
+  }, []);
   async function load() {
     setBusy(true);
     setError("");
@@ -70,7 +73,11 @@ export default function ReviewDesk({ repository }: { repository: string }) {
             x.html_url === `${root}/issues/${x.number}`,
         ),
       );
-    else setError((e) => e || "GitHub 进度暂不可用；下方提案仍待核验。");
+    else if (
+      cloud.status === "fulfilled" &&
+      cloud.value.items?.some((p: Proposal) => p.githubIssue)
+    )
+      setError((e) => e || "GitHub 进度暂不可用；下方提案仍待核验。");
     setBusy(false);
   }
   const status = (number: number | null) => {
