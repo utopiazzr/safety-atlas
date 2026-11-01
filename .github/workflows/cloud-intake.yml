@@ -1,0 +1,36 @@
+name: Cloud intake bridge
+on:
+  workflow_dispatch:
+    inputs:
+      action:
+        description: Import reviewed summaries and clean expired uploads, or health check only
+        type: choice
+        options: [sync, health]
+        default: sync
+      submission_id:
+        description: Optional approved submission UUID
+        type: string
+  schedule:
+    - cron: "17 * * * *"
+permissions:
+  contents: read
+  issues: write
+  id-token: write
+concurrency:
+  group: atlas-cloud-intake
+  cancel-in-progress: false
+jobs:
+  sync:
+    if: github.repository == 'utopiazzr/safety-atlas' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - run: node scripts/cloud-intake.mjs
+        env:
+          GITHUB_TOKEN: ${{ github.token }}

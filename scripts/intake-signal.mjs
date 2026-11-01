@@ -6,7 +6,9 @@ const event = JSON.parse(
   await fs.readFile(process.env.GITHUB_EVENT_PATH, "utf8"),
 );
 const client = github(),
-  { issue, comments } = await client.issueSnapshot(event.issue.number);
+  { issue, comments } = await client.issueSnapshot(
+    event.issue?.number || Number(event.inputs?.issue_number),
+  );
 const candidate = normalizeIssue(issue, { comments });
 const catalogue = JSON.parse(await fs.readFile("data/signals.json", "utf8"));
 const analysis = analyzeCandidate(candidate, catalogue);

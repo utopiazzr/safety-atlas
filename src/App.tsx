@@ -9,7 +9,7 @@ import {
   X,
 } from "lucide-react";
 import { localize, useLocale, LocaleSelect } from "./i18n";
-import SignalComposer from "./SignalComposer";
+import SignalComposer from "./CloudComposer";
 import SignalLibrary from "./SignalLibrary";
 import ReviewDesk from "./ReviewDesk";
 export default function App() {

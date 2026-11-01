@@ -1,24 +1,30 @@
 name: Receive community signal
 on:
   issues:
-    types: [opened, edited, reopened]
-  issue_comment:
-    types: [created, edited, deleted]
+    types: [labeled]
+  workflow_dispatch:
+    inputs:
+      issue_number:
+        description: "Issue to receive after maintainer triage"
+        required: true
+        type: string
 permissions:
   contents: read
   issues: write
   pull-requests: read
   statuses: write
 concurrency:
-  group: atlas-intake-${{ github.event.issue.number }}
+  group: atlas-intake-${{ github.event.issue.number || inputs.issue_number }}
   cancel-in-progress: false
 jobs:
   receive:
-    if: github.event.issue.pull_request == null && github.event.sender.type != 'Bot'
+    if: github.event_name == 'workflow_dispatch' || (github.event.issue.pull_request == null && github.event.label.name == 'atlas:triage' && github.event.sender.type != 'Bot')
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
       - uses: actions/setup-node@v4
         with:
           node-version: "22"
@@ -27,6 +33,6 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
       - uses: actions/upload-artifact@v4
         with:
-          name: intake-${{ github.event.issue.number }}
+          name: intake-${{ github.event.issue.number || inputs.issue_number }}
           path: work/candidate/
           retention-days: 14

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { ArrowUpRight, RefreshCw, Radio } from "lucide-react";
 import { localize, useLocale } from "./i18n";
+import { INTAKE_API } from "./cloud-client.mjs";
 type Issue = {
   number: number;
   title: string;
@@ -75,15 +76,9 @@ export default function ReviewDesk({ repository }: { repository: string }) {
             </li>
           </ol>
           <div className="review-links">
-            <a
-              href={`${root}/issues?q=is%3Aissue%20author%3A%40me`}
-              target="_blank"
-              rel="noreferrer"
-            >
-              我的投稿 ↗
-            </a>
+            <a href="#contribute">导入回执 / 查进度</a>
             <a href={`${root}/issues`} target="_blank" rel="noreferrer">
-              全部投稿 ↗
+              已公开摘要 ↗
             </a>
             <button onClick={load} disabled={busy}>
               <RefreshCw size={14} />
@@ -121,7 +116,13 @@ export default function ReviewDesk({ repository }: { repository: string }) {
           )}
           <details className="maintainer-links">
             <summary>维护者入口</summary>
-            <p>需要仓库写入权限。审核发生在 GitHub，所有决定留有记录。</p>
+            <p>
+              原始材料在云端接收台审阅；公开摘要进入 GitHub，目录变更通过 PR
+              审核。
+            </p>
+            <a href={`${INTAKE_API}/admin`} target="_blank" rel="noreferrer">
+              云端接收台 ↗
+            </a>
             <a
               href={`${root}/actions/workflows/review-signal.yml`}
               target="_blank"

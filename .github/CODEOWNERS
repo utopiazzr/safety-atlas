@@ -1,0 +1,6 @@
+# Editorial and execution boundaries require the maintainer's attention.
+/.github/ @utopiazzr
+/scripts/ @utopiazzr
+/cloud/ @utopiazzr
+/data/ @utopiazzr
+/src/scenes.ts @utopiazzr

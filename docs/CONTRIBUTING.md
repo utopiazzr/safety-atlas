@@ -1,14 +1,14 @@
 # 从材料到档案 / From material to catalogue
 
-网站接受尚不完整的观察、报道、代码、图片、视频、论文、模型与产品。投稿是公开线索；审核通过才进入目录。来源可追溯不代表本站独立复现。
+网站接受尚不完整的观察、报道、代码、图片、视频、论文、模型与产品。原始材料先进入私有接收区；维护者选择可公开摘要，审核通过才进入目录。来源可追溯不代表本站独立复现。
 
-Start with one material. A public submission is evidence to examine, not a verified conclusion. The catalogue is curated through reviewed pull requests.
+Start with one material. A submission is evidence to examine, not a verified conclusion. Original materials are private by default; only curated summaries become public. The catalogue is curated through reviewed pull requests.
 
 ```mermaid
 flowchart LR
-  A[材料：链接、观察、代码、媒体] --> B[GitHub Issue 最后确认]
-  B --> C[自动接收与关联建议]
-  C --> D{维护者核对}
+  A[材料：链接、观察、代码、媒体] --> B[网站内提交，保存私有回执]
+  B --> C[云端隔离区与人工审阅]
+  C --> D{可公开摘要与来源核对}
   D --> E[补证或说明暂不收录]
   E --> D
   D --> F[新档案或更新原档案的草稿 PR]
@@ -37,7 +37,7 @@ flowchart LR
 | 材料对象   | `kind`、`resources[].type`     | 案例、攻击、防御、模型产品；一条中可混合论文、仓库、模型卡、视频和代码      |
 | 来源与核验 | `evidenceType`、`verification` | 来源类型与核验结论独立；研究 PoC 不是现实受害事件，项目存在不是效果已获验证 |
 
-稿件原文和评论保留在 Issue。目录记录是维护者整理的摘要和条件，不直接复制投稿者标题为事实结论。每次社区来源的目录变更保留 Issue、证据快照哈希、整理人、时间和判断理由。
+网站原始材料保留在私有接收区。维护者选择的公开摘要和来源进入 Issue；GitHub 备用入口提交的内容会直接公开。目录记录是维护者整理的摘要和条件，不直接复制投稿者标题为事实结论。每次社区来源的目录变更保留 Issue、证据快照哈希、整理人、时间和判断理由。
 
 ## 按真实材料选择核对重点
 
@@ -51,6 +51,16 @@ flowchart LR
 | 一张可疑截图                                                                                                        | 保留观察与“不确定”，追问上下文、时间、版本与原始材料          | 因为截图存在就自动标记 verified         |
 
 数据结构可容纳这些对象；关联关系必须人工选择。`mitigates` 不是通用“推荐防御”标签，需要给出针对性证据、配置和适用范围。目前自动关联只建议同源或明确提到的档案，不自动合并。
+
+## 站内提交与大项目
+
+[网站投递](https://utopiazzr.github.io/safety-atlas/#contribute)无需登录。粘贴观察、链接或代码，选择文件或项目文件夹，通过防刷校验后提交。项目可提供仓库 / 模型页 / Release 链接、固定版本、重点路径，不必上传依赖目录或模型权重。
+
+文件以 8 MiB 片段上传，单文件 512 MiB、单次 1 GiB / 100 文件。提交后保存 JSON 回执；它包含私有访问凭证，请勿上传到公开 Issue。导入回执可查进度、续传（重新选择同一批文件）、补证或撤回待审材料。附件保留 30 天，未完成上传保留 24 小时。
+
+需要 GitHub 原生协作时，可用备用 Issue 入口；该入口直接公开，请只放脱敏内容。维护者手动运行接收任务或添加 atlas:triage 标签后才触发自动整理。
+
+网站接收台的负责人先审阅原始材料，再填写可公开摘要。Cloud intake bridge 每小时导入已审摘要，也能手动运行；所有导入仍需下述目录审核。原始附件不会随摘要同步到 GitHub。
 
 ## 维护者云端操作
 
