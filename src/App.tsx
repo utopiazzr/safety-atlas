@@ -72,6 +72,9 @@ export default function App() {
         <a className="simple-nav" href="#signals">
           探索信号
         </a>
+        <a className="simple-nav" href="#review">
+          共同维护
+        </a>
         <LocaleSelect />
         <button className="btn ink" onClick={() => contribute()}>
           <Plus size={18} />

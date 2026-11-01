@@ -93,7 +93,17 @@ export function github({
     await api(`/issues/${number}/labels`, "POST", { labels: [name] });
     // Remove only workflow-owned statuses; retain all human labels, including concurrent additions.
     for (const label of issue.labels || [])
-      if (label.name.startsWith("atlas:") && label.name !== name) {
+      if (
+        [
+          "received",
+          "needs-info",
+          "in-review",
+          "duplicate",
+          "declined",
+          "published",
+        ].some((s) => label.name === `atlas:${s}`) &&
+        label.name !== name
+      ) {
         try {
           await api(
             `/issues/${number}/labels/${encodeURIComponent(label.name)}`,

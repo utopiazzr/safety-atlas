@@ -2,6 +2,7 @@ import {createChallenge,verifySolution,randomInt} from 'altcha-lib';
 import {deriveKey} from 'altcha-lib/algorithms/web/pbkdf2';
 import {createRemoteJWKSet,jwtVerify} from 'jose';
 import {limits,MiB,HttpError,fail,validId,safeUrl,parseSubmission,readBytes,readJson,digest,hmac,partKey,now} from './contracts.js';
+import {publicRecord} from './community.js';
 import {adminPage} from './admin.js';
 const JWKS=createRemoteJWKSet(new URL('https://token.actions.githubusercontent.com/.well-known/jwks'));
 const json=(value,status=200)=>new Response(JSON.stringify(value),{status,headers:{'Content-Type':'application/json;charset=utf-8'}});
@@ -18,7 +19,7 @@ async function automation(request,env){
  let payload;try{({payload}=await jwtVerify(token,JWKS,{issuer:'https://token.actions.githubusercontent.com',audience:env.OIDC_AUDIENCE,algorithms:['RS256'],maxTokenAge:'10m'}));}catch{fail(401,'Invalid GitHub OIDC identity');}
  if(payload.repository_id!==env.GITHUB_REPOSITORY_ID||payload.repository!==env.GITHUB_REPOSITORY||payload.ref!=='refs/heads/main'||payload.workflow_ref!==`${env.GITHUB_REPOSITORY}/.github/workflows/cloud-intake.yml@refs/heads/main`||!['workflow_dispatch','schedule'].includes(payload.event_name))fail(403,'Workflow identity is not allowed');return payload.actor;
 }
-async function getStatus(env,row){const parts=rows(await sql(env,'SELECT file_id,part_number,size,digest FROM parts WHERE submission_id=? ORDER BY file_id,part_number',row.id).all());return {id:row.id,status:row.status,reason:row.reason,createdAt:row.created_at,expiresAt:row.expires_at,files:JSON.parse(row.files),parts,githubIssue:row.github_issue||null};}
+async function getStatus(env,row){const parts=rows(await sql(env,'SELECT file_id,part_number,size,digest FROM parts WHERE submission_id=? ORDER BY file_id,part_number',row.id).all());return {id:row.id,status:row.status,reason:row.reason,createdAt:row.created_at,expiresAt:row.expires_at,files:JSON.parse(row.files),parts,githubIssue:row.github_issue||null,visibility:row.community_json?'community':'private'};}
 async function verifyProof(value,env,client){
  if(typeof value!=='string'||value.length>12000)fail(400,'完成防刷校验后再提交 / Verification required');
  let proof;try{proof=JSON.parse(atob(value));}catch{fail(400,'Invalid verification payload');}
@@ -37,7 +38,7 @@ async function createSubmission(request,env,client){
  const commands=buckets.map(b=>sql(env,'INSERT OR IGNORE INTO quotas(bucket,used,expires_at) VALUES(?,0,?)',b.key,b.expires));
  commands.push(sql(env,'INSERT INTO challenges(nonce,expires_at) VALUES(?,?)',proof.nonce,proof.expiresAt));
  const condition=buckets.map(()=>'(SELECT used FROM quotas WHERE bucket=?)+?<=?').join(' AND ');
- commands.push(sql(env,`INSERT INTO submissions(id,token_hash,client_hash,payload,files,total_bytes,status,created_at,expires_at,request_hash) SELECT ?,?,?,?,?,?,'uploading',?,?,? WHERE ${condition}`,input.id,await digest(input.receiptKey),client,JSON.stringify(clean.payload),JSON.stringify(clean.files),clean.totalBytes,time,time+86400,requestHash,...buckets.flatMap(b=>[b.key,b.amount,b.max])));
+ commands.push(sql(env,`INSERT INTO submissions(id,token_hash,client_hash,payload,files,total_bytes,status,created_at,expires_at,request_hash,community_json) SELECT ?,?,?,?,?,?,'uploading',?,?,?,? WHERE ${condition}`,input.id,await digest(input.receiptKey),client,JSON.stringify(clean.payload),JSON.stringify(clean.files),clean.totalBytes,time,time+86400,requestHash,clean.community?JSON.stringify(clean.community):null,...buckets.flatMap(b=>[b.key,b.amount,b.max])));
  for(const b of buckets)commands.push(sql(env,'UPDATE quotas SET used=used+? WHERE bucket=? AND EXISTS(SELECT 1 FROM submissions WHERE id=?)',b.amount,b.key,input.id));
  try{await env.DB.batch(commands);}catch(e){if(String(e).includes('UNIQUE'))fail(409,'校验已使用，请重新校验 / Verification already used');throw e;}
  const row=await sql(env,'SELECT * FROM submissions WHERE id=?',input.id).first();if(!row)fail(429,'今日接收或存储配额已满，请使用项目链接或稍后再试 / Intake quota reached');return json(await getStatus(env,row),201);
@@ -60,13 +61,14 @@ async function uploadPart(request,env,row,fileId,partNumber){
 async function finalize(env,row){
  if(row.status!=='uploading')return json(await getStatus(env,row));
  const status=await getStatus(env,row);for(const file of status.files){const parts=status.parts.filter(p=>p.file_id===file.id);if(parts.length!==Math.ceil(file.size/limits.partBytes)||parts.reduce((n,p)=>n+p.size,0)!==file.size)fail(409,'仍有文件片段未上传 / Upload incomplete');}
- const updated=await sql(env,"UPDATE submissions SET status='submitted',expires_at=? WHERE id=? AND status='uploading' AND lease_until<? RETURNING id",now()+limits.retentionDays*86400,row.id,now()).first();if(!updated)fail(409,'An upload is still in progress');return json({id:row.id,status:'submitted',expiresAt:now()+limits.retentionDays*86400});
+ const next=row.community_json?'community':'submitted';
+ const updated=await sql(env,"UPDATE submissions SET status=?,expires_at=? WHERE id=? AND status='uploading' AND lease_until<? RETURNING id",next,now()+limits.retentionDays*86400,row.id,now()).first();if(!updated)fail(409,'An upload is still in progress');return json({id:row.id,status:next,visibility:row.community_json?'community':'private',expiresAt:now()+limits.retentionDays*86400});
 }
 async function deleteRecord(env,row,actor='retention'){
  const locked=await sql(env,'UPDATE submissions SET lease_until=? WHERE id=? AND lease_until<? RETURNING id',now()+300,row.id,now()).first();if(!locked)fail(409,'Upload is in progress; retry later');
  const files=JSON.parse(row.files),keys=files.flatMap(file=>Array.from({length:Math.ceil(file.size/limits.partBytes)},(_,p)=>partKey(row.id,file.id,p)));
  if(keys.length)await env.BUCKET.delete(keys);
- const preserve=['accepted','exported'].includes(row.status);
+ const preserve=['accepted','exported'].includes(row.status)||(row.status==='community'&&actor!=='receipt-holder');
  await env.DB.batch([sql(env,'DELETE FROM parts WHERE submission_id=?',row.id),preserve?sql(env,"UPDATE submissions SET payload='{}',files='[]',client_hash='',total_bytes=0,expires_at=4102444800,lease_until=0 WHERE id=?",row.id):sql(env,'DELETE FROM submissions WHERE id=?',row.id),sql(env,"UPDATE quotas SET used=MAX(0,used-?) WHERE bucket='storage:reserved'",row.total_bytes),sql(env,'INSERT INTO audit(submission_id,action,actor,reason,created_at) VALUES(?,?,?,?,?)',row.id,preserve?'purge-raw':'delete',actor,'Expired or withdrawn',now())]);
 }
 async function adminRoutes(request,env,path){
@@ -76,16 +78,17 @@ async function adminRoutes(request,env,path){
   const expired=rows(await sql(env,'SELECT * FROM submissions WHERE expires_at<? LIMIT 5',now()).all());for(const row of expired)await deleteRecord(env,row,actor);
   await env.DB.batch([sql(env,'DELETE FROM challenges WHERE expires_at<?',now()),sql(env,'DELETE FROM quotas WHERE expires_at<?',now()),sql(env,'DELETE FROM audit WHERE created_at<?',now()-90*86400)]);return json({deleted:expired.length});
  }
- if(path==='/api/automation/queue'&&request.method==='GET')return json({items:rows(await sql(env,"SELECT id FROM submissions WHERE status='accepted' ORDER BY created_at LIMIT 10").all())});
- if(path==='/api/admin/submissions'&&request.method==='GET')return json({items:rows(await sql(env,'SELECT id,payload,status,created_at,total_bytes,reason FROM submissions ORDER BY created_at DESC LIMIT 50').all()).map(r=>({...r,payload:JSON.parse(r.payload)}))});
- const match=path.match(/^\/api\/(admin|automation)\/submissions\/([a-f0-9-]+)(?:\/(decision|export|exported|files\/\d+))?$/);if(!match||!validId(match[2]))fail(404,'Not found');
+ if(path==='/api/automation/queue'&&request.method==='GET')return json({items:rows(await sql(env,"SELECT id FROM submissions WHERE status IN ('accepted','community') ORDER BY created_at LIMIT 10").all())});
+ if(path==='/api/admin/submissions'&&request.method==='GET')return json({items:rows(await sql(env,"SELECT id,payload,status,created_at,total_bytes,reason,github_issue FROM submissions ORDER BY CASE WHEN status IN ('submitted','needs-info') THEN 0 ELSE 1 END,created_at DESC LIMIT 50").all()).map(r=>({...r,payload:JSON.parse(r.payload)}))});
+ const match=path.match(/^\/api\/(admin|automation)\/submissions\/([a-f0-9-]+)(?:\/(decision|hide|export|exported|files\/\d+))?$/);if(!match||!validId(match[2]))fail(404,'Not found');
  const row=await sql(env,'SELECT * FROM submissions WHERE id=?',match[2]).first();if(!row)fail(404,'Not found');const action=match[3];
- if(request.method==='GET'&&!action&&!automated)return json({...await getStatus(env,row),payload:JSON.parse(row.payload),review:row.review_json?JSON.parse(row.review_json):null,revision:await digest(row.payload)});
+ if(request.method==='GET'&&!action&&!automated)return json({...await getStatus(env,row),payload:JSON.parse(row.payload),review:row.review_json?JSON.parse(row.review_json):null,community:row.community_json?JSON.parse(row.community_json):null,revision:await digest(row.payload)});
  if(action?.startsWith('files/')&&request.method==='GET'&&!automated){
   const file=JSON.parse(row.files).find(f=>f.id===Number(action.split('/')[1]));if(!file)fail(404,'Not found');const count=Math.ceil(file.size/limits.partBytes);let part=0,reader;
   const stream=new ReadableStream({async pull(controller){try{if(!reader){if(part>=count){controller.close();return;}const object=await env.BUCKET.get(partKey(row.id,file.id,part++));if(!object)throw Error('Missing part');reader=object.body.getReader();}const chunk=await reader.read();if(chunk.done){reader.releaseLock();reader=null;}else controller.enqueue(chunk.value);}catch{controller.error(Error('Incomplete file'));}},async cancel(){if(reader)await reader.cancel();}});
   return new Response(stream,{headers:{'Content-Type':'application/octet-stream','Content-Length':String(file.size),'Content-Disposition':`attachment; filename*=UTF-8''${encodeURIComponent(file.path.split('/').at(-1)).replaceAll("'",'%27')}`,'X-Content-Type-Options':'nosniff'}});
  }
+ if(action==='hide'&&request.method==='POST'&&!automated){const value=await readJson(request,4000);if(!row.community_json||value.expectedRevision!==await digest(row.payload)||typeof value.reason!=='string'||!value.reason.trim()||value.reason.length>2000)fail(400,'Public proposal and moderation reason required');await sql(env,"UPDATE submissions SET status='rejected',reason=? WHERE id=?",value.reason.trim(),row.id).run();await sql(env,'INSERT INTO audit(submission_id,action,actor,reason,created_at) VALUES(?,?,?,?,?)',row.id,'hide-community',actor,value.reason.trim(),now()).run();return json({ok:true,githubIssue:row.github_issue});}
  if(action==='decision'&&request.method==='POST'&&!automated){
   const value=await readJson(request,16000);if(value.expectedRevision!==await digest(row.payload))fail(409,'Materials changed; reload before deciding');if(!['submitted','needs-info','accepted','rejected'].includes(value.status)||typeof value.reason!=='string'||!value.reason.trim()||value.reason.length>2000)fail(400,'Decision and reason required');
   if(['uploading','exported'].includes(row.status))fail(409,'Finish upload first, or correct an exported record through GitHub');
@@ -95,8 +98,8 @@ async function adminRoutes(request,env,path){
   }
   const changed=await sql(env,"UPDATE submissions SET status=?,reason=?,review_json=? WHERE id=? AND payload=? AND status NOT IN ('uploading','exported') RETURNING id",value.status,value.reason,review?JSON.stringify(review):null,row.id,row.payload).first();if(!changed)fail(409,'Materials changed; reload before deciding');await sql(env,'INSERT INTO audit(submission_id,action,actor,reason,created_at) VALUES(?,?,?,?,?)',row.id,value.status,actor,value.reason,now()).run();return json({status:value.status});
  }
- if(action==='export'&&request.method==='GET'&&automated){if(!['accepted','exported'].includes(row.status)||!row.review_json)fail(409,'Not approved for export');return json({id:row.id,...JSON.parse(row.review_json),publicUrl:`${new URL(request.url).origin}/public/records/${row.id}`,githubIssue:row.github_issue});}
- if(action==='exported'&&request.method==='POST'&&automated){const value=await readJson(request,1000);if(!Number.isSafeInteger(value.issueNumber)||value.issueNumber<1||!['accepted','exported'].includes(row.status))fail(400,'Invalid export receipt');await sql(env,"UPDATE submissions SET status='exported',github_issue=? WHERE id=?",value.issueNumber,row.id).run();return json({ok:true});}
+ if(action==='export'&&request.method==='GET'&&automated){const record=publicRecord(row);if(!record)fail(409,'Not available for export');return json({id:row.id,...record,snapshot:await digest(JSON.stringify(record)),publicUrl:`${new URL(request.url).origin}/public/records/${row.id}`,githubIssue:row.github_issue});}
+ if(action==='exported'&&request.method==='POST'&&automated){const value=await readJson(request,1000);const record=publicRecord(row);if(!Number.isSafeInteger(value.issueNumber)||value.issueNumber<1||!record)fail(400,'Invalid export receipt');if(value.snapshot!==await digest(JSON.stringify(record)))fail(409,'Public snapshot changed');const changed=await sql(env,"UPDATE submissions SET status='exported',github_issue=? WHERE id=? AND status=? AND COALESCE(review_json,'')=? AND COALESCE(community_json,'')=? RETURNING id",value.issueNumber,row.id,row.status,row.review_json||'',row.community_json||'').first();if(!changed)fail(409,'Submission changed');return json({ok:true});}
  fail(404,'Not found');
 }
 async function route(request,env){
@@ -104,9 +107,10 @@ async function route(request,env){
  if(path==='/'&&request.method==='GET')return new Response('Safety Atlas intake service. Use https://utopiazzr.github.io/safety-atlas/ to submit.\n',{headers:{'Content-Type':'text/plain;charset=utf-8'}});
  if(path==='/admin'&&request.method==='GET'){if(!request.headers.get('oai-authenticated-user-id'))return Response.redirect(`${url.origin}/signin-with-chatgpt?return_to=%2Fadmin`,302);if(!isOwner(request,env))fail(403,'Owner access required');return adminPage();}
  if(path.startsWith('/api/admin/')||path.startsWith('/api/automation/'))return adminRoutes(request,env,path);
- if(path.startsWith('/public/records/')&&request.method==='GET'){const id=path.split('/').at(-1);if(!validId(id))fail(404,'Not found');const row=await sql(env,"SELECT review_json FROM submissions WHERE id=? AND status IN ('accepted','exported')",id).first();if(!row?.review_json)fail(404,'Not found');return json(JSON.parse(row.review_json));}
+ if(path.startsWith('/public/records/')&&request.method==='GET'){const id=path.split('/').at(-1);if(!validId(id))fail(404,'Not found');const row=await sql(env,'SELECT status,review_json,community_json FROM submissions WHERE id=?',id).first();const record=row&&publicRecord(row);if(!record)fail(404,'Not found');return json(record);}
  const allowed=new Set((env.ALLOWED_ORIGINS||'').split(',').filter(Boolean));allowed.add(url.origin);const origin=request.headers.get('origin');if(!origin||!allowed.has(origin))fail(403,'Origin not allowed');
  const client=await clientHash(request,env);await rate(env,'public-global',1200,60);
+ if(path==='/api/community'&&request.method==='GET'){await rate(env,`community:${client}`,60,60);const items=rows(await sql(env,"SELECT id,status,review_json,community_json,created_at,github_issue FROM submissions WHERE community_json IS NOT NULL AND status IN ('community','accepted','exported') ORDER BY created_at DESC LIMIT 30").all());return json({items:items.map(row=>({id:row.id,...publicRecord(row),createdAt:row.created_at,githubIssue:row.github_issue||null})),limit:30});}
  if(path==='/api/challenge'&&request.method==='GET'){await rate(env,`challenge:${client}`,12,60);await rate(env,'challenge-global',120,60);return json(await createChallenge({algorithm:'PBKDF2/SHA-256',cost:5000,counter:randomInt(150,400),deriveKey,hmacSignatureSecret:env.INTAKE_SECRET,hmacKeySignatureSecret:env.ALTCHA_KEY_SECRET,expiresAt:now()+1200,data:{client}}));}
  if(path==='/api/submissions'&&request.method==='POST')return createSubmission(request,env,client);
  const match=path.match(/^\/api\/submissions\/([a-f0-9-]+)(?:\/(complete|note|files\/\d+\/parts\/\d+))?$/);if(!match)fail(404,'Not found');

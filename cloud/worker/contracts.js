@@ -25,9 +25,10 @@ export function parseSubmission(input){
  const files=input.files.map((f,index)=>{if(!f||!safePath(f.path)||!Number.isSafeInteger(f.size)||f.size<1||f.size>limits.fileBytes)fail(400,'Unsupported file path or size');return {id:index,path:f.path.replaceAll('\\','/'),size:f.size,type:typeof f.type==='string'?f.type.slice(0,100):'application/octet-stream'};});
  if(new Set(files.map(f=>f.path.toLowerCase())).size!==files.length)fail(400,'Duplicate file paths');
  const totalBytes=files.reduce((n,f)=>n+f.size,0);if(totalBytes>limits.totalBytes)fail(413,'Project upload exceeds 1 GiB; use repository or release links');
- if(!note&&!code&&!projectUrl&&!files.length)fail(400,'Add at least one material');
+ const community=publicProposal(input.community,input.publicConsent,{kind,intent,relatedId,provenance});
+ if(!community&&!note&&!code&&!projectUrl&&!files.length)fail(400,'Add at least one material');
  if(input.consent!==true)fail(400,'Confirm review and publication terms');
- return {payload:{title,note,code,context,kind,intent,relatedId,provenance,project:{url:projectUrl,revision,path:focusPath}},files,totalBytes};
+ return {payload:{title,note,code,context,kind,intent,relatedId,provenance,project:{url:projectUrl,revision,path:focusPath}},files,totalBytes,...(community?{community}:{})};
 }
 export async function readBytes(request,max){
  const length=Number(request.headers.get('content-length'));if(Number.isFinite(length)&&length>max)fail(413,'Request too large');
@@ -42,3 +43,16 @@ export const digest=async text=>hex(await crypto.subtle.digest('SHA-256',typeof 
 export async function hmac(secret,text){if(!secret||secret.length<32)fail(503,'Intake is not configured');const key=await crypto.subtle.importKey('raw',new TextEncoder().encode(secret),{name:'HMAC',hash:'SHA-256'},false,['sign']);return hex(await crypto.subtle.sign('HMAC',key,new TextEncoder().encode(text)));}
 export const partKey=(id,file,part)=>`quarantine/${id}/${file}/${part}`;
 export const now=()=>Math.floor(Date.now()/1000);
+
+// This is a separate, explicit publication envelope. Never infer it from raw notes/files.
+export function publicProposal(value,consent,metadata){
+ if(value===undefined||value===null)return null;
+ if(consent!==true)fail(400,'请确认公开提案内容 / Confirm public proposal consent');
+ const text=(key,max,required=false)=>{const v=value[key]??'';if(typeof v!=='string'||v.length>max||(required&&!v.trim()))fail(400,`Invalid public ${key}`);return v.trim();};
+ const title=text('title',200,true),summary=text('summary',1000,true),context=text('context',4000),limitations=text('limitations',4000);
+ if(!Array.isArray(value.sources)||!value.sources.length||value.sources.length>10||value.sources.some(u=>typeof u!=='string'||u.length>2000||!safeUrl(u)))fail(400,'公开提案需要来源链接 / Add a public source URL');
+ const evidenceType=value.evidenceType||'community-report';
+ if(!['community-report','vendor-advisory','research-poc','paper','project','model-card'].includes(evidenceType))fail(400,'Invalid evidence class');
+ return {title,summary,context,limitations,sources:[...new Set(value.sources)],evidenceType,...metadata,disclosure:'community',verification:'unverified'};
+}
+

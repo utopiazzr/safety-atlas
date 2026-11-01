@@ -39,6 +39,7 @@ globalThis.fetch=async(url,options)=>{
  else if(route==='/git/commits/base-head') data={tree:{sha:'base-tree'}};
  else if(route==='/git/trees') data={sha:'new-tree'};
  else if(route==='/git/commits'&&method==='POST') data={sha:'new-commit'};
+ else if(route==='/pulls'&&method==='GET') data=process.env.EXISTING_PR==='1'?[{user:{login:'github-actions[bot]'},body:'Source submission: #42\\n',html_url:'https://github.com/owner/repo/pull/100'}]:[];
  else if(route==='/pulls'&&method==='POST') {status=process.env.DENY_PR==='1'?403:201;data={html_url:'https://github.com/owner/repo/pull/100'};}
  else if(method==='GET') throw Error('Unexpected read: '+route);
  return {ok:status<400,status,json:async()=>data};
@@ -113,7 +114,7 @@ test("cloud review prepares a tested-data branch and draft PR without publishing
     result = t.run("open-review.mjs");
     assert.equal(result.status, 0, result.stderr);
     const calls = t.calls();
-    const pr = calls.find((x) => x.route === "/pulls");
+    const pr = calls.find((x) => x.route === "/pulls" && x.method === "POST");
     assert.equal(pr.body.draft, true);
     assert.ok(
       calls.some(
@@ -131,6 +132,20 @@ test("cloud review prepares a tested-data branch and draft PR without publishing
       !calls.some(
         (x) => x.method === "DELETE" && x.route.includes("human-label"),
       ),
+    );
+  } finally {
+    t.cleanup();
+  }
+});
+test("retry reuses an open proposal without writing a second branch", () => {
+  const t = setup();
+  try {
+    assert.equal(t.run("review-signal.mjs").status, 0);
+    const result = t.run("open-review.mjs", { EXISTING_PR: "1" });
+    assert.equal(result.status, 0, result.stderr);
+    assert.equal(
+      t.calls().some((c) => c.route === "/git/refs"),
+      false,
     );
   } finally {
     t.cleanup();

@@ -8,6 +8,24 @@ const client = github(),
 const current = await client.issueSnapshot(context.number);
 if (revisionOf(current.issue, current.comments) !== context.revision)
   throw Error("Issue changed during review. Rerun with the latest evidence.");
+// Do not create a second draft for the same Issue snapshot on retries.
+for (let page = 1; page <= 10; page++) {
+  const batch = await client.api(`/pulls?state=open&per_page=100&page=${page}`);
+  const previous = batch.find(
+    (pr) =>
+      pr.user?.login === "github-actions[bot]" &&
+      pr.body?.includes(`Source submission: #${context.number}\n`),
+  );
+  if (previous) {
+    await summary(
+      `[Existing draft PR](${previous.html_url}); update or close it before preparing another.`,
+    );
+    process.exit(0);
+  }
+  if (batch.length < 100) break;
+  if (page === 10)
+    throw Error("Too many open PRs; inspect existing proposals manually");
+}
 const repo = await client.api(""),
   base = repo.default_branch;
 const head = await client.api(`/git/ref/heads/${encodeURIComponent(base)}`);

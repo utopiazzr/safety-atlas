@@ -12,6 +12,8 @@ import {
   Check,
   Link2,
   RotateCcw,
+  Users,
+  LockKeyhole,
 } from "lucide-react";
 import "altcha";
 import "altcha/i18n/zh-cn";
@@ -34,6 +36,14 @@ type Material = {
   preview?: string;
 };
 type Receipt = { version: number; id: string; key: string; api: string };
+const initialPublic = {
+  title: "",
+  summary: "",
+  sources: "",
+  context: "",
+  limitations: "",
+  evidenceType: "community-report",
+};
 const initial = {
   kind: "suspicion",
   intent: "new",
@@ -55,6 +65,11 @@ export default function CloudComposer({
   request: { kind: string; seq: number; relatedId?: string; intent?: string };
 }) {
   const locale = useLocale();
+  const [communityMode, setCommunityMode] = useState(true),
+    [publicForm, setPublicForm] = useState(initialPublic),
+    [publicConsent, setPublicConsent] = useState(false),
+    [visibility, setVisibility] = useState("private"),
+    [githubIssue, setGithubIssue] = useState<number | null>(null);
   const [form, setForm] = useState(initial),
     [files, setFiles] = useState<Material[]>([]),
     [project, setProject] = useState(false),
@@ -84,12 +99,19 @@ export default function CloudComposer({
   const [pending, setPending] = useState(false);
   const locked = busy || Boolean(receipt) || pending,
     done = Boolean(receipt) && status !== "" && status !== "uploading";
-  const meaningful = Boolean(
-      form.note.trim() ||
-      form.code.trim() ||
-      form.projectUrl.trim() ||
-      files.length,
-    ),
+  const publicValid = Boolean(
+    publicForm.title.trim() &&
+    publicForm.summary.trim() &&
+    publicForm.sources.trim(),
+  );
+  const meaningful = communityMode
+      ? publicValid
+      : Boolean(
+          form.note.trim() ||
+          form.code.trim() ||
+          form.projectUrl.trim() ||
+          files.length,
+        ),
     targetValid =
       form.intent === "new" || catalogue.some((e) => e.id === form.relatedId);
   useEffect(() => {
@@ -106,6 +128,7 @@ export default function CloudComposer({
   useEffect(() => {
     if (
       receiptRef.current ||
+      publicForm.summary ||
       form.note ||
       form.code ||
       fileRef.current.length
@@ -184,6 +207,8 @@ export default function CloudComposer({
     receiptRef.current = value;
     setReceipt(value);
     setStatus(result.status);
+    setVisibility(result.visibility || "private");
+    setGithubIssue(result.githubIssue || null);
     setReason(result.reason || "");
     setNotice("");
     return result;
@@ -199,6 +224,18 @@ export default function CloudComposer({
         current = attempt.current?.receipt || newReceipt();
         const body = attempt.current?.body || {
           ...form,
+          ...(communityMode
+            ? {
+                community: {
+                  ...publicForm,
+                  sources: publicForm.sources
+                    .split(/\r?\n/)
+                    .map((s) => s.trim())
+                    .filter(Boolean),
+                },
+                publicConsent,
+              }
+            : {}),
           id: current.id,
           receiptKey: current.key,
           altcha: proof,
@@ -229,6 +266,8 @@ export default function CloudComposer({
         controller.current.signal,
       );
       setStatus(result.status);
+      setVisibility(result.visibility || "private");
+      setGithubIssue(result.githubIssue || null);
       setReason(result.reason || "");
       setNotice("");
     } catch (e) {
@@ -279,6 +318,11 @@ export default function CloudComposer({
     setStatus("");
     setReason("");
     setForm(initial);
+    setPublicForm(initialPublic);
+    setCommunityMode(true);
+    setPublicConsent(false);
+    setGithubIssue(null);
+    setVisibility("private");
     setProof("");
     setConsent(false);
     setProgress({ completed: 0, total: 0, file: "" });
@@ -297,190 +341,321 @@ export default function CloudComposer({
       {!done && (
         <>
           <p className="composer-intro">
-            一句观察、一份材料，或一个完整项目。免登录，审核后公开。
+            一起发现、补证、修正。公开提案交给社区，私密线索交给接收台。
           </p>
-          <div className="intake-modes">
+          <div
+            className="contribution-paths"
+            role="group"
+            aria-label="投稿方式"
+          >
             <button
               disabled={locked}
-              aria-pressed={!project}
-              onClick={() => setProject(false)}
+              aria-pressed={communityMode}
+              onClick={() => {
+                setCommunityMode(true);
+                setPublicConsent(false);
+              }}
             >
-              <Radio size={16} />
-              线索与材料
+              <Users size={22} />
+              <span>
+                <b>公开提案</b>
+                <small>免登录 · 社区共同维护</small>
+              </span>
             </button>
             <button
               disabled={locked}
-              aria-pressed={project}
-              onClick={() => setProject(true)}
+              aria-pressed={!communityMode}
+              onClick={() => {
+                setCommunityMode(false);
+                setPublicConsent(false);
+              }}
             >
-              <FolderUp size={16} />
-              项目与大文件
+              <LockKeyhole size={22} />
+              <span>
+                <b>私密线索</b>
+                <small>原始材料仅供维护者审阅</small>
+              </span>
             </button>
           </div>
-          {related && (
-            <div className="submission-target">
-              <span>关联档案</span>
-              <strong>{related.title}</strong>
-            </div>
-          )}
-          {project && (
-            <div className="project-link">
+          {communityMode && (
+            <div className="public-proposal-form">
               <label>
-                <Link2 size={16} />
-                项目、模型或发布页链接
+                提案标题
                 <input
-                  aria-label="项目链接"
                   disabled={locked}
-                  value={form.projectUrl}
-                  onChange={(e) => field("projectUrl", e.target.value)}
-                  placeholder="https://github.com/… / Hugging Face / Release"
+                  value={publicForm.title}
+                  maxLength={200}
+                  onChange={(e) =>
+                    setPublicForm((f) => ({ ...f, title: e.target.value }))
+                  }
+                  placeholder="希望新增或修改什么？"
                 />
               </label>
-              <div>
-                <input
-                  aria-label="版本或 commit"
+              <label>
+                公开说明
+                <textarea
                   disabled={locked}
-                  value={form.revision}
-                  onChange={(e) => field("revision", e.target.value)}
-                  placeholder="版本 / commit（可选）"
-                  maxLength={200}
+                  value={publicForm.summary}
+                  maxLength={1000}
+                  rows={3}
+                  onChange={(e) =>
+                    setPublicForm((f) => ({ ...f, summary: e.target.value }))
+                  }
+                  placeholder="说明观察、建议或不确定之处。不会自动标为已证实。"
                 />
-                <input
-                  aria-label="重点文件路径"
+              </label>
+              <label>
+                公开来源
+                <textarea
                   disabled={locked}
-                  value={form.focusPath}
-                  onChange={(e) => field("focusPath", e.target.value)}
-                  placeholder="重点文件路径（可选）"
-                  maxLength={300}
+                  value={publicForm.sources}
+                  rows={2}
+                  maxLength={20000}
+                  onChange={(e) =>
+                    setPublicForm((f) => ({ ...f, sources: e.target.value }))
+                  }
+                  placeholder="报道、代码、模型、图片或视频链接，每行一个"
                 />
-              </div>
-              <p>链接保留版本与来源；上传只需提供与问题有关的文件。</p>
-            </div>
-          )}
-          <div
-            className={`signal-drop ${dragging ? "dragging" : ""}`}
-            onDragOver={(e) => {
-              e.preventDefault();
-              setDragging(true);
-            }}
-            onDragLeave={() => setDragging(false)}
-            onDrop={(e) => {
-              e.preventDefault();
-              setDragging(false);
-              add(Array.from(e.dataTransfer.files));
-            }}
-            onPaste={(e) => {
-              if (e.clipboardData.files.length) {
-                e.preventDefault();
-                add(Array.from(e.clipboardData.files));
-              }
-            }}
-          >
-            <textarea
-              aria-label="你的线索"
-              disabled={locked}
-              maxLength={40000}
-              value={form.note}
-              onChange={(e) => field("note", e.target.value)}
-              placeholder="发生了什么？粘贴链接、观察或复现说明…"
-              rows={4}
-            />
-            <div className="drop-toolbar">
-              <div>
-                <button
-                  disabled={busy || done}
-                  title="加入文件"
-                  aria-label="加入文件"
-                  onClick={() => picker.current?.click()}
-                >
-                  <Paperclip size={19} />
-                </button>
-                <button
-                  disabled={busy || done}
-                  title="选择项目文件夹"
-                  aria-label="选择项目文件夹"
-                  onClick={() => folder.current?.click()}
-                >
-                  <FolderUp size={20} />
-                </button>
-                <button
-                  disabled={locked}
-                  title="加入代码"
-                  aria-label="加入代码"
-                  aria-pressed={codeOpen}
-                  onClick={() => setCodeOpen(!codeOpen)}
-                >
-                  <Code2 size={20} />
-                </button>
-              </div>
-              <span>拖放材料到这里</span>
-            </div>
-          </div>
-          <input
-            ref={picker}
-            type="file"
-            hidden
-            multiple
-            onChange={(e) => {
-              add(Array.from(e.target.files || []));
-              e.target.value = "";
-            }}
-          />
-          {createElement("input", {
-            ref: folder,
-            type: "file",
-            hidden: true,
-            multiple: true,
-            webkitdirectory: "",
-            onChange: (e: React.ChangeEvent<HTMLInputElement>) => {
-              add(Array.from(e.target.files || []));
-              e.target.value = "";
-            },
-          })}
-          {(codeOpen || form.code) && (
-            <div className="code-input">
-              <label>代码 · 仅展示，不执行</label>
-              <textarea
-                aria-label="代码内容"
-                disabled={locked}
-                spellCheck={false}
-                rows={5}
-                maxLength={40000}
-                value={form.code}
-                onChange={(e) => field("code", e.target.value)}
-              />
-            </div>
-          )}
-          {files.length > 0 && (
-            <div className="cloud-files">
-              {files.map((f) => (
-                <div key={f.path}>
-                  {f.type.startsWith("image/") ? (
-                    <img src={f.preview} alt={f.path} />
-                  ) : f.type.startsWith("video/") ? (
-                    <video src={f.preview} controls preload="metadata" />
-                  ) : (
-                    <Paperclip size={18} />
-                  )}
-                  <span title={f.path}>
-                    {f.path}
-                    <small>{(f.size / 1048576).toFixed(2)} MiB</small>
-                  </span>
-                  <button
-                    disabled={busy || pending}
-                    aria-label={`移除 ${f.path}`}
-                    onClick={() => remove(f.path)}
+              </label>
+              <details>
+                <summary>适用条件与局限（可选）</summary>
+                <div className="project-link">
+                  <select
+                    aria-label="证据类型"
+                    disabled={locked}
+                    value={publicForm.evidenceType}
+                    onChange={(e) =>
+                      setPublicForm((f) => ({
+                        ...f,
+                        evidenceType: e.target.value,
+                      }))
+                    }
                   >
-                    <X size={16} />
+                    {[
+                      ["community-report", "社区观察"],
+                      ["vendor-advisory", "厂商通告"],
+                      ["research-poc", "研究演示"],
+                      ["paper", "论文"],
+                      ["project", "开源工具"],
+                      ["model-card", "模型卡"],
+                    ].map(([v, l]) => (
+                      <option key={v} value={v}>
+                        {l}
+                      </option>
+                    ))}
+                  </select>
+                  <textarea
+                    aria-label="公开适用条件"
+                    disabled={locked}
+                    maxLength={4000}
+                    value={publicForm.context}
+                    onChange={(e) =>
+                      setPublicForm((f) => ({ ...f, context: e.target.value }))
+                    }
+                    placeholder="版本、模型、配置、权限或预算…"
+                  />
+                  <textarea
+                    aria-label="公开局限"
+                    disabled={locked}
+                    maxLength={4000}
+                    value={publicForm.limitations}
+                    onChange={(e) =>
+                      setPublicForm((f) => ({
+                        ...f,
+                        limitations: e.target.value,
+                      }))
+                    }
+                    placeholder="尚未核实什么？在哪些情况下不适用？"
+                  />
+                </div>
+              </details>
+            </div>
+          )}
+          <details className="private-materials" open={!communityMode}>
+            <summary>私密附件与补充（可选）</summary>
+            <div className="intake-modes">
+              <button
+                disabled={locked}
+                aria-pressed={!project}
+                onClick={() => setProject(false)}
+              >
+                <Radio size={16} />
+                线索与材料
+              </button>
+              <button
+                disabled={locked}
+                aria-pressed={project}
+                onClick={() => setProject(true)}
+              >
+                <FolderUp size={16} />
+                项目与大文件
+              </button>
+            </div>
+            {related && (
+              <div className="submission-target">
+                <span>关联档案</span>
+                <strong>{related.title}</strong>
+              </div>
+            )}
+            {project && (
+              <div className="project-link">
+                <label>
+                  <Link2 size={16} />
+                  项目、模型或发布页链接
+                  <input
+                    aria-label="项目链接"
+                    disabled={locked}
+                    value={form.projectUrl}
+                    onChange={(e) => field("projectUrl", e.target.value)}
+                    placeholder="https://github.com/… / Hugging Face / Release"
+                  />
+                </label>
+                <div>
+                  <input
+                    aria-label="版本或 commit"
+                    disabled={locked}
+                    value={form.revision}
+                    onChange={(e) => field("revision", e.target.value)}
+                    placeholder="版本 / commit（可选）"
+                    maxLength={200}
+                  />
+                  <input
+                    aria-label="重点文件路径"
+                    disabled={locked}
+                    value={form.focusPath}
+                    onChange={(e) => field("focusPath", e.target.value)}
+                    placeholder="重点文件路径（可选）"
+                    maxLength={300}
+                  />
+                </div>
+                <p>链接保留版本与来源；上传只需提供与问题有关的文件。</p>
+              </div>
+            )}
+            <div
+              className={`signal-drop ${dragging ? "dragging" : ""}`}
+              onDragOver={(e) => {
+                e.preventDefault();
+                setDragging(true);
+              }}
+              onDragLeave={() => setDragging(false)}
+              onDrop={(e) => {
+                e.preventDefault();
+                setDragging(false);
+                add(Array.from(e.dataTransfer.files));
+              }}
+              onPaste={(e) => {
+                if (e.clipboardData.files.length) {
+                  e.preventDefault();
+                  add(Array.from(e.clipboardData.files));
+                }
+              }}
+            >
+              <textarea
+                aria-label="你的线索"
+                disabled={locked}
+                maxLength={40000}
+                value={form.note}
+                onChange={(e) => field("note", e.target.value)}
+                placeholder="发生了什么？粘贴链接、观察或复现说明…"
+                rows={4}
+              />
+              <div className="drop-toolbar">
+                <div>
+                  <button
+                    disabled={busy || done}
+                    title="加入文件"
+                    aria-label="加入文件"
+                    onClick={() => picker.current?.click()}
+                  >
+                    <Paperclip size={19} />
+                  </button>
+                  <button
+                    disabled={busy || done}
+                    title="选择项目文件夹"
+                    aria-label="选择项目文件夹"
+                    onClick={() => folder.current?.click()}
+                  >
+                    <FolderUp size={20} />
+                  </button>
+                  <button
+                    disabled={locked}
+                    title="加入代码"
+                    aria-label="加入代码"
+                    aria-pressed={codeOpen}
+                    onClick={() => setCodeOpen(!codeOpen)}
+                  >
+                    <Code2 size={20} />
                   </button>
                 </div>
-              ))}
+                <span>拖放材料到这里</span>
+              </div>
             </div>
-          )}
-          <p className="upload-limits">
-            单文件 ≤512 MiB，总计 ≤1 GiB，最多 100
-            个文件。大项目可用压缩包或仓库链接。自动排除依赖、密钥路径与可执行文件。
-          </p>
+            <input
+              ref={picker}
+              type="file"
+              hidden
+              multiple
+              onChange={(e) => {
+                add(Array.from(e.target.files || []));
+                e.target.value = "";
+              }}
+            />
+            {createElement("input", {
+              ref: folder,
+              type: "file",
+              hidden: true,
+              multiple: true,
+              webkitdirectory: "",
+              onChange: (e: React.ChangeEvent<HTMLInputElement>) => {
+                add(Array.from(e.target.files || []));
+                e.target.value = "";
+              },
+            })}
+            {(codeOpen || form.code) && (
+              <div className="code-input">
+                <label>代码 · 仅展示，不执行</label>
+                <textarea
+                  aria-label="代码内容"
+                  disabled={locked}
+                  spellCheck={false}
+                  rows={5}
+                  maxLength={40000}
+                  value={form.code}
+                  onChange={(e) => field("code", e.target.value)}
+                />
+              </div>
+            )}
+            {files.length > 0 && (
+              <div className="cloud-files">
+                {files.map((f) => (
+                  <div key={f.path}>
+                    {f.type.startsWith("image/") ? (
+                      <img src={f.preview} alt={f.path} />
+                    ) : f.type.startsWith("video/") ? (
+                      <video src={f.preview} controls preload="metadata" />
+                    ) : (
+                      <Paperclip size={18} />
+                    )}
+                    <span title={f.path}>
+                      {f.path}
+                      <small>{(f.size / 1048576).toFixed(2)} MiB</small>
+                    </span>
+                    <button
+                      disabled={busy || pending}
+                      aria-label={`移除 ${f.path}`}
+                      onClick={() => remove(f.path)}
+                    >
+                      <X size={16} />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+            <p className="upload-limits">
+              单文件 ≤512 MiB，总计 ≤1 GiB，最多 100
+              个文件。大项目可用压缩包或仓库链接。自动排除依赖、密钥路径与可执行文件。
+            </p>
+          </details>
           {!receipt && !pending && (
             <details className="composer-options">
               <summary>分类与补充</summary>
@@ -567,16 +742,34 @@ export default function CloudComposer({
           )}
           {!receipt && !pending && (
             <>
-              <label className="intake-consent">
-                <input
-                  type="checkbox"
-                  checked={consent}
-                  onChange={(e) => setConsent(e.target.checked)}
-                />
-                <span>
-                  我已移除私人数据与密钥，同意维护者审阅材料并公开审核后的摘要。附件默认不公开。
-                </span>
-              </label>
+              {communityMode && (
+                <label className="intake-consent public-consent">
+                  <input
+                    type="checkbox"
+                    checked={publicConsent}
+                    onChange={(e) => {
+                      setPublicConsent(e.target.checked);
+                      setConsent(e.target.checked);
+                    }}
+                  />
+                  <span>
+                    我已脱敏，同意上方提案立即公开并同步到
+                    GitHub；私密材料仅供维护者审阅。公开副本可能被保留。
+                  </span>
+                </label>
+              )}
+              {!communityMode && (
+                <label className="intake-consent">
+                  <input
+                    type="checkbox"
+                    checked={consent}
+                    onChange={(e) => setConsent(e.target.checked)}
+                  />
+                  <span>
+                    我已移除私人数据与密钥，同意维护者审阅材料并公开审核后的摘要。附件默认不公开。
+                  </span>
+                </label>
+              )}
               {available === true &&
                 createElement("altcha-widget", {
                   ref: widget,
@@ -631,6 +824,7 @@ export default function CloudComposer({
                   (!available ||
                     !meaningful ||
                     !consent ||
+                    (communityMode && !publicConsent) ||
                     !proof ||
                     !targetValid)
                 }
@@ -641,7 +835,9 @@ export default function CloudComposer({
                   ? "继续上传"
                   : pending
                     ? "重试本次投稿"
-                    : "提交到观测站"}
+                    : communityMode
+                      ? "公开提案"
+                      : "提交到观测站"}
               </button>
             )}
           </div>
@@ -656,14 +852,31 @@ export default function CloudComposer({
             {(
               {
                 submitted: "已接收，等待审核",
+                community: "提案已公开 · 等待社区补证",
                 "needs-info": "需要补充材料",
                 accepted: "摘要已审核",
-                exported: "已进入 GitHub 审核",
+                exported: "已进入社区协作",
                 rejected: "暂不收录",
               } as Record<string, string>
             )[status] || "投稿进度"}
           </h3>
           <code>{receipt?.id}</code>
+          {visibility === "community" && (
+            <p>
+              公开提案已进入共同维护区，尚未核验。GitHub
+              同步约每小时一次，可能延迟。
+            </p>
+          )}
+          {githubIssue && (
+            <a
+              className="btn ghost"
+              href={`https://github.com/${repository}/issues/${githubIssue}`}
+              target="_blank"
+              rel="noreferrer"
+            >
+              加入讨论 <ArrowUpRight size={16} />
+            </a>
+          )}
           {reason && <p>{reason}</p>}
           <div className="receipt-route">
             <span className="active">已接收</span>
@@ -741,34 +954,37 @@ export default function CloudComposer({
           )}
         </div>
       )}
-      {done && ["submitted", "needs-info", "rejected"].includes(status) && (
-        <button
-          className="withdraw-button"
-          disabled={busy}
-          onClick={async () => {
-            if (
-              !receipt ||
-              !confirm(t("撤回将删除本次投稿和原始附件，无法恢复。"))
-            )
-              return;
-            setBusy(true);
-            try {
-              await cloudRequest(`/api/submissions/${receipt.id}`, {
-                method: "DELETE",
-                receipt,
-              });
-              reset();
-              setNotice("已撤回并删除云端材料。");
-            } catch (e) {
-              setNotice(e instanceof Error ? e.message : "撤回失败");
-            } finally {
-              setBusy(false);
-            }
-          }}
-        >
-          撤回并删除材料
-        </button>
-      )}
+      {done &&
+        ["submitted", "needs-info", "rejected", "community"].includes(
+          status,
+        ) && (
+          <button
+            className="withdraw-button"
+            disabled={busy}
+            onClick={async () => {
+              if (
+                !receipt ||
+                !confirm(t("撤回将删除本次投稿和原始附件，无法恢复。"))
+              )
+                return;
+              setBusy(true);
+              try {
+                await cloudRequest(`/api/submissions/${receipt.id}`, {
+                  method: "DELETE",
+                  receipt,
+                });
+                reset();
+                setNotice("已撤回并删除云端材料。");
+              } catch (e) {
+                setNotice(e instanceof Error ? e.message : "撤回失败");
+              } finally {
+                setBusy(false);
+              }
+            }}
+          >
+            撤回并删除材料
+          </button>
+        )}
       {notice && (
         <p className="notice" role="status">
           {notice}
@@ -800,6 +1016,7 @@ export default function CloudComposer({
                 {
                   version: 1,
                   ...form,
+                  community: communityMode ? publicForm : null,
                   files: files.map(({ path, size, type }) => ({
                     path,
                     size,

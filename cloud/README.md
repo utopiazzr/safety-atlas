@@ -16,9 +16,16 @@ Boundaries:
 - 100 files, 512 MiB per file, 1 GiB per submission, 8 MiB chunks. Global reserved storage: 10 GiB. Daily submission quotas: 5 per client, 100 globally.
 - Incomplete uploads expire after 24 hours; completed raw material after 30 days. GitHub scheduled cleanup removes bytes; approved summaries persist. Audit retention: 90 days.
 - Files are private opaque bytes, never extracted, rendered or executed. Path filtering is not malware scanning or secret detection inside archives. Review downloads in isolation.
-- Owner explicitly selects public title, summary, primary sources, evidence type, conditions and limitations. Only this curated record enters GitHub review. Original notes, files and receipt secrets are not exported.
+- Owner explicitly selects public title, summary, primary sources, evidence type, conditions and limitations. Private tips export only this curated record; explicit public proposals follow the community path below. Original notes, files and receipt secrets are not exported.
 - Export and keep the receipt private. Its credential grants access to one submission.
 
 Public API: /api/config, /api/challenge, /api/submissions.
 Receipt API: /api/submissions/:id, .../files/:file/parts/:part, .../complete, .../note.
 Owner API: /api/admin/*. Automation API: /api/automation/* (GitHub OIDC restricted to repository ID and main-branch cloud-intake workflow).
+
+
+## Community proposals
+
+Opt-in public proposals now bypass the private owner-review queue. The separate `community` envelope requires `publicConsent: true`; raw notes, code, file paths, attachments and receipt secrets are never included in it. `GET /api/community` lists the latest 30 proposals. New migration `0001_community` preserves legacy private submissions. Do not edit the applied initial migration.
+
+The hourly OIDC bridge imports both explicit public proposals and owner-curated summaries. It acknowledges an immutable public snapshot. GitHub collaborators use `atlas:propose` or Curate public proposal to generate a draft PR without retyping fields. Automation never merges. The private desk prioritizes unresolved private material and can hide public proposals with an audit reason; already exported GitHub content must be moderated there too.

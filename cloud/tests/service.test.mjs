@@ -6,8 +6,10 @@ import {solveChallenge} from 'altcha-lib';
 import {deriveKey} from 'altcha-lib/algorithms/web/pbkdf2';
 import {handle} from '../worker/service.js';
 import {safePath,parseSubmission,digest} from '../worker/contracts.js';
+import {publicRecord} from '../worker/community.js';
 function setup(){
  const db=new DatabaseSync(':memory:');db.exec(fs.readFileSync(new URL('../drizzle/0000_intake.sql',import.meta.url),'utf8'));
+ db.exec(fs.readFileSync(new URL('../drizzle/0001_community.sql',import.meta.url),'utf8'));
  const prepare=(query,args=[])=>({bind(...next){return prepare(query,next)},async first(){return db.prepare(query).get(...args)||null},async all(){return {results:db.prepare(query).all(...args)}},async run(){const r=db.prepare(query).run(...args);return {meta:{changes:Number(r.changes)}}},query,args});
  const objects=new Map();
  const env={DB:{prepare,batch:async commands=>{db.exec('BEGIN');try{const results=commands.map(c=>{const r=db.prepare(c.query).run(...c.args);return {meta:{changes:Number(r.changes)}}});db.exec('COMMIT');return results}catch(e){db.exec('ROLLBACK');throw e;}}},BUCKET:{async put(key,bytes,options){if(objects.has(key))return null;objects.set(key,{bytes:new Uint8Array(bytes),customMetadata:options.customMetadata});return {key}},async head(key){const v=objects.get(key);return v?{size:v.bytes.length,customMetadata:v.customMetadata}:null},async get(key){const v=objects.get(key);return v?{body:new Blob([v.bytes]).stream()}:null},async delete(keys){for(const key of keys)objects.delete(key)}},INTAKE_SECRET:'test-key-'.repeat(8),ALTCHA_KEY_SECRET:'test-altcha-'.repeat(8),ADMIN_EMAIL:'owner@example.test',ALLOWED_ORIGINS:'https://atlas.example',GITHUB_REPOSITORY_ID:'1',GITHUB_REPOSITORY:'owner/repo',OIDC_AUDIENCE:'test-audience'};
@@ -16,6 +18,47 @@ function setup(){
  const input=()=>({id:crypto.randomUUID(),receiptKey:'ab'.repeat(32),title:'Test material',note:'An observation, not a verified claim.',kind:'suspicion',files:[],consent:true});
  return {db,env,objects,call,proof,input};
 }
+test('public proposals require separate consent and publish only selected fields after completion',async()=>{
+ const t=setup();try{
+  const community={title:'Public observation',summary:'A claim with attribution, not verified.',sources:['https://example.org/research'],evidenceType:'research-poc',context:'Test version',limitations:'Limited experiment',note:'must not leak'};
+  const input={...t.input(),note:'PRIVATE NOTE',code:'PRIVATE CODE',context:'PRIVATE CONTEXT',projectUrl:'https://example.org/private-project',community};
+  assert.throws(()=>parseSubmission(input),/consent/);
+  assert.throws(()=>parseSubmission({...input,publicConsent:true,community:{...community,sources:['javascript:alert(1)']}}),/source/);
+  const body={...input,publicConsent:true,altcha:await t.proof()};
+  assert.equal((await t.call('/api/submissions',{method:'POST',body})).status,201);
+  assert.equal((await t.call('/public/records/'+input.id)).status,404);
+  assert.equal((await(await t.call('/api/community')).json()).items.length,0);
+  const finalized=await(await t.call('/api/submissions/'+input.id+'/complete',{method:'POST',token:input.receiptKey})).json();
+  assert.equal(finalized.status,'community');
+  const record=await(await t.call('/public/records/'+input.id)).json();
+  assert.equal(record.verification,'unverified');assert.equal(record.disclosure,'community');assert.equal(record.context,'Test version');assert.equal(record.note,undefined);
+  const list=await(await t.call('/api/community')).json();assert.equal(list.items.length,1);assert.equal(list.items[0].id,input.id);
+  for(const secret of ['PRIVATE NOTE','PRIVATE CODE','PRIVATE CONTEXT','private-project','receiptKey','token_hash','must not leak'])assert.equal(JSON.stringify(list).includes(secret),false,secret);
+  assert.equal((await t.call('/api/submissions/'+input.id,{method:'DELETE',token:input.receiptKey})).status,200);
+  assert.equal((await(await t.call('/api/community')).json()).items.length,0);
+ }finally{t.db.close()}
+});
+test('hidden proposals and legacy private submissions never acquire public consent',()=>{
+ assert.equal(publicRecord({status:'submitted',community_json:null,review_json:null}),null);
+ assert.equal(publicRecord({status:'rejected',community_json:'{"title":"Hidden"}'}),null);
+ const legacy=parseSubmission({id:crypto.randomUUID(),receiptKey:'ab'.repeat(32),note:'private',files:[],consent:true});
+ assert.equal(legacy.community,undefined);
+ const publicOnly=parseSubmission({id:crypto.randomUUID(),receiptKey:'ab'.repeat(32),files:[],consent:true,publicConsent:true,community:{title:'Proposal',summary:'Public',sources:['https://example.org']}});
+ assert.equal(publicOnly.community.title,'Proposal');
+});
+test('only owner can hide a public proposal and hidden material is unavailable to curation',async()=>{
+ const t=setup();try{
+  const input={...t.input(),publicConsent:true,community:{title:'Moderation test',summary:'Unverified observation',sources:['https://example.org']},altcha:await t.proof()};
+  await t.call('/api/submissions',{method:'POST',body:input});await t.call('/api/submissions/'+input.id+'/complete',{method:'POST',token:input.receiptKey});
+  const endpoint='/api/admin/submissions/'+input.id,headers={'oai-authenticated-user-id':'owner-id','oai-authenticated-user-email':t.env.ADMIN_EMAIL};
+  const row=await(await t.call(endpoint,{headers})).json(),body={reason:'Duplicate spam',expectedRevision:row.revision};
+  assert.equal((await t.call(endpoint+'/hide',{method:'POST',body})).status,403);
+  assert.equal((await t.call(endpoint+'/hide',{method:'POST',body,origin:'https://intake.example',headers})).status,200);
+  assert.equal((await t.call('/public/records/'+input.id)).status,404);
+  assert.equal((await(await t.call('/api/community')).json()).items.length,0);
+  assert.equal(t.db.prepare("SELECT count(*) AS n FROM audit WHERE action='hide-community'").get().n,1);
+ }finally{t.db.close()}
+});
 test('anonymous receipt requires valid single-use proof; ownership is enforced',async()=>{const t=setup();try{const input=t.input();let r=await t.call('/api/submissions',{method:'POST',body:input});assert.equal(r.status,400);const proof=await t.proof();r=await t.call('/api/submissions',{method:'POST',body:{...input,altcha:proof}});assert.equal(r.status,201);assert.equal((await t.call('/api/submissions/'+input.id,{token:'cd'.repeat(32)})).status,404);assert.equal((await t.call('/api/submissions',{method:'POST',body:{...t.input(),altcha:proof}})).status,409);assert.equal((await t.call('/api/submissions',{method:'POST',body:{...input,altcha:'expired'}})).status,200);assert.equal((await t.call('/api/submissions/'+input.id+'/complete',{method:'POST',token:input.receiptKey})).status,200);assert.equal((await t.call('/public/records/'+input.id)).status,404);}finally{t.db.close()}});
 test('chunked files survive retries and reject mismatched chunks and incomplete finalization',async()=>{const t=setup();try{const input={...t.input(),files:[{path:'project/example.txt',size:5,type:'text/plain'}],altcha:await t.proof()};assert.equal((await t.call('/api/submissions',{method:'POST',body:input})).status,201);const path='/api/submissions/'+input.id;assert.equal((await t.call(path+'/complete',{method:'POST',token:input.receiptKey})).status,409);for(let i=0;i<2;i++)assert.equal((await t.call(path+'/files/0/parts/0',{method:'PUT',body:new TextEncoder().encode('hello'),token:input.receiptKey})).status,200);assert.equal((await t.call(path+'/files/0/parts/0',{method:'PUT',body:new TextEncoder().encode('other'),token:input.receiptKey})).status,409);assert.equal((await t.call(path+'/complete',{method:'POST',token:input.receiptKey})).status,200);const row=await(await t.call(path,{token:input.receiptKey})).json();assert.equal(row.parts.length,1);assert.equal(row.parts[0].digest,await digest('hello'));assert.equal((await t.call(path,{method:'DELETE',token:input.receiptKey})).status,200);assert.equal(t.objects.size,0);assert.equal(t.db.prepare("SELECT used FROM quotas WHERE bucket='storage:reserved'").get().used,0);}finally{t.db.close()}});
 test('public API rejects foreign origins, unauthenticated administration and unsafe files',async()=>{const t=setup();try{assert.equal((await t.call('/api/challenge',{origin:'https://evil.example'})).status,403);assert.equal((await t.call('/api/admin/submissions')).status,403);assert.equal((await t.call('/api/automation/queue',{token:'forged'})).status,401);for(const path of ['../x','/tmp/x','C:/private','project/.env','project/.git/config','project/node_modules/x','x.pem','run.exe'])assert.equal(safePath(path),false,path);assert.equal(safePath('src/guardrail.py'),true);assert.throws(()=>parseSubmission({...t.input(),files:[{path:'p.zip',size:600*1024*1024}]}),/size/);}finally{t.db.close()}});

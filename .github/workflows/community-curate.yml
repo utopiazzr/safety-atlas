@@ -1,0 +1,46 @@
+name: Curate public proposal
+on:
+  issues:
+    types: [labeled]
+  workflow_dispatch:
+    inputs:
+      issue_number:
+        description: Public proposal Issue number; read sources before running
+        type: string
+        required: true
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+  statuses: write
+concurrency:
+  group: atlas-review-${{ inputs.issue_number || github.event.issue.number }}
+  cancel-in-progress: false
+jobs:
+  propose:
+    if: github.repository == 'utopiazzr/safety-atlas' && github.ref == 'refs/heads/main' && (github.event_name == 'workflow_dispatch' || github.event.label.name == 'atlas:propose')
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: main
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: node scripts/curate-community.mjs
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+      - run: npm ci
+      - run: npm test && npm run build
+      - run: node scripts/open-review.mjs
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: proposal-${{ inputs.issue_number || github.event.issue.number }}
+          path: work/candidate/
+          retention-days: 14

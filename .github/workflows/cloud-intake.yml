@@ -3,12 +3,12 @@ on:
   workflow_dispatch:
     inputs:
       action:
-        description: Import reviewed summaries and clean expired uploads, or health check only
+        description: Import opt-in public proposals / curated summaries and clean expired uploads, or health check only
         type: choice
         options: [sync, health]
         default: sync
       submission_id:
-        description: Optional approved submission UUID
+        description: Optional public or approved submission UUID
         type: string
   schedule:
     - cron: "17 * * * *"
