@@ -11,6 +11,7 @@ import {
 import { localize, useLocale, LocaleSelect } from "./i18n";
 import SignalComposer from "./SignalComposer";
 import SignalLibrary from "./SignalLibrary";
+import ReviewDesk from "./ReviewDesk";
 export default function App() {
   useLocale();
   const repository =
@@ -22,15 +23,28 @@ export default function App() {
     [composerRequest, setComposerRequest] = useState({
       kind: "suspicion",
       seq: 0,
+      relatedId: "",
+      intent: "new",
     }),
     [featured, setFeatured] = useState({ id: "", seq: 0 });
   const dialog = useRef<HTMLDialogElement>(null),
     previousFocus = useRef<HTMLElement | null>(null);
-  function contribute(kind = "suspicion") {
+  function contribute(kind = "suspicion", relatedId = "", intent = "new") {
     previousFocus.current = document.activeElement as HTMLElement;
-    setComposerRequest((r) => ({ kind, seq: r.seq + 1 }));
+    setComposerRequest((r) => ({ kind, relatedId, intent, seq: r.seq + 1 }));
     setSubmitting(true);
   }
+  useEffect(() => {
+    const onHash = () => {
+      if (location.hash === "#contribute") {
+        contribute();
+        history.replaceState(null, "", "#signals");
+      }
+    };
+    onHash();
+    window.addEventListener("hashchange", onHash);
+    return () => window.removeEventListener("hashchange", onHash);
+  }, []);
   useEffect(() => {
     if (submitting) {
       dialog.current?.showModal();
@@ -164,6 +178,7 @@ export default function App() {
           featured={featured}
           motion={motion}
         />
+        <ReviewDesk repository={repository} />
       </main>
       <footer>
         <a className="brand" href="./">

@@ -1,4 +1,6 @@
 import fs from "node:fs/promises";
+import { github, artifact } from "./github.mjs";
+import { analyzeCandidate, revisionOf } from "./review.mjs";
 import {
   normalizeIssue,
   generateStoryboard,
@@ -9,20 +11,13 @@ if (!/^\d+$/.test(issueNumber || ""))
   throw Error("A numeric issue number is required");
 const repo = process.env.GITHUB_REPOSITORY;
 if (!/^[\w.-]+\/[\w.-]+$/.test(repo || "")) throw Error("Invalid repository");
-const response = await fetch(
-  `https://api.github.com/repos/${repo}/issues/${issueNumber}`,
-  {
-    headers: {
-      Accept: "application/vnd.github+json",
-      Authorization: `Bearer ${process.env.GITHUB_TOKEN}`,
-    },
-    signal: AbortSignal.timeout(20000),
-  },
-);
-if (!response.ok) throw Error(`Unable to read issue (${response.status})`);
-const issue = await response.json();
-if (issue.pull_request) throw Error("Use an Issue, not a pull request");
-let candidate = normalizeIssue(issue);
+const { issue, comments } = await github().issueSnapshot(Number(issueNumber));
+let candidate = normalizeIssue(issue, { comments });
+const catalogue = JSON.parse(await fs.readFile("data/signals.json", "utf8"));
+await artifact("review.json", {
+  revision: revisionOf(issue, comments),
+  ...analyzeCandidate(candidate, catalogue),
+});
 if (process.env.ATLAS_MODE === "storyboard")
   candidate = await generateStoryboard(candidate, {
     baseUrl: process.env.ATLAS_MODEL_BASE_URL,

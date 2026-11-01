@@ -1,0 +1,83 @@
+name: Review community signal
+on:
+  workflow_dispatch:
+    inputs:
+      issue_number:
+        description: "Public Issue number / 投稿编号"
+        type: string
+        required: true
+      decision:
+        description: "Request evidence, mark duplicate, decline, or propose catalogue change"
+        type: choice
+        options: [request-info, duplicate, decline, draft-new, draft-update]
+        required: true
+      title:
+        description: "Neutral entry title (required for draft-new)"
+        type: string
+      summary:
+        description: "Attributed, bounded summary (required for draft-new)"
+        type: string
+      evidence_type:
+        description: "Source class; never a verification badge"
+        type: choice
+        options:
+          [
+            community-report,
+            vendor-advisory,
+            research-poc,
+            paper,
+            project,
+            model-card,
+          ]
+      source_url:
+        description: "Primary source checked by reviewer (required for a proposal)"
+        type: string
+      target_id:
+        description: "Existing entry ID (required for draft-update or duplicate)"
+        type: string
+      context:
+        description: "Product/version/access or model/budget/configuration"
+        type: string
+      limitations:
+        description: "Limits, uncertainty and scope; one per line"
+        type: string
+      rationale:
+        description: "Decision reason; mention what was checked and what remains unknown"
+        type: string
+        required: true
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+  statuses: write
+concurrency:
+  group: atlas-review-${{ inputs.issue_number }}
+  cancel-in-progress: false
+jobs:
+  review:
+    if: github.ref_name == github.event.repository.default_branch
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+      - run: node scripts/review-signal.mjs
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+      - if: startsWith(inputs.decision, 'draft-')
+        run: npm ci
+      - if: startsWith(inputs.decision, 'draft-')
+        run: npm test && npm run build
+      - if: startsWith(inputs.decision, 'draft-')
+        run: node scripts/open-review.mjs
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: editorial-${{ inputs.issue_number }}
+          path: work/candidate/
+          retention-days: 14

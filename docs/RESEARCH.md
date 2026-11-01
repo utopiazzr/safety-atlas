@@ -25,3 +25,11 @@
 ## 尚未实现
 
 自动复现、外部网页抽取、图片/视频语义识别、自动持续采集、多模态模型与产品实际运行均未开启。当前模型适配器只生成待审叙事草稿。新增证据必须检查适用版本和披露日期，不能根据插画或分类推断真实影响。
+
+## 投稿与治理调研 · 2026-11-01
+
+[AVID 的数据库说明](https://avidml.org/database/) 区分具体发生与证据的 Report 和描述重复失效模式的 Vulnerability；报告又有 Issue、Advisory、Measurement、Detection 等类型。[AI Incident Database 的论文](https://cdn.aaai.org/ojs/17817/17817-13-21311-1-2-20210518.pdf) 区分原始报道和被整理的事件。两者支持一个共同设计判断：材料、档案、抽象方法不能混成一张自动“已验证”卡。
+
+据此采用原始 Issue → 人工整理目录记录 → 审核 PR 的关系。同一事件的新报道增加来源；新的条件或纠错更新原条目并暂停可能过期的动画。方法和防御保留独立资源身份，通过明确关系连接，不为了视觉统一抹掉证据差异。完整场景矩阵与维护操作见 [CONTRIBUTING](CONTRIBUTING.md)。
+
+[GitHub 创建 Issue 的官方文档](https://docs.github.com/en/issues/tracking-your-work-with-issues/using-issues/creating-an-issue) 支持 URL 预填与模板；网站使用独立 Markdown 交接模板，原生入口使用简化的 Issue Form。长正文通过复制或 Markdown 下载交接，避免 URL 过长导致材料丢失。

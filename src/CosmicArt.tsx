@@ -11,8 +11,16 @@ const ids = [
   "mcp-scan",
 ];
 // One compressed atlas. Interactive telemetry is rendered as code, not video.
-export function PosterArt({ id }: { id: string; kind?: string }) {
-  const index = Math.max(0, ids.indexOf(id));
+export function PosterArt({ id, kind }: { id: string; kind?: string }) {
+  const index = ids.includes(id)
+    ? ids.indexOf(id)
+    : kind === "attack"
+      ? 4
+      : kind === "defense"
+        ? 6
+        : kind === "resource"
+          ? 7
+          : 2;
   const loop = id === "spaiware" || id === "pair";
   const scan =
     id.includes("scan") || id.includes("garak") || id === "prompt-guard-2";

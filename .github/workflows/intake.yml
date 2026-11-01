@@ -1,0 +1,32 @@
+name: Receive community signal
+on:
+  issues:
+    types: [opened, edited, reopened]
+  issue_comment:
+    types: [created, edited, deleted]
+permissions:
+  contents: read
+  issues: write
+  pull-requests: read
+  statuses: write
+concurrency:
+  group: atlas-intake-${{ github.event.issue.number }}
+  cancel-in-progress: false
+jobs:
+  receive:
+    if: github.event.issue.pull_request == null && github.event.sender.type != 'Bot'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - run: node scripts/intake-signal.mjs
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: intake-${{ github.event.issue.number }}
+          path: work/candidate/
+          retention-days: 14

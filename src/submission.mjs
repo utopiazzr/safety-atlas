@@ -1,11 +1,5 @@
-export const kinds = {
-  suspicion: "怀疑线索",
-  incident: "经历的事件",
-  report: "外部报道",
-  attack: "攻击方法",
-  defense: "防御方案",
-  resource: "模型与产品",
-};
+import { kindLabels, intents, provenance } from "./intake.mjs";
+export const kinds = kindLabels;
 export function validRepo(repo) {
   return (
     /^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/.test(repo) && !repo.includes("..")
@@ -31,6 +25,21 @@ export function makeMarkdown(form, files = []) {
   const parts = [
     `## ${kinds[form.kind] || kinds.suspicion}\n\n状态：社区投稿，尚待核验。\n材料形式：${form.resourceType || "mixed"}`,
   ];
+  const metadata = {
+    version: 1,
+    kind: Object.hasOwn(kinds, form.kind) ? form.kind : "suspicion",
+    intent: Object.hasOwn(intents, form.intent) ? form.intent : "new",
+    provenance: Object.hasOwn(provenance, form.provenance)
+      ? form.provenance
+      : "unsure",
+    relatedId: /^[a-z0-9-]{1,100}$/.test(form.relatedId || "")
+      ? form.relatedId
+      : "",
+  };
+  parts.unshift(`<!-- safety-atlas:intake ${JSON.stringify(metadata)} -->`);
+  parts.push(
+    `目的：${intents[metadata.intent]}\n得知方式：${provenance[metadata.provenance]}${metadata.relatedId ? `\n关联档案：${metadata.relatedId}` : ""}`,
+  );
   if (form.note.trim()) parts.push(form.note.trim());
   if (form.context?.trim()) parts.push(`## 运行条件\n\n${form.context.trim()}`);
   if (form.code.trim())
@@ -52,10 +61,18 @@ export function makeMarkdown(form, files = []) {
 export function makeIssueUrl(repo, form, files = []) {
   if (!validRepo(repo)) return null;
   const url = new URL(`https://github.com/${repo}/issues/new`);
+  url.searchParams.set("template", "web-signal.md");
   url.searchParams.set(
     "title",
     `[${kinds[form.kind] || kinds.suspicion}] ${signalTitle(form, files)}`,
   );
   url.searchParams.set("body", makeMarkdown(form, files));
   return url.href.length <= 7500 ? url.href : null;
+}
+export function handoffUrl(repo, form, files = []) {
+  if (!validRepo(repo)) return null;
+  return (
+    makeIssueUrl(repo, form, files) ||
+    `https://github.com/${repo}/issues/new?template=web-signal.md&title=${encodeURIComponent(`[${kinds[form.kind] || kinds.suspicion}] ${signalTitle(form, files)}`)}`
+  );
 }

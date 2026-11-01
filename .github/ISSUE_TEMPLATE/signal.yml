@@ -1,33 +1,57 @@
-name: 投递信号 / Share a signal
-description: 怀疑、案例、报道、攻击、防御、模型或产品，都可以从一条线索开始。
-title: "[信号] "
+name: Submit material / 提交一份材料
+description: A suspicion, incident, paper, attack, defense or tool. Incomplete evidence is welcome.
+title: "[线索] "
 body:
   - type: markdown
     attributes:
       value: |
-        一句话、一个链接、一段代码，或拖入图片视频。内容将公开；请先移除敏感信息。
-        A note, a link, code, or an image/video attachment is enough to start. Remove private information before posting publicly.
+        一条观察或一份材料就能开始。无需证明结论，也无需自行制作动画。
+        Start with an observation or material. You do not need to prove the claim or build an animation.
+        **公开投稿 / Public submission:** 请脱敏；尚未公开的漏洞先走受影响项目的私密披露渠道。Redact personal data and secrets. Use the affected project's private disclosure channel for non-public vulnerabilities.
   - type: dropdown
     id: kind
     attributes:
-      label: 信号类型
+      label: 信号类型 / Signal type
       options:
-        - 怀疑线索
-        - 经历的事件
-        - 外部报道
-        - 攻击方法
-        - 防御方案
-        - 模型与产品
+        - 怀疑线索 / Suspicion
+        - 经历的事件 / Observed incident
+        - 外部报道 / Report
+        - 攻击方法 / Attack
+        - 防御方案 / Defense
+        - 模型与产品 / Model or product
       default: 0
   - type: textarea
     id: material
     attributes:
-      label: 你的线索 / Your signal
-      description: 支持文字、链接、代码和 GitHub 支持的附件。无需完整报告。
+      label: 材料 / Material
+      description: "链接、代码、截图、视频、观察经过均可。Attach media here; wrap code in fenced blocks."
     validations:
       required: true
+  - type: dropdown
+    id: purpose
+    attributes:
+      label: 投稿目的 / Purpose
+      options: ["新线索 / New", "补充证据 / Evidence", "更正信息 / Correction"]
+      default: 0
+  - type: input
+    id: related
+    attributes:
+      label: 关联档案 ID（可选）/ Related entry
+      description: "补充或更正时填写，如 echoleak。Find the ID in an entry permalink."
+  - type: dropdown
+    id: provenance
+    attributes:
+      label: 你如何得知 / How you know
+      options:
+        [
+          "尚不确定 / Unsure",
+          "亲身观察 / Firsthand",
+          "转述公开资料 / Public source",
+          "研究或实验 / Research",
+        ]
+      default: 0
   - type: textarea
     id: context
     attributes:
-      label: 补充信息（可选）/ Context (optional)
-      placeholder: 目标、版本、权限、来源、运行条件或局限。
+      label: 条件与局限（可选）/ Context and limitations
+      placeholder: "事件：时间、版本、权限。方法：模型、预算、配置、成功与失败条件。Date, version, permissions, model, budget, configuration and limitations."

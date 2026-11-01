@@ -34,5 +34,5 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: signal-candidate
-          path: work/candidate/signal.json
+          path: work/candidate/
           retention-days: 14

@@ -2,23 +2,25 @@
 
 ## 职责
 
-| 组件     | 位置                 | 职责                             |
-| -------- | -------------------- | -------------------------------- |
-| 页面     | GitHub Pages         | 浏览、筛选、可视化、组织投稿     |
-| 原始投稿 | GitHub Issues        | 用户确认公开提交、附原始图片视频 |
-| 数据整理 | GitHub Actions       | 生成待审 JSON artifact           |
-| 已审目录 | data/signals.json    | 通过源码审核后发布               |
-| 模型调用 | Actions 中的可选任务 | 依据提供的来源文本生成分镜草稿   |
+| 组件     | 位置                 | 职责                              |
+| -------- | -------------------- | --------------------------------- |
+| 页面     | GitHub Pages         | 浏览、筛选、可视化、组织投稿      |
+| 原始投稿 | GitHub Issues        | 用户确认公开提交、附原始图片视频  |
+| 数据整理 | GitHub Actions       | 接收、提示补证、生成候选与草稿 PR |
+| 已审目录 | data/signals.json    | 通过源码审核后发布                |
+| 模型调用 | Actions 中的可选任务 | 依据提供的来源文本生成分镜草稿    |
 
 这是一套静态站点加云端工作流，不是常驻应用服务器。没有自建数据库、文件存储服务或私密投稿系统。网站关闭或本机离线不影响线上访问。
 
 ## 维护者处理投稿
 
-1. Actions → Prepare community signal → Run workflow，输入公开 Issue 编号。
-2. normalize 模式提取原文、链接与代码，并保留 pending / unverified。
-3. 下载 signal-candidate artifact（保留 14 天），检查归因、版本、证据、隐私、重复内容。
-4. 补齐 evidenceType、environment、limitations、sources 等字段，通过 PR 合入 data/signals.json。
-5. approved 仅代表允许收录，不表示独立复现。保留真实 verification 状态。为需要专属机制的条目补充 src/scenes.ts。
+1. 投稿到达后，Receive community signal 生成候选、同源关联建议和补证提示。自动处理不核验事实、不调用模型。
+2. Actions → Review community signal → Run workflow，输入 Issue 编号，选择补证、关联、暂不收录、新建档案或更新档案。
+3. 新建/更新需要维护者核对来源，填写摘要、环境、局限与判断理由。测试和构建成功后生成独立分支与草稿 PR；若 PR 创建受仓库设置限制，提供 compare 链接。
+4. 人工审核差异后合并。合并同步目录状态，Pages 独立部署。原始证据变化则重新审核。
+5. Prepare community signal 保留为候选/可选分镜导出入口，artifact 保留 14 天；源材料留在 Issues 中。
+
+具体字段、状态和版本更正流程见 [投稿与维护指南](CONTRIBUTING.md)。approved 仅代表允许收录，不表示独立复现。
 
 ## 可选模型接口（尚未配置）
 
@@ -38,4 +40,4 @@ storyboard 模式调用兼容的 /chat/completions 接口。未配置时返回 a
 
 浏览器可组织文字、代码、图片和视频；附件预览留在内存中，上传在 GitHub 完成。代码作为文本展示。GitHub 接受的附件种类和大小以其平台限制为准；模型权重和大型视频应提交托管链接。
 
-发布工作流权限与处理工作流分开。处理任务只有内容和 Issue 读取权限，维护者手动运行。Pages 在云端 npm ci、测试和构建。无需保留本机 node_modules、dist 或预览服务。
+工作流权限分开：准备任务只读；接收任务可写状态标签、回执和证据检查状态；维护者手动审核任务可创建分支/草稿 PR；发布同步只更新 Issue 状态。Pages 独立构建和部署。所有正文、代码和工作流输入通过 JSON/文件读取，不插入 shell 命令。无需本机常驻预览服务。

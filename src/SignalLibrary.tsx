@@ -12,7 +12,27 @@ import {
 import data from "../data/signals.json";
 import { localize, useLocale, t } from "./i18n";
 import { scenes } from "./scenes";
-type Entry = (typeof data)[number];
+type Entry = {
+  id: string;
+  kind: string;
+  title: string;
+  summary: string;
+  review: string;
+  verification: string;
+  evidenceType: string;
+  facets?: string[];
+  visualizationStatus?: string;
+  resources: { type: string; url?: string; content?: string; label?: string }[];
+  sources: { url: string; label: string }[];
+  relationships: { type: string; target: string }[];
+  environment?: Record<string, string | undefined>;
+  limitations?: string[];
+  lifecycle?: { disclosedAt: string; fixStatus: string };
+  storyboard?: {
+    disclaimer: string;
+    steps: { title: string; body: string; sourceIndex: number }[];
+  } | null;
+};
 const tabs = [
   ["all", "全部"],
   ["report", "案例"],
@@ -25,7 +45,7 @@ export default function SignalLibrary({
   featured,
   motion,
 }: {
-  onContribute: (kind?: string) => void;
+  onContribute: (kind?: string, relatedId?: string, intent?: string) => void;
   featured: { id: string; seq: number };
   motion: boolean;
 }) {
@@ -45,11 +65,12 @@ export default function SignalLibrary({
     });
   const dialog = useRef<HTMLDialogElement>(null),
     focus = useRef<HTMLElement | null>(null);
-  const entries = data.filter((x) => x.review === "approved");
+  const entries: Entry[] = data.filter((x) => x.review === "approved");
   const visible = entries.filter(
     (x) =>
       (filter === "all" ||
         x.kind === filter ||
+        (filter === "report" && ["incident", "suspicion"].includes(x.kind)) ||
         ("facets" in x && x.facets?.includes(filter))) &&
       [x.title, x.summary, t(x.title), t(x.summary)]
         .join(" ")
@@ -59,10 +80,25 @@ export default function SignalLibrary({
   function open(entry: Entry) {
     focus.current = document.activeElement as HTMLElement;
     setSelected(entry);
+    history.replaceState(null, "", `#entry=${encodeURIComponent(entry.id)}`);
   }
   function close() {
     setSelected(null);
+    if (location.hash.startsWith("#entry="))
+      history.replaceState(null, "", "#signals");
   }
+  useEffect(() => {
+    const readHash = () => {
+      if (location.hash.startsWith("#entry=")) {
+        const id = location.hash.slice(7);
+        const entry = entries.find((e) => e.id === id);
+        if (entry) open(entry);
+      }
+    };
+    readHash();
+    window.addEventListener("hashchange", readHash);
+    return () => window.removeEventListener("hashchange", readHash);
+  }, []);
   useEffect(() => {
     if (featured.id) {
       const entry = entries.find((x) => x.id === featured.id);
@@ -91,26 +127,10 @@ export default function SignalLibrary({
       localStorage.setItem("atlas-library-saved", JSON.stringify(next));
     } catch {}
   }
-  const scene = selected
-    ? scenes[selected.id] || {
-        nodes: ["来源", "模型", "操作", "结果"],
-        steps: (
-          selected.storyboard?.steps || [
-            { title: "来源", body: selected.summary, sourceIndex: 0 },
-            {
-              title: "待核验",
-              body: "依据公开来源整理的机制示意，非本站实测。",
-              sourceIndex: 0,
-            },
-          ]
-        ).map((s, i) => ({
-          ...s,
-          from: Math.min(i, 2),
-          to: Math.min(i + 1, 3),
-          signal: "neutral" as const,
-        })),
-      }
-    : null;
+  const scene =
+    selected && selected.visualizationStatus !== "needs-review"
+      ? scenes[selected.id]
+      : null;
   return localize(
     <section className="signal-library" id="signals">
       <span id="archive" />
@@ -204,7 +224,7 @@ export default function SignalLibrary({
         }}
       >
         <div className="detail-wrap">
-          {selected && scene && (
+          {selected && (
             <>
               <div className="detail-top">
                 <span>
@@ -227,12 +247,57 @@ export default function SignalLibrary({
                 </button>
               </div>
               <h2 id="signal-title">{selected.title}</h2>
-              <ScenePlayer
-                key={selected.id}
-                caseId={selected.id}
-                scene={scene}
-                motion={motion}
-              />
+              <div className="evidence-state">
+                <span>
+                  {(
+                    {
+                      "source-linked": "来源已关联",
+                      unverified: "待核验",
+                      verified: "已有独立复现",
+                      disputed: "存在争议",
+                      demo: "演示材料",
+                    } as Record<string, string>
+                  )[selected.verification] || "待核验"}
+                </span>
+                <code>{selected.id}</code>
+              </div>
+              {scene ? (
+                <ScenePlayer
+                  key={selected.id}
+                  caseId={selected.id}
+                  scene={scene}
+                  motion={motion}
+                />
+              ) : (
+                <div className="source-first">
+                  <PosterArt id={selected.id} kind={selected.kind} />
+                  <p>{selected.summary}</p>
+                  <span>
+                    {selected.visualizationStatus === "needs-review"
+                      ? "内容已更正，机制演示等待重新审核。"
+                      : "先看证据。机制演示将在审核后补充。"}
+                  </span>
+                </div>
+              )}
+              {!scene &&
+                selected.storyboard &&
+                selected.visualizationStatus !== "needs-review" && (
+                  <ol className="evidence-sequence">
+                    {selected.storyboard.steps.map((s, i) => (
+                      <li key={i}>
+                        <strong>{s.title}</strong>
+                        <p>{s.body}</p>
+                        <a
+                          href={selected.sources[s.sourceIndex]?.url}
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          查看依据
+                        </a>
+                      </li>
+                    ))}
+                  </ol>
+                )}
               <div className="detail-disclosures">
                 <details>
                   <summary>
@@ -270,6 +335,14 @@ export default function SignalLibrary({
                         {r.label || r.type}
                         <ArrowUpRight size={16} />
                       </a>
+                    ))}
+                  {selected.resources
+                    .filter((r) => r.content)
+                    .map((r, i) => (
+                      <div className="resource-snippet" key={i}>
+                        <span>{r.label || r.type}</span>
+                        <pre>{r.content}</pre>
+                      </div>
                     ))}
                   {selected.relationships.map((relation) => {
                     const related = entries.find(
@@ -311,7 +384,7 @@ export default function SignalLibrary({
                       ),
                     )}
                   </dl>
-                  {selected.limitations.map((x) => (
+                  {(selected.limitations || []).map((x) => (
                     <p key={x}>{x}</p>
                   ))}
                   {"lifecycle" in selected && selected.lifecycle && (
@@ -337,11 +410,20 @@ export default function SignalLibrary({
                   onClick={() => {
                     const kind = selected.kind;
                     close();
-                    onContribute(kind);
+                    onContribute(kind, selected.id, "evidence");
                   }}
                 >
                   补充线索
                   <Plus size={17} />
+                </button>
+                <button
+                  onClick={() => {
+                    const entry = selected;
+                    close();
+                    onContribute(entry.kind, entry.id, "correction");
+                  }}
+                >
+                  更正信息
                 </button>
               </div>
             </>

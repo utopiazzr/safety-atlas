@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Visual submission / 可视化投稿
+    url: https://utopiazzr.github.io/safety-atlas/#contribute
+    about: Start with a link, observation, code or media / 一份材料就能开始
+  - name: Contribution and review guide / 投稿与审核说明
+    url: https://github.com/utopiazzr/safety-atlas/blob/main/docs/CONTRIBUTING.md
+    about: Evidence, corrections, privacy and publication / 补证、更正、隐私与发布

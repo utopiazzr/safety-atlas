@@ -1,3 +1,9 @@
+import {
+  readIntake,
+  extractLinks,
+  resourceType,
+  canonicalUrl,
+} from "../src/intake.mjs";
 export const SIGNAL_KINDS = [
   "suspicion",
   "incident",
@@ -142,60 +148,80 @@ export function validateSignal(s, { publish = false } = {}) {
     fail("Published entries need source and evidence type");
   return s;
 }
-export function normalizeIssue(issue) {
-  const labels = {
-    怀疑线索: "suspicion",
-    经历的事件: "incident",
-    外部报道: "report",
-    攻击方法: "attack",
-    防御方案: "defense",
-    模型与产品: "resource",
-  };
-  const body = String(issue.body || "").slice(0, 60000),
+export function normalizeIssue(issue, { comments = [] } = {}) {
+  const body = String(issue.body || ""),
     title = String(issue.title || "未命名信号");
-  const kind =
-    Object.entries(labels).find(
-      ([label]) =>
-        title.startsWith(`[${label}]`) ||
-        body.startsWith(`## ${label}`) ||
-        body.includes(`### 信号类型\n\n${label}`),
-    )?.[1] || "suspicion";
-  const urls = [...new Set(body.match(/https?:\/\/[^\s<>"`\])]+/g) || [])]
-    .filter(webUrl)
-    .slice(0, 19);
-  const hint = body.match(/材料形式：([a-z]+)/)?.[1];
-  const resources = urls.map((url) => ({
-    type: RESOURCE_TYPES.includes(hint)
-      ? hint
-      : /github\.com\//.test(url)
-        ? "repository"
-        : "link",
-    url,
+  if (body.length > 65536)
+    throw Error("Issue body exceeds supported size; review the original");
+  const intake = readIntake(body, title);
+  const discussion = comments.slice(0, 20).map((c) => ({
+    url: c.html_url,
+    author: c.user?.login || "unknown",
+    body: String(c.body || "").slice(0, 8000),
+    updatedAt: c.updated_at,
   }));
-  for (const match of body.matchAll(/^(`{3,})[^\n]*\n([\s\S]*?)\n\1\s*$/gm)) {
-    if (resources.length < 29)
-      resources.push({
-        type: "code",
-        content: match[2],
-        label: "投稿代码或文本片段",
-      });
-  }
+  const allUrls = [
+    ...new Set(
+      [body, ...discussion.map((c) => c.body)].flatMap((text) =>
+        extractLinks(text),
+      ),
+    ),
+  ].filter((url) => canonicalUrl(url) !== canonicalUrl(issue.html_url));
+  const urls = allUrls.slice(0, 19);
+  const resources = urls.map((url) => ({ type: resourceType(url), url }));
+  const hint = body.match(/材料形式：([a-z]+)/)?.[1];
+  if (
+    urls.length === 1 &&
+    RESOURCE_TYPES.includes(hint) &&
+    hint !== "mixed" &&
+    resources[0].type === "link"
+  )
+    resources[0].type = hint;
+  let codeCount = 0;
+  for (const material of [body, ...discussion.map((c) => c.body)])
+    for (const match of material.matchAll(
+      /^(`{3,}|~{3,})[^\n]*\n([\s\S]*?)\n\1\s*$/gm,
+    )) {
+      codeCount++;
+      if (resources.length < 29)
+        resources.push({
+          type: "code",
+          content: match[2],
+          label: "投稿片段（待核验）",
+        });
+    }
   resources.unshift({ type: "text", content: body, label: "原始投稿" });
   return validateSignal({
     schemaVersion: "1.0",
     id: `issue-${Number(issue.number)}`,
-    kind,
-    title: title.replace(/^\[[^\]]+\]\s*/, "").slice(0, 200),
+    kind: intake.kind,
+    title: title.replace(/^\[[^\]]+\]\s*/, "").slice(0, 200) || "未命名信号",
     summary: "社区投稿，等待审核。",
     review: "pending",
     verification: "unverified",
     resources,
     sources: [
       { url: issue.html_url, label: "原始投稿", excerpt: body },
-      ...urls.map((url) => ({ url, label: "投稿中的链接" })),
+      ...urls
+        .filter((url) => !["image", "video"].includes(resourceType(url)))
+        .map((url) => ({ url, label: "待核对的公开来源" })),
     ],
     relationships: [],
     storyboard: null,
+    intake: {
+      ...intake,
+      issueNumber: Number(issue.number),
+      issueUrl: issue.html_url,
+      author: issue.user?.login || "unknown",
+      updatedAt: issue.updated_at || null,
+      discussion,
+      materialsPartial: allUrls.length > 19 || urls.length + codeCount > 29,
+      discussionPartial:
+        comments.length > 20 ||
+        comments.some((c) => String(c.body || "").length > 8000),
+      missingAttachments:
+        body.includes("## 待附加材料") && body.includes("尚未上传"),
+    },
   });
 }
 export async function generateStoryboard(

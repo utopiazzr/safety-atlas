@@ -1,0 +1,23 @@
+name: Validate catalogue
+on:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+  issues: read
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+      - run: npm ci
+      - run: npm test && npm run build
+      - run: node scripts/validate-catalogue.mjs
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          ATLAS_CHECK_SNAPSHOTS: "true"
