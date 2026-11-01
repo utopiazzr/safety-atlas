@@ -521,3 +521,21 @@ dialog::backdrop {
     transform: none !important;
   }
 }
+
+/* Printed science-fiction comic covers: bold panel lines and restrained ink offsets. */
+.signal-poster { border: 2px solid #d8c59b; padding: 5px; box-shadow: 5px 6px 0 #080f0c,7px 8px 0 #a74c3266; }
+.poster-open { border: 2px solid #0d1812; }
+.poster-top { padding: 15px; }
+.poster-number { border: 2px solid #132319; padding: 7px 12px; font-size: 18px; background: #e9d6aa; transform: rotate(-5deg); box-shadow: 3px 3px 0 #c75c3c; }
+.poster-category { border: 1px solid #d9c392; background: #14271ee8; transform: rotate(3deg); }
+.poster-title { position: relative; border-top-width: 5px; background: #e5d2a9; background-image: radial-gradient(#776b4f24 .65px,transparent .8px); background-size: 4px 4px; }
+.poster-title:before { content: ''; position: absolute; width: 72px; height: 12px; right: 0; top: -17px; background: #bd5134; clip-path: polygon(20% 0,100% 0,100% 100%,0 100%); border-bottom: 2px solid #14231a; }
+.poster-title h3 { font-weight: 900; text-shadow: 1px 1px 0 #f6e8c9; }
+.poster-title > span { transform: rotate(-5deg); box-shadow: 2px 2px 0 #bd5134; }
+.cover-halftone { background-size: 4px 4px; background-image: radial-gradient(#0b1a11 1px,transparent 1.2px); opacity: .4; mask-image: linear-gradient(115deg,#000,transparent 42%,transparent 64%,#000); }
+.cosmic-cover:before { content: ''; position: absolute; z-index: 2; width: 37%; height: 30%; top: 13%; left: -7%; background: repeating-linear-gradient(-24deg,transparent 0 12px,#ead4a3 12px 13px,transparent 13px 24px); clip-path: polygon(0 0,100% 45%,0 100%); opacity: 0; transform: translateX(-15px); transition: opacity .25s,transform .4s; pointer-events: none; }
+.poster-open:hover .cosmic-cover:before,.poster-open:focus-visible .cosmic-cover:before { opacity: .6; transform: translateX(0); }
+.library-heading h2 { text-shadow: 2px 2px 0 #a44d2e; }
+.poster-invite { border: 2px solid #c5b58e; box-shadow: 4px 4px #0c1610; }
+.still .cosmic-cover:before { transition: none; }
+@media(prefers-reduced-motion:reduce) { .cosmic-cover:before { transition: none; } }
