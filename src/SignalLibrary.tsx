@@ -40,6 +40,17 @@ const tabs = [
   ["defense", "防御"],
   ["resource", "模型 / 产品"],
 ];
+const themes: Record<string, string> = {
+  echoleak: "信息越界",
+  spaiware: "记忆污染",
+  "whatsapp-mcp": "工具信任",
+  gcg: "对抗优化",
+  pair: "反馈迭代",
+  "ecosystem-garak": "风险探测",
+  "ecosystem-nemo": "层层防线",
+  "prompt-guard-2": "识别攻击",
+  "mcp-scan": "工具审视",
+};
 export default function SignalLibrary({
   onContribute,
   featured,
@@ -164,7 +175,7 @@ export default function SignalLibrary({
         </label>
       </div>
       <div className="poster-grid">
-        {visible.map((entry, i) => (
+        {visible.map((entry) => (
           <article
             className={`signal-poster ${entry.kind} palette-${entry.id}`}
             key={entry.id}
@@ -184,14 +195,19 @@ export default function SignalLibrary({
               </div>
               <PosterArt id={entry.id} kind={entry.kind} />
               <div className="poster-title">
-                <h3>
-                  {entry.id === "echoleak"
-                    ? "EchoLeak"
-                    : entry.id === "whatsapp-mcp"
-                      ? "WhatsApp MCP"
-                      : entry.title}
-                </h3>
-                <span>↗</span>
+                <div>
+                  <p className="poster-theme">
+                    {themes[entry.id] || "社区发现"}
+                  </p>
+                  <h3>
+                    {entry.id === "echoleak"
+                      ? "EchoLeak"
+                      : entry.id === "whatsapp-mcp"
+                        ? "WhatsApp MCP"
+                        : entry.title}
+                  </h3>
+                </div>
+                <ArrowUpRight aria-hidden="true" size={24} />
               </div>
             </button>
           </article>

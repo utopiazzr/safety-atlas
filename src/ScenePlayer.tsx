@@ -2,6 +2,7 @@ import { useEffect, useId, useRef, useState } from "react";
 import { Play, Pause, ArrowLeft, ArrowRight, RotateCcw } from "lucide-react";
 import { localize, t, useLocale } from "./i18n";
 import type { Scene } from "./scenes";
+import { PosterArt } from "./CosmicArt";
 
 const DURATION = 3600;
 const clamp = (x: number) => Math.max(0, Math.min(1, x));
@@ -66,7 +67,7 @@ function Machine({
           overflow="hidden"
         >
           <image
-            href={`${import.meta.env.BASE_URL}theatre-silver.webp`}
+            href={`${import.meta.env.BASE_URL}theatre-print.webp`}
             width="900"
             height="900"
           />
@@ -112,37 +113,35 @@ function Theatre({
   playing: boolean;
 }) {
   const uid = useId().replace(/:/g, "");
-  const event = scene.steps[step],
-    roles = cast[caseId] || scene.nodes.map(() => "page" as ObjectKind);
-  const p = motion ? progress : 1,
-    ease = p * p * (3 - 2 * p),
-    arrived = clamp((p - 0.55) / 0.4);
-  const isLoop = event.to < event.from,
-    check = event.signal === "check",
+  const event = scene.steps[step];
+  const roles = cast[caseId] || scene.nodes.map(() => "page" as ObjectKind);
+  const p = motion ? progress : 1;
+  const ease = p * p * (3 - 2 * p);
+  const arrived = clamp((p - 0.55) / 0.4);
+  const isLoop = event.to < event.from;
+  const check = event.signal === "check",
     risk = event.signal === "risk";
   const mode = isLoop ? "loop" : check ? "scan" : risk ? "breach" : "transmit";
-  const tint = risk ? "#c84830" : check ? "#426b79" : "#282b26";
-  const disc = risk ? "#c84830" : check ? "#587d88" : "#bd9653";
+  const tint = risk ? "#ed8966" : check ? "#b5d5e7" : "#e7c993";
   const curve = isLoop
-    ? "M245 204C280 42 620 42 665 204"
-    : "M245 204C370 127 540 288 665 204";
+    ? "M230 196C275 38 625 38 670 196"
+    : "M230 196C365 135 535 257 670 196";
   const point = (q: number) => {
     const a = 1 - q;
     return {
       x:
-        a * a * a * 245 +
-        3 * a * a * q * (isLoop ? 280 : 370) +
-        3 * a * q * q * (isLoop ? 620 : 540) +
-        q * q * q * 665,
+        a * a * a * 230 +
+        3 * a * a * q * (isLoop ? 275 : 365) +
+        3 * a * q * q * (isLoop ? 625 : 535) +
+        q * q * q * 670,
       y:
-        a * a * a * 204 +
-        3 * a * a * q * (isLoop ? 42 : 127) +
-        3 * a * q * q * (isLoop ? 42 : 288) +
-        q * q * q * 204,
+        a * a * a * 196 +
+        3 * a * a * q * (isLoop ? 38 : 135) +
+        3 * a * q * q * (isLoop ? 38 : 257) +
+        q * q * q * 196,
     };
   };
-  const packet = point(ease),
-    charge = risk ? arrived : 0;
+  const packet = point(ease);
   return localize(
     <div
       className={`signal-theatre ${mode} ${playing ? "running" : ""} ${motion ? "" : "no-motion"}`}
@@ -151,7 +150,7 @@ function Theatre({
       data-mode={mode}
     >
       <div className="theatre-topline">
-        <span>SAFETY ATLAS / {String(step + 1).padStart(2, "0")}</span>
+        <span>MECHANISM / {String(step + 1).padStart(2, "0")}</span>
         <span>机制示意 · 非实测</span>
       </div>
       <svg
@@ -161,114 +160,80 @@ function Theatre({
         aria-label={event.title}
       >
         <defs>
-          <linearGradient id={`${uid}-metal`} x1="0" y1="0" x2=".9" y2=".8">
-            <stop stopColor="#fff9e8" />
-            <stop offset=".18" stopColor="#9a9c99" />
-            <stop offset=".36" stopColor="#faf6e7" />
-            <stop offset=".49" stopColor="#d7d5cd" />
-            <stop offset=".5" stopColor="#242926" />
-            <stop offset=".62" stopColor="#626966" />
-            <stop offset=".81" stopColor="#e3e3d8" />
-            <stop offset="1" stopColor="#fff9e7" />
+          <linearGradient id={`${uid}-metal`} x1="0" y1="0" x2="1" y2="1">
+            <stop stopColor="#f9efdb" />
+            <stop offset=".27" stopColor="#9faec2" />
+            <stop offset=".49" stopColor="#f4ecda" />
+            <stop offset=".5" stopColor="#263642" />
+            <stop offset=".79" stopColor="#bccbd5" />
+            <stop offset="1" stopColor="#fff2d3" />
           </linearGradient>
-          <linearGradient id={`${uid}-edge`} x1="0" y1="0" x2="0" y2="1">
-            <stop stopColor="#fff9e8" />
-            <stop offset=".3" stopColor="#aaa99e" />
-            <stop offset=".49" stopColor="#f4eedc" />
-            <stop offset=".52" stopColor="#353b35" />
-            <stop offset="1" stopColor="#c1c2b8" />
-          </linearGradient>
-          <radialGradient id={`${uid}-sphere`} cx=".3" cy=".25" r=".75">
-            <stop stopColor="#fff9e8" />
-            <stop offset=".32" stopColor="#cecec5" />
-            <stop offset=".65" stopColor="#747b76" />
-            <stop offset=".8" stopColor="#252c28" />
-            <stop offset="1" stopColor="#b7bbb3" />
+          <radialGradient id={`${uid}-space`}>
+            <stop stopColor="#263b4a" />
+            <stop offset="1" stopColor="#101c27" />
           </radialGradient>
-          <pattern
-            id={`${uid}-dots`}
-            width="5"
-            height="5"
-            patternUnits="userSpaceOnUse"
-          >
-            <circle cx="1" cy="1" r=".65" fill="#252c28" opacity=".18" />
-          </pattern>
           <clipPath id={`${uid}-scan`}>
-            <rect x="541" y="70" width="278" height="270" />
+            <rect x="550" y="63" width="250" height="264" />
           </clipPath>
         </defs>
-        <rect width="900" height="420" fill="#ede7d9" />
-        <path
-          d={
-            isLoop
-              ? "M0 400 900 25v33L90 420H0z"
-              : "M0 370 900 27v36L110 420H0z"
-          }
-          fill="#282b26"
-          opacity=".08"
-        />
-        <circle
-          cx="680"
-          cy="202"
-          r={139 + arrived * 6}
-          fill={disc}
-          opacity={risk ? 0.86 : 0.68}
-        />
-        <path
-          d="M0 351h900M0 357h900M0 366h900"
-          stroke="#34372e"
-          opacity=".2"
-        />
-        <path
-          d="M43 82h31m-15-16v32M846 301h24m-12-12v24"
-          stroke="#c84830"
-          strokeWidth="2"
-        />
-        <circle cx="386" cy="81" r="25" fill={`url(#${uid}-sphere)`} />
-        <path d="M315 79h141" stroke="#393c34" opacity=".4" />
-        <g fill="none" stroke="#4d6774" strokeWidth="1" opacity=".22">
-          <path d="M0 338Q290 256 520 356M0 347Q290 265 520 365M0 356Q290 274 520 374" />
-          <path d="M35 346 173 297m-43 57 94-64m21 64 19-69m95 70-45-67m157 77-110-66" />
-          <g transform="translate(455 68)">
-            <ellipse rx="53" ry="11" />
-            <ellipse rx="13" ry="20" />
-            <path d="M-45-4H45M-45 4H45M0-41v82M-34-23v46M34-23v46M-64 0H64" />
-            <path d="M-13-10 13 10m-26 0 26-20" />
-          </g>
-          <path d="M36 120V215m-8-60h16m-20 5h24m-24 31h24m-20 5h16m-12-55 8 64m-8 0 8-64" />
+        <rect width="900" height="360" fill={`url(#${uid}-space)`} />
+        <g fill="none" stroke="#d4c19b" opacity=".18">
+          <ellipse cx="450" cy="202" rx="380" ry="139" />
+          <ellipse cx="450" cy="202" rx="385" ry="143" />
+          <path d="M0 346Q450 255 900 346M0 352Q450 261 900 352" />
+          <path d="M450 18v24m0 282v24M49 202h24m754 0h24" />
+          {Array.from({ length: 24 }, (_, i) => (
+            <path
+              key={i}
+              d="M450 59v5"
+              transform={`rotate(${i * 15} 450 202)`}
+            />
+          ))}
         </g>
-        <rect width="900" height="420" fill={`url(#${uid}-dots)`} />
+        <g fill="#e0d5bc" opacity=".6">
+          {[
+            [66, 90],
+            [342, 40],
+            [830, 72],
+            [370, 308],
+            [87, 278],
+            [560, 50],
+            [818, 290],
+          ].map(([x, y], i) => (
+            <circle key={i} cx={x} cy={y} r={i % 3 === 0 ? 2 : 1} />
+          ))}
+        </g>
         <path
           d={curve}
           fill="none"
-          stroke="#6a6e60"
-          strokeWidth="1"
-          strokeDasharray="4 8"
-          opacity=".5"
+          stroke="#b8c4c9"
+          strokeDasharray="3 9"
+          opacity=".35"
         />
         <path
           d={curve}
           pathLength="1"
           fill="none"
           stroke={tint}
-          strokeWidth="3"
+          strokeWidth="2.5"
           strokeDasharray={`${Math.max(0.001, ease)} 1`}
-          opacity=".8"
         />
         {isLoop && (
           <path
-            d="M665 204C620 345 280 345 245 204"
+            d="M670 196C625 337 275 337 230 196"
             pathLength="1"
             fill="none"
-            stroke="#c84830"
+            stroke={tint}
             strokeWidth="1.5"
             strokeDasharray={`${arrived} 1`}
-            opacity=".65"
+            opacity=".8"
           />
         )}
-        <g transform="translate(202 207)">
+        <g transform="translate(202 203) scale(.88)">
           <g className="scene-actor" key={`a-${event.from}`}>
             <Machine
+              kind={roles[event.from]}
+              mirror={roles[event.from] === "agent"}
               charge={
                 roles[event.from] === "memory" &&
                 scene.steps
@@ -277,66 +242,56 @@ function Theatre({
                   ? 1
                   : 0
               }
-              kind={roles[event.from]}
-              mirror={roles[event.from] === "agent"}
             />
           </g>
         </g>
-        <g transform={`translate(680 ${207 - arrived * 5})`}>
+        <g transform="translate(680 203) scale(.88)">
           <g className="scene-actor" key={`b-${event.to}`}>
-            <Machine kind={roles[event.to]} charge={charge} />
+            <Machine kind={roles[event.to]} charge={risk ? arrived : 0} />
           </g>
         </g>
-        {check ? (
+        <g transform="translate(450 197)" fill="none">
+          <ellipse
+            rx="31"
+            ry="84"
+            stroke={`url(#${uid}-metal)`}
+            strokeWidth="5"
+          />
+          <ellipse
+            rx="37"
+            ry="91"
+            stroke="#c9b88f"
+            strokeWidth=".7"
+            opacity=".6"
+          />
+          {risk && (
+            <path
+              d={`M0 -74v${148 * (1 - arrived)}`}
+              stroke="#ed8966"
+              strokeWidth="2"
+              strokeDasharray="4 6"
+            />
+          )}
+        </g>
+        {check && (
           <g clipPath={`url(#${uid}-scan)`}>
             <rect
-              x="542"
-              y={75 + p * 255}
-              width="276"
-              height="18"
-              fill="#fff3d6"
-              opacity=".22"
+              x="551"
+              y={68 + p * 250}
+              width="248"
+              height="14"
+              fill="#b5d5e7"
+              opacity=".16"
             />
             <path
-              d={`M542 ${75 + p * 255}h276`}
+              d={`M551 ${68 + p * 250}h248`}
               stroke={tint}
-              strokeWidth="3"
-            />
-            <path
-              d={`M548 ${75 + p * 255 - 5}v10m264-10v10`}
-              stroke="#242722"
               strokeWidth="2"
             />
           </g>
-        ) : (
-          <g transform="translate(450 205)">
-            <ellipse
-              rx="29"
-              ry="87"
-              fill="none"
-              stroke={`url(#${uid}-metal)`}
-              strokeWidth="10"
-            />
-            <ellipse
-              rx="35"
-              ry="94"
-              fill="none"
-              stroke="#3a3f35"
-              strokeWidth="1"
-            />
-            {risk && (
-              <path
-                d={`M0 -78v${Math.max(0, 156 * (1 - arrived))}`}
-                stroke="#c84830"
-                strokeWidth="3"
-                strokeDasharray="5 5"
-              />
-            )}
-          </g>
         )}
-        {[0.08, 0.16, 0.24].map((lag, i) => {
-          const q = clamp(ease - lag),
-            pos = point(q);
+        {[0.06, 0.13, 0.2].map((lag, i) => {
+          const pos = point(clamp(ease - lag));
           return (
             <circle
               key={i}
@@ -344,31 +299,21 @@ function Theatre({
               cy={pos.y}
               r={4 - i}
               fill={tint}
-              opacity={p > 0 && p < 0.96 ? 0.55 - i * 0.13 : 0}
+              opacity={p > 0 && p < 0.98 ? 0.5 - i * 0.12 : 0}
             />
           );
         })}
         <g
-          className="scene-packet"
-          transform={`translate(${packet.x} ${packet.y}) rotate(${ease * 135})`}
+          transform={`translate(${packet.x} ${packet.y})`}
           opacity={p < 0.98 ? 1 : 0}
         >
-          <path
-            d="M0-16 16 0 0 16-16 0z"
-            fill={risk ? "#c84830" : `url(#${uid}-metal)`}
-            stroke="#292d26"
-            strokeWidth="1.5"
-          />
-          <path d="M0-16v32M-16 0h32" stroke="#f8edd2" strokeWidth="1" />
+          <path d="M0-12 8 0 0 12-8 0z" fill={tint} />
+          <circle r="18" fill="none" stroke={tint} opacity=".35" />
         </g>
         {risk && (
-          <g opacity={arrived}>
-            <path
-              d="M792 105l20-15m-7 37 24-3m-26 25 21 8"
-              stroke="#c84830"
-              strokeWidth="3"
-            />
-            <circle cx="784" cy="155" r="6" fill="#c84830" />
+          <g opacity={arrived} fill="none" stroke="#ed8966">
+            <circle cx="680" cy="203" r="132" strokeDasharray="5 8" />
+            <path d="M786 99l13-13m0 28 18-7" strokeWidth="2" />
           </g>
         )}
       </svg>
@@ -438,82 +383,90 @@ export default function ScenePlayer({
   const event = scene.steps[step];
   return localize(
     <div className="scene-player">
-      <Theatre
-        caseId={caseId}
-        scene={scene}
-        step={step}
-        progress={progress}
-        motion={motion}
-        playing={playing}
-      />
-      <div className="theatre-controls">
-        <button
-          className="theatre-play"
-          onClick={play}
-          aria-label={playing ? "暂停演示" : finished ? "重新播放" : "播放演示"}
-        >
-          {playing ? (
-            <Pause size={20} />
-          ) : finished ? (
-            <RotateCcw size={20} />
-          ) : (
-            <Play size={20} />
-          )}
-        </button>
-        <label className="theatre-scrubber">
-          <span className="sr-only">拖动时间轴</span>
-          <input
-            type="range"
-            min="0"
-            max={total}
-            step="10"
-            value={time}
-            onChange={(e) => seek(Number(e.target.value))}
-            aria-label="拖动时间轴"
-            aria-valuetext={`${step + 1} / ${scene.steps.length}: ${t(event.title)}`}
-            style={{ backgroundSize: `${(time / total) * 100}% 100%` }}
-          />
-        </label>
-        <span className="theatre-counter">
-          {String(step + 1).padStart(2, "0")} /{" "}
-          {String(scene.steps.length).padStart(2, "0")}
-        </span>
-        <button
-          className="icon-btn"
-          aria-label="上一步"
-          disabled={step === 0}
-          onClick={() => seek((step - 1) * DURATION)}
-        >
-          <ArrowLeft size={18} />
-        </button>
-        <button
-          className="icon-btn"
-          aria-label="下一步"
-          disabled={step === scene.steps.length - 1}
-          onClick={() => seek((step + 1) * DURATION)}
-        >
-          <ArrowRight size={18} />
-        </button>
-      </div>
-      <div className="theatre-chapters">
-        {scene.steps.map((s, i) => (
+      <figure className="scene-illustration">
+        <PosterArt id={caseId} />
+        <figcaption>艺术演绎 · 非事件影像</figcaption>
+      </figure>
+      <div className="scene-console">
+        <Theatre
+          caseId={caseId}
+          scene={scene}
+          step={step}
+          progress={progress}
+          motion={motion}
+          playing={playing}
+        />
+        <div className="theatre-controls">
           <button
-            key={i}
-            className={i === step ? "active" : ""}
-            aria-pressed={i === step}
-            aria-label={`第${i + 1}步：${s.title}`}
-            onClick={() => seek(i * DURATION)}
+            className="theatre-play"
+            onClick={play}
+            aria-label={
+              playing ? "暂停演示" : finished ? "重新播放" : "播放演示"
+            }
           >
-            <span>{String(i + 1).padStart(2, "0")}</span>
-            <i />
+            {playing ? (
+              <Pause size={20} />
+            ) : finished ? (
+              <RotateCcw size={20} />
+            ) : (
+              <Play size={20} />
+            )}
           </button>
-        ))}
-      </div>
-      <div className="stage-caption" aria-live="polite">
-        <span>{String(step + 1).padStart(2, "0")}</span>
-        <div>
-          <h3>{event.title}</h3>
-          <p>{event.body}</p>
+          <label className="theatre-scrubber">
+            <span className="sr-only">拖动时间轴</span>
+            <input
+              type="range"
+              min="0"
+              max={total}
+              step="10"
+              value={time}
+              onChange={(e) => seek(Number(e.target.value))}
+              aria-label="拖动时间轴"
+              aria-valuetext={`${step + 1} / ${scene.steps.length}: ${t(event.title)}`}
+              style={{ backgroundSize: `${(time / total) * 100}% 100%` }}
+            />
+          </label>
+          <span className="theatre-counter">
+            {String(step + 1).padStart(2, "0")} /{" "}
+            {String(scene.steps.length).padStart(2, "0")}
+          </span>
+          <button
+            className="icon-btn"
+            aria-label="上一步"
+            disabled={step === 0}
+            onClick={() => seek((step - 1) * DURATION)}
+          >
+            <ArrowLeft size={18} />
+          </button>
+          <button
+            className="icon-btn"
+            aria-label="下一步"
+            disabled={step === scene.steps.length - 1}
+            onClick={() => seek((step + 1) * DURATION)}
+          >
+            <ArrowRight size={18} />
+          </button>
+        </div>
+        <div className="theatre-chapters">
+          {scene.steps.map((s, i) => (
+            <button
+              key={i}
+              className={i === step ? "active" : ""}
+              aria-pressed={i === step}
+              aria-label={`第${i + 1}步：${s.title}`}
+              onClick={() => seek(i * DURATION)}
+            >
+              <span>{String(i + 1).padStart(2, "0")}</span>
+              <i />
+            </button>
+          ))}
+        </div>
+        <div className="stage-caption" aria-live="polite">
+          <span>{String(step + 1).padStart(2, "0")}</span>
+          <div>
+            <h3>{event.title}</h3>
+            <p>{event.body}</p>
+          </div>
         </div>
       </div>
     </div>,
