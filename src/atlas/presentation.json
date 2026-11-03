@@ -1,0 +1,152 @@
+{
+  "echoleak": {
+    "theme": "信息越界",
+    "image": "01-case-observatory.png",
+    "contexts": [
+      "content"
+    ],
+    "aliases": "Copilot Microsoft 微软 办公 邮件 email 隐私 数据 泄露 外传 提示注入 prompt injection CVE-2025-32711",
+    "relevance": "当助手会读取邮件、文档，并能访问组织内的信息。",
+    "related": [
+      "ecosystem-nemo",
+      "prompt-guard-2"
+    ],
+    "evidence": "厂商通告",
+    "category": "report",
+    "date": "2025"
+  },
+  "spaiware": {
+    "theme": "记忆污染",
+    "image": "spaiware.webp",
+    "contexts": [
+      "content",
+      "memory"
+    ],
+    "aliases": "ChatGPT macOS memory 记忆 跨会话 网页 文档 隐私 数据 外传 泄露 提示注入",
+    "relevance": "当助手会把外部内容存入长期记忆，并在之后的会话里使用。",
+    "related": [
+      "ecosystem-nemo",
+      "prompt-guard-2"
+    ],
+    "evidence": "研究演示",
+    "category": "report",
+    "date": "2024"
+  },
+  "whatsapp-mcp": {
+    "theme": "工具信任",
+    "image": "whatsapp-mcp.webp",
+    "contexts": [
+      "tools"
+    ],
+    "aliases": "Cursor Claude Desktop MCP tool poisoning 工具投毒 工具描述 智能体 越权 隐私 数据 泄露 外传",
+    "relevance": "当同一个智能体同时连接多台 MCP 服务，并拥有读消息、发消息等权限。",
+    "related": [
+      "mcp-scan",
+      "ecosystem-nemo"
+    ],
+    "evidence": "研究演示",
+    "category": "report",
+    "date": "2025"
+  },
+  "gcg": {
+    "theme": "后缀优化",
+    "image": "pair.webp",
+    "contexts": [
+      "evaluation"
+    ],
+    "aliases": "越狱 jailbreak 白盒 whitebox adversarial suffix 提示 攻击 模型评测",
+    "relevance": "当你需要研究可访问权重的模型，或验证对抗后缀的迁移效果。",
+    "related": [
+      "pair",
+      "ecosystem-garak",
+      "prompt-guard-2"
+    ],
+    "evidence": "研究论文",
+    "category": "attack",
+    "date": "研究"
+  },
+  "pair": {
+    "theme": "反馈迭代",
+    "image": "pair.webp",
+    "contexts": [
+      "evaluation"
+    ],
+    "aliases": "jailbreak blackbox 越狱 黑盒 迭代 提示 攻击 模型评测",
+    "relevance": "当你拥有目标模型的授权查询接口，希望测试多轮提示迭代。",
+    "related": [
+      "gcg",
+      "ecosystem-garak",
+      "prompt-guard-2"
+    ],
+    "evidence": "研究论文",
+    "category": "attack",
+    "date": "研究"
+  },
+  "ecosystem-garak": {
+    "theme": "探测与复测",
+    "image": "02-mechanism-chamber.png",
+    "contexts": [
+      "evaluation"
+    ],
+    "aliases": "scanner 扫描 评测 探针 检测器 报告 AVID JSONL 模型",
+    "relevance": "当你希望批量检查模型行为，并把结果带入后续修复与回归测试。",
+    "related": [
+      "pair",
+      "gcg"
+    ],
+    "evidence": "开源项目",
+    "category": "attack",
+    "date": "研究"
+  },
+  "ecosystem-nemo": {
+    "theme": "层层防线",
+    "image": "ecosystem-nemo.webp",
+    "contexts": [
+      "content",
+      "tools",
+      "memory"
+    ],
+    "aliases": "NVIDIA 英伟达 guardrail 防御 拦截 输入 输出 检索 RAG rails",
+    "relevance": "当你能修改应用代码，需要在输入、检索、执行和输出环节加入规则。",
+    "related": [
+      "spaiware",
+      "whatsapp-mcp",
+      "prompt-guard-2"
+    ],
+    "evidence": "开源项目",
+    "category": "defense",
+    "date": "防御"
+  },
+  "prompt-guard-2": {
+    "theme": "识别攻击",
+    "image": "prompt-guard-2.webp",
+    "contexts": [
+      "content",
+      "evaluation"
+    ],
+    "aliases": "Meta Llama 分类器 classifier guardrail 防御 模型 提示注入 injection",
+    "relevance": "当你需要对输入内容做提示攻击分类，并能自己定义拦截与复核流程。",
+    "related": [
+      "ecosystem-nemo",
+      "pair"
+    ],
+    "evidence": "模型卡",
+    "category": "defense",
+    "date": "防御"
+  },
+  "mcp-scan": {
+    "theme": "检查工具边界",
+    "image": "mcp-scan.webp",
+    "contexts": [
+      "tools"
+    ],
+    "aliases": "MCP 工具 扫描 投毒 工具描述 代理 监测 防御 scan",
+    "relevance": "当你需要检查 MCP 工具元数据或评估运行时代理的接入方式。",
+    "related": [
+      "whatsapp-mcp"
+    ],
+    "evidence": "开源项目",
+    "category": "defense",
+    "date": "防御"
+  }
+}

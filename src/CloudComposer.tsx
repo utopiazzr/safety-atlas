@@ -17,7 +17,6 @@ import {
 } from "lucide-react";
 import "altcha";
 import "altcha/i18n/zh-cn";
-import "./cloud.css";
 import {
   INTAKE_API,
   cloudRequest,

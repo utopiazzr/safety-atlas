@@ -1,20 +1,38 @@
-<!doctype html>
-<html lang="zh-CN">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="referrer" content="no-referrer" />
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; media-src 'self' blob:; worker-src 'self' blob:; connect-src 'self' https://api.github.com https://safety-atlas-intake.aurora-scarf-6347.chatgpt.site ws://127.0.0.1:5173; object-src 'none'; base-uri 'self'; form-action 'none'" />
-    <meta name="theme-color" content="#db482e" />
-    <meta
-      name="description"
-      content="越界档案：用可交互的复古未来控制台，探索智能体安全事件、理解边界、分享线索。"
-    />
-    <title>越界档案 — SIGNAL ATLAS</title>
-    <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
-</html>
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="Safety Atlas：一起发现 AI 与智能体的安全边界，连接真实案例、攻击研究与防御方法。"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; media-src 'self' blob:; worker-src 'self' blob:; connect-src 'self' https://api.github.com https://safety-atlas-intake.aurora-scarf-6347.chatgpt.site ws://127.0.0.1:5173; object-src 'none'; base-uri 'self'; form-action 'none'" /><meta name="referrer" content="no-referrer"><link rel="icon" href="./favicon.svg"><title>Safety Atlas — 发现越界，连接解法</title><link rel="stylesheet" href="./src/atlas/review.css"><link rel="stylesheet" href="./src/atlas/night.css"><link rel="stylesheet" href="./src/atlas/cosmos.css"><link rel="stylesheet" href="./src/atlas/public-cosmos.css"><link rel="preload" as="image" href="./src/assets/cover-orbital-observatory.webp"><link rel="stylesheet" href="./src/atlas/intro-film.css"><link rel="stylesheet" href="./src/atlas/product-depth.css"><link rel="stylesheet" href="./src/atlas/focus.css"><link rel="stylesheet" href="./src/atlas/motion-design.css"></head>
+<body class="cosmos-edition public-edition" data-world="cases" data-orbit="all" data-motion="on"><div class="cosmic-world" aria-hidden="true">
+ <div class="world-panorama"></div><div class="world-atmosphere"></div>
+ <svg class="world-orbits" viewBox="0 0 1600 1000" preserveAspectRatio="xMidYMid slice"><path class="world-signal" d="M-90 805 C190 730 380 390 730 355 S1250 290 1710 145"/><path class="world-memory" d="M730 355 C530 150 1280 110 1160 345 S730 580 730 355"/><path class="world-boundary" d="M600 840 Q740 360 1190 185"/>
+ </svg>
+ <svg class="world-vessels" viewBox="0 0 1600 1000" preserveAspectRatio="xMidYMid slice"><defs><g id="civic-ferry"><path d="M-88 3 -20 3" stroke="#bdaa7b" stroke-width=".7" opacity=".4"/><path d="M-28 4 -5 -5 38 0 52 5 12 10Z" fill="#9c987d" stroke="#e8d8af" stroke-width=".8"/><path d="M-5 -5 14 -9 35 -1" fill="#49615a" stroke="#c0b68f" stroke-width=".8"/><path d="M-4 3 28 4" stroke="#f3db9c" stroke-width="2"/><path d="M-24 5 -11 5" stroke="#d26949" stroke-width="2"/></g><g id="archive-satellite"><circle r="9" fill="#415853" stroke="#c3b18b" stroke-width="1.2"/><ellipse rx="21" ry="5" fill="none" stroke="#bfb08f"/><path d="M0 -19V19 M-30 0H30 M-30 -5V5 M30 -5V5" stroke="#bfb08f"/><circle r="2" fill="#e07954"/></g></defs><g class="flight flight-one"><use href="#civic-ferry"/></g><g class="flight flight-two"><use href="#civic-ferry" transform="scale(.48)"/></g></svg>
+</div>
+<header class="public-header"><a class="brand" href="#home" aria-label="Safety Atlas 首页"><span class="brandmark">◈</span> SAFETY ATLAS</a><nav aria-label="主导航"><button data-module="cases">探索</button><button data-module="submit">提交</button><a href="https://github.com/utopiazzr/safety-atlas" target="_blank" rel="noopener noreferrer">GitHub ↗</a><button id="world-motion" aria-label="暂停动态" aria-pressed="true" title="暂停动态">Ⅱ</button></nav></header>
+<section class="cover-sequence" id="home" aria-label="未来已来，边界未定"><div class="cover-stage"><div class="cover-image" aria-hidden="true"></div><div class="cover-veil" aria-hidden="true"></div><div class="cover-stars" aria-hidden="true"><i></i><i></i><i></i></div><div class="cover-copy"><h1>未来已来。<br><em>边界未定。</em></h1><p>发现越界，连接解法。</p><a class="cover-enter" href="#intro">探索信号 <span>↓</span></a></div><div class="cover-foot"><span>KEEP THE FUTURE OPEN.</span><span class="scroll-mark" aria-hidden="true">↓</span></div></div></section>
+<!-- INTRO FILM START -->
+<section class="intro-sequence" id="intro" aria-label="边界之外：AI 安全主题动画">
+ <div class="intro-stage"><div class="intro-frame">
+  <video class="intro-film" id="intro-film" muted playsinline preload="metadata" poster="./src/assets/beyond-boundaries-poster.jpg" tabindex="-1" disablepictureinpicture disableremoteplayback aria-label="15 秒主题动画：边界之外，AI 安全必须先行">
+   <source src="./src/assets/beyond-boundaries.mp4" type="video/mp4">
+  </video>
+ </div></div>
+ <p class="sr-only">主题动画：边界之外。警报不等于控制，AI 安全必须先行。向下滚动继续浏览真实案例。</p>
+</section>
+<!-- INTRO FILM END -->
+<main id="atlas-content" tabindex="-1"><section id="cases" class="module active">
+ <div class="section-head"><div><p class="eyebrow">安全案例与工具</p><h1>看见风险，<br><em>找到防线。</em></h1></div></div><label class="discovery-search"><span aria-hidden="true">⌕</span><input id="case-search" type="search" maxlength="160" aria-label="搜索产品、场景或问题" placeholder="搜索产品、场景或问题，例如 MCP 隐私"></label>
+ <details class="scene-filter"><summary>按使用场景筛选</summary><div class="discovery-contexts" id="context-filter" role="group" aria-label="按使用场景筛选"></div></details>
+ <div class="archive-tools"><div class="kind-filter" role="group" aria-label="内容类型"><button data-kind="all" aria-pressed="true">全部</button><button data-kind="report" aria-pressed="false">案例</button><button data-kind="attack" aria-pressed="false">攻击研究</button><button data-kind="defense" aria-pressed="false">防御与工具</button></div><p id="result-count" class="result-count" role="status" aria-live="polite"></p></div>
+ <div class="case-grid" id="case-grid"></div><div class="empty-results" id="no-cases" hidden><h2>还没有找到匹配内容。</h2><p>试试产品名称、MCP、记忆或越狱，也可以放宽筛选。</p><button class="secondary" id="reset-search">清除筛选</button></div>
+
+</section><section id="record" class="module" hidden aria-label="案例详情"></section><section id="theatre" class="module" hidden>
+ <a class="back-link" href="#case/spaiware">← SpAIware</a><div class="theatre-head"><div><p class="eyebrow">SpAIware · 机制演示</p><h1>一次输入，<em>持续影响。</em></h1></div></div>
+ <div class="theatre-stage" data-step="0"><img src="./src/assets/02-mechanism-chamber.png" alt="原创复古实验室插画：输入接收器、记忆装置、外发设备" class="stage-art"><div class="stage-shade"></div>
+  <div class="stage-top"><span>历史机制示意</span><span id="phase-number">01 / 04</span></div>
+  <svg class="signal-overlay" preserveAspectRatio="none" viewBox="0 0 1200 500" aria-hidden="true"><defs><marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0 10 5 0 10Z" fill="currentColor"/></marker></defs><path class="track track-in" d="M160 210 H600"/><path class="track track-out" d="M600 210 H1030"/><path class="track track-loop" d="M600 210 C780 145 420 145 600 210"/><path pathLength="100" class="packet-path in-packet" d="M160 210 H600"/><path pathLength="100" class="packet-path out-packet" d="M600 210 H1030"/><path pathLength="100" class="packet-path loop-packet" d="M600 210 C780 145 420 145 600 210"/><path class="track track-store" d="M600 210 C760 210 760 120 600 120 C440 120 440 210 600 210"/><path pathLength="100" class="packet-path store-packet" d="M600 210 C760 210 760 120 600 120 C440 120 440 210 600 210"/><g class="signal-position"><circle class="signal-ring" r="19"/><path class="packet-seal" d="M0 -8 8 0 0 8 -8 0Z"/></g><path class="barrier" d="M390 145 V370"/><path class="barrier-cap" d="M376 145 H404 M376 370 H404"/></svg>
+  <button class="hotspot input-node" data-step="0"><span>01</span> 外部内容</button><button class="hotspot memory-node" data-step="1"><span>02</span> 长期记忆</button><button class="hotspot future-node" data-step="2"><span>03</span> 后续会话</button><button class="hotspot output-node" data-step="3"><span>04</span> 外发通道</button>
+ </div><div class="stage-explain" aria-live="off"><span class="phase-kicker" id="phase-kicker">01 · 接触输入</span><h2 id="phase-title">外部内容进入视野</h2><p id="phase-body">用户读取不可信网页，网页中的指令进入助手上下文。</p></div>
+ <div class="transport"><button class="play primary" id="play">▶ 播放</button><div class="film-scrub"><input id="film-scrub" type="range" min="0" max="12800" step="100" value="0" aria-label="演示进度"><output class="film-time" id="film-time" for="film-scrub">00:00 / 00:13</output></div></div><p class="theatre-note" id="theatre-note">2024 年研究演示 · 外传通道已缓解。</p>
+
+</section><section id="submit" class="module" hidden><div class="section-head"><div><p class="eyebrow">共同记录 / 共同守护</p><h1>分享你的发现。</h1></div><a href="./community.html#review">社区进展 ↗</a></div><div id="cloud-submission"><p role="status">正在连接投稿服务…</p></div></section></main>
+<footer class="public-footer"><a href="#home">SAFETY ATLAS</a><span>让未来，保持开放。</span><a href="./community.html#review">共同维护 ↗</a></footer>
+
+<script type="module" src="./src/atlas/app.js"></script></body></html>
