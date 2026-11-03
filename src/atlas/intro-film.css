@@ -1,0 +1,11 @@
+/* A scroll chapter: native scrolling owns entry and exit. */
+.intro-sequence{position:relative;z-index:4;height:100svh;margin-top:-50svh;scroll-margin-top:0;--film-scale:1;--film-opacity:1}
+.intro-stage{height:100svh;position:relative;overflow:hidden;background:#101a15}
+.intro-frame{position:absolute;inset:0;transform:scale(var(--film-scale));opacity:var(--film-opacity);transform-origin:center;will-change:transform,opacity;background:#101a15}
+.intro-film{display:block;width:100%;height:100%;object-fit:contain;background:#101a15;pointer-events:none;user-select:none}
+.intro-sequence~#atlas-content{margin-top:0;scroll-margin-top:82px}
+.public-header{transition:opacity .3s,background .3s,border-color .3s}
+body.in-intro .public-header{opacity:0;pointer-events:none}
+.cover-enter{text-decoration:none}
+@media(max-width:680px){.intro-sequence{margin-top:-35svh}.intro-sequence~#atlas-content{scroll-margin-top:64px}.intro-frame{transform:none}}
+@media(prefers-reduced-motion:reduce){.intro-sequence{height:100svh}.intro-frame{transform:none!important;opacity:1!important;will-change:auto}.public-header{transition:none}}

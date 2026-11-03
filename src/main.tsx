@@ -9,6 +9,7 @@ import "./theatre.css";
 import "./constructivist.css";
 import "./intake.css";
 import "./gallery.css";
+import "./cloud.css";
 createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <App />
