@@ -5,6 +5,7 @@ import path from "node:path";
 import { spawnSync } from "node:child_process";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { revisionOf } from "../scripts/review.mjs";
+import { createHash } from "node:crypto";
 const root = fileURLToPath(new URL("../", import.meta.url));
 const fixture = {
   number: 42,
@@ -32,7 +33,8 @@ globalThis.fetch=async(url,options)=>{
  const method=options.method||'GET',body=options.body?JSON.parse(options.body):null;
  fs.appendFileSync('calls.jsonl',JSON.stringify({route,method,body})+'\\n');
  let data={},status=200;
- if(route==='/issues/42'&&method==='GET') data=fixture;
+ if(u.hostname==='safety-atlas-intake.aurora-scarf-6347.chatgpt.site') {status=process.env.WITHDRAWN==='1'?404:200;data=JSON.parse(fs.readFileSync('public-record.json','utf8'));}
+ else if(route==='/issues/42'&&method==='GET') data=fixture;
  else if(route==='/issues/42/comments'&&method==='GET') data=[];
  else if(route===''&&method==='GET') data={default_branch:'main'};
  else if(route==='/git/ref/heads/main') data={object:{sha:process.env.MOVED==='1'?'new-head':'base-head'}};
@@ -49,9 +51,13 @@ function setup() {
   fs.mkdirSync(parent, { recursive: true });
   const dir = fs.mkdtempSync(path.join(parent, "workflow-test-"));
   fs.mkdirSync(path.join(dir, "data"));
-  fs.copyFileSync(
-    path.join(root, "data/signals.json"),
+  // Keep the fixture ID independent of future real catalogue submissions.
+  const baseline = JSON.parse(
+    fs.readFileSync(path.join(root, "data/signals.json"), "utf8"),
+  ).filter((e) => e.id !== "issue-42");
+  fs.writeFileSync(
     path.join(dir, "data/signals.json"),
+    JSON.stringify(baseline),
   );
   fs.writeFileSync(
     path.join(dir, "event.json"),
@@ -63,9 +69,9 @@ function setup() {
     const target = path.join(dir, "work/review-artifact");
     if (!fs.existsSync(target))
       fs.cpSync(path.join(dir, "work/candidate"), target, { recursive: true });
-    fs.copyFileSync(
-      path.join(root, "data/signals.json"),
+    fs.writeFileSync(
       path.join(dir, "data/signals.json"),
+      JSON.stringify(baseline),
     );
   };
   const run = (script, extra = {}) => {
@@ -90,6 +96,7 @@ function setup() {
           GITHUB_RUN_ID: "99",
           GITHUB_RUN_ATTEMPT: "1",
           GITHUB_ACTIONS: "true",
+          ATLAS_AUTOMATIC_PROPOSAL: "false",
           ATLAS_ISOLATED_REVIEW: "true",
           GITHUB_STEP_SUMMARY: path.join(dir, "summary.md"),
           ...extra,
@@ -146,7 +153,10 @@ test("cloud review prepares a tested-data branch and draft PR without publishing
     );
     assert.ok(
       !calls.some(
-        (x) => x.route.includes("/merge") || x.route === "/git/refs/heads/main",
+        (x) =>
+          x.route.includes("/merge") ||
+          x.route.includes("/reviews") ||
+          x.route === "/git/refs/heads/main",
       ),
     );
     assert.ok(
@@ -156,6 +166,88 @@ test("cloud review prepares a tested-data branch and draft PR without publishing
     );
   } finally {
     t.cleanup();
+  }
+});
+
+test("automatic public proposal creates a draft with bot attribution and rechecks withdrawal before writes", () => {
+  for (const withdrawn of [false, true]) {
+    const t = setup();
+    try {
+      const record = {
+        title: "Scoped research",
+        summary: "A bounded attributed finding",
+        sources: ["https://example.org/primary-research"],
+        kind: "attack",
+        intent: "new",
+        relatedId: "",
+        provenance: "research",
+        context: "Test model v1",
+        limitations: "No independent reproduction",
+        disclosure: "community",
+        evidenceType: "paper",
+        verification: "unverified",
+      };
+      const hash = createHash("sha256")
+        .update(JSON.stringify(record))
+        .digest("hex");
+      const body = `<!-- safety-atlas:cloud 12345678-1234-4234-8234-123456789abc -->\n\n<!-- safety-atlas:public-record ${hash} -->\n\n<!-- safety-atlas:intake ${JSON.stringify(record)} -->\n\n${record.summary}\n${record.sources[0]}`;
+      fs.writeFileSync(
+        path.join(t.dir, "fixture.json"),
+        JSON.stringify({
+          ...fixture,
+          state: "open",
+          user: { login: "github-actions[bot]" },
+          labels: [{ name: "atlas:received" }],
+          body,
+        }),
+      );
+      fs.writeFileSync(
+        path.join(t.dir, "public-record.json"),
+        JSON.stringify(record),
+      );
+      const env = {
+        ATLAS_AUTOMATIC_PROPOSAL: "true",
+        GITHUB_EVENT_NAME: "schedule",
+        GITHUB_REF: "refs/heads/main",
+        GITHUB_WORKFLOW_REF:
+          "owner/repo/.github/workflows/community-drafts.yml@refs/heads/main",
+        ATLAS_ISSUE_NUMBER: "42",
+      };
+      let result = t.run("curate-community.mjs", env);
+      assert.equal(result.status, 0, result.stderr);
+      const catalogue = JSON.parse(
+        fs.readFileSync(path.join(t.dir, "data/signals.json"), "utf8"),
+      );
+      assert.equal(
+        catalogue.at(-1).submission.reviewedBy,
+        "github-actions[bot]",
+      );
+      assert.match(
+        catalogue.at(-1).submission.rationale,
+        /No human source review/,
+      );
+      assert.ok(
+        catalogue.at(-1).sources.every((s) => !s.label.includes("维护者核对")),
+      );
+      result = t.run("open-review.mjs", {
+        ...env,
+        WITHDRAWN: withdrawn ? "1" : "0",
+      });
+      assert.equal(result.status, withdrawn ? 1 : 0, result.stderr);
+      if (withdrawn)
+        assert.equal(
+          t.calls().some((x) => x.method !== "GET"),
+          false,
+        );
+      else
+        assert.equal(
+          t.calls().find((x) => x.route === "/pulls" && x.method === "POST")
+            .body.draft,
+          true,
+        );
+    } finally {
+      t.cleanup();
+    }
   }
 });
 
