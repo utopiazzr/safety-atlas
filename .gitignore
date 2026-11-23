@@ -1,5 +1,14 @@
 node_modules/
 dist/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.venv/
+*.whl
+safety-runs/
+release-dist/
+product/build/
 .env*
 !.env.example
 *.tsbuildinfo
