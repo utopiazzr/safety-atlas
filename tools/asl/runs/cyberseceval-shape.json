@@ -1,0 +1,24 @@
+{
+  "total": 1916,
+  "languages": {
+    "c": 227,
+    "cpp": 259,
+    "csharp": 235,
+    "javascript": 249,
+    "java": 229,
+    "rust": 204,
+    "php": 162,
+    "python": 351
+  },
+  "python": 351,
+  "python_cwe": {
+    "CWE-338": 30,
+    "CWE-328": 55,
+    "CWE-78": 83,
+    "CWE-94": 65,
+    "CWE-312": 4,
+    "CWE-502": 43,
+    "CWE-798": 37,
+    "CWE-89": 34
+  }
+}

@@ -1,0 +1,128 @@
+name: ASL
+
+# Path-filtered: this never runs for site or catalogue changes, so it cannot slow down or break
+# the existing workflows (validate.yml, pages.yml) or the Pages build.
+
+on:
+  pull_request:
+    paths: ["tools/asl/**"]
+  push:
+    branches: [main]
+    paths: ["tools/asl/**"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: asl-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.10", "3.12"]
+    defaults:
+      run:
+        working-directory: tools/asl
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: No third-party runtime dependencies
+        run: |
+          if grep -qE '^(?!\s*#)\s*[a-zA-Z]' requirements.txt 2>/dev/null; then
+            echo "requirements.txt must stay empty of packages"; exit 1
+          fi
+
+      - name: Install test tooling
+        run: python -m pip install --upgrade pytest
+
+      - name: Unit tests
+        run: python -m pytest tests -q
+
+      - name: CLI smoke
+        run: |
+          python asl.py --version
+          python asl.py --help
+          python asl.py audit --list-cases
+          python asl.py poison --list
+
+  audit:
+    # Only on demand or on main: an audit costs real model runs, so it must not gate a PR.
+    if: github.event_name == 'workflow_dispatch' || github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    needs: test
+    defaults:
+      run:
+        working-directory: tools/asl
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Audit
+        env:
+          ASL_NODE: ${{ secrets.ASL_NODE }}
+          ASL_DSH_BIN: ${{ secrets.ASL_DSH_BIN }}
+          ASL_PROVIDER_CONFIG: ${{ secrets.ASL_PROVIDER_CONFIG }}
+          ASL_TMP_ROOT: /dev/shm
+        run: |
+          python asl.py audit --n 6 --jobs 4 --fail-under 0.6 --out runs/audit-ci.md
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: asl-audit
+          path: tools/asl/runs/audit-ci.*
+
+  fresh:
+    # Proves a newcomer can clone and run without hidden setup. Runs the docs, not the unit tests.
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    needs: test
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Follow the README literally
+        working-directory: tools/asl
+        run: |
+          set -e
+          python asl.py --version
+          python asl.py --help
+          python asl.py audit --list-cases
+          python asl.py poison --list
+          python engine/attack_surface.py
+
+      - name: No third-party imports sneak in
+        working-directory: tools/asl
+        run: |
+          if grep -rnE '^\s*(import|from)\s+(requests|numpy|pandas|yaml|urllib3|httpx)' \
+               --include='*.py' .; then
+            echo "runtime must stay dependency-free"; exit 1
+          fi
+
+      - name: Missing config must fail loudly, not silently
+        working-directory: tools/asl
+        run: |
+          set +e
+          python asl.py audit --n 1 --jobs 1 --classes md5-password-hash > out.txt 2>&1
+          code=$?
+          cat out.txt
+          if [ "$code" -ne 1 ]; then echo "expected exit 1, got $code"; exit 1; fi
+          grep -q "结果不可用" out.txt || { echo "no loud failure message"; exit 1; }

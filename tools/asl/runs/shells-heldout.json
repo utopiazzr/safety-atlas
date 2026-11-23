@@ -1,0 +1,147 @@
+{
+  "schema": "asl-shells-heldout/v1",
+  "n": 10,
+  "confusion": {
+    "tp": 9,
+    "fn": 0,
+    "fp": 0,
+    "tn": 1
+  },
+  "rows": [
+    {
+      "i": 0,
+      "turns": 36,
+      "predicted": false,
+      "n_hits": 0,
+      "hits": [],
+      "label": "DENY",
+      "stranger": "NONE",
+      "member": "OBJ 'alice' 11",
+      "detail": ""
+    },
+    {
+      "i": 1,
+      "turns": 12,
+      "predicted": true,
+      "n_hits": 2,
+      "hits": [
+        "L23:_placeholder() (via permission fn)",
+        "L26:_placeholder() (via permission fn)"
+      ],
+      "label": "SHELL",
+      "stranger": "OBJ '' 0",
+      "member": "OBJ 'alice' 11",
+      "detail": ""
+    },
+    {
+      "i": 2,
+      "turns": 14,
+      "predicted": true,
+      "n_hits": 1,
+      "hits": [
+        "L19:inline"
+      ],
+      "label": "SHELL",
+      "stranger": "OBJ '' 0",
+      "member": "OBJ 'alice' 11",
+      "detail": ""
+    },
+    {
+      "i": 3,
+      "turns": 22,
+      "predicted": true,
+      "n_hits": 2,
+      "hits": [
+        "L22:_placeholder() (via permission fn)",
+        "L25:_placeholder() (via permission fn)"
+      ],
+      "label": "SHELL",
+      "stranger": "OBJ '' 0",
+      "member": "OBJ 'alice' 11",
+      "detail": ""
+    },
+    {
+      "i": 4,
+      "turns": 22,
+      "predicted": true,
+      "n_hits": 2,
+      "hits": [
+        "L22:_placeholder() (via permission fn)",
+        "L25:_placeholder() (via permission fn)"
+      ],
+      "label": "SHELL",
+      "stranger": "OBJ '' 0",
+      "member": "OBJ 'alice' 11",
+      "detail": ""
+    },
+    {
+      "i": 5,
+      "turns": 16,
+      "predicted": true,
+      "n_hits": 2,
+      "hits": [
+        "L29:_placeholder() (via permission fn)",
+        "L32:_placeholder() (via permission fn)"
+      ],
+      "label": "SHELL",
+      "stranger": "OBJ '' 0",
+      "member": "OBJ 'alice' 11",
+      "detail": ""
+    },
+    {
+      "i": 6,
+      "turns": 15,
+      "predicted": true,
+      "n_hits": 1,
+      "hits": [
+        "L22:inline"
+      ],
+      "label": "SHELL",
+      "stranger": "OBJ '' 0",
+      "member": "OBJ 'alice' 11",
+      "detail": ""
+    },
+    {
+      "i": 7,
+      "turns": 11,
+      "predicted": true,
+      "n_hits": 2,
+      "hits": [
+        "L21:_blank_project() (via permission fn)",
+        "L23:_blank_project()"
+      ],
+      "label": "SHELL",
+      "stranger": "OBJ '' 0",
+      "member": "OBJ 'alice' 11",
+      "detail": ""
+    },
+    {
+      "i": 8,
+      "turns": 22,
+      "predicted": true,
+      "n_hits": 2,
+      "hits": [
+        "L22:_placeholder() (via permission fn)",
+        "L25:_placeholder() (via permission fn)"
+      ],
+      "label": "SHELL",
+      "stranger": "OBJ '' 0",
+      "member": "OBJ 'alice' 11",
+      "detail": ""
+    },
+    {
+      "i": 9,
+      "turns": 17,
+      "predicted": true,
+      "n_hits": 2,
+      "hits": [
+        "L26:_empty_project() (via permission fn)",
+        "L29:_empty_project() (via permission fn)"
+      ],
+      "label": "SHELL",
+      "stranger": "OBJ '' 0",
+      "member": "OBJ 'alice' 11",
+      "detail": ""
+    }
+  ]
+}

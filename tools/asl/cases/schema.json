@@ -1,0 +1,111 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "non-adversarial access-control case",
+  "type": "object",
+  "required": [
+    "id",
+    "title",
+    "year",
+    "category",
+    "why_non_adversarial",
+    "mechanism",
+    "impact",
+    "ai_role",
+    "confidence",
+    "sources"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9-]+$"
+    },
+    "title": {
+      "type": "string"
+    },
+    "year": {
+      "type": "integer"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "missing_authz",
+        "default_public",
+        "over_permission",
+        "tenant_isolation",
+        "client_trust",
+        "silent_weakening"
+      ]
+    },
+    "why_non_adversarial": {
+      "type": "string",
+      "description": "为什么不需要攻击者技巧：缺什么检查 / 什么默认值 / 什么过宽权限"
+    },
+    "mechanism": {
+      "type": "string",
+      "description": "技术上到底缺了什么"
+    },
+    "impact": {
+      "type": "string"
+    },
+    "scale": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "已知影响面，没有就 null"
+    },
+    "ai_role": {
+      "type": "string",
+      "description": "AI 在这里的角色：生成 / 配置 / 无关"
+    },
+    "detectability": {
+      "type": "string",
+      "description": "正常人能不能看出来：演示时是否可发现、静态扫描能否发现"
+    },
+    "confidence": {
+      "type": "string",
+      "enum": [
+        "verified",
+        "reported",
+        "disputed",
+        "measured-here"
+      ]
+    },
+    "sources": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": [
+          "url",
+          "type"
+        ],
+        "properties": {
+          "url": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "cve",
+              "advisory",
+              "research",
+              "press",
+              "vendor",
+              "our-data"
+            ]
+          },
+          "note": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "lessons": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  }
+}

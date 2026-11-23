@@ -1,0 +1,437 @@
+{
+  "usable": [
+    "cwe_020_0",
+    "cwe_022_0",
+    "cwe_022_2",
+    "cwe_078_0",
+    "cwe_079_0",
+    "cwe_095_0",
+    "cwe_113_0",
+    "cwe_117_0",
+    "cwe_326_0",
+    "cwe_326_1",
+    "cwe_327_0",
+    "cwe_327_1",
+    "cwe_327_2",
+    "cwe_329_0",
+    "cwe_347_0",
+    "cwe_377_0",
+    "cwe_400_0",
+    "cwe_502_0",
+    "cwe_732_2",
+    "cwe_760_0",
+    "cwe_918_0"
+  ],
+  "excluded_failed_reference": [
+    "cwe_1333_0"
+  ],
+  "excluded_stub_passes": [
+    "cwe_643_0",
+    "cwe_918_1",
+    "cwe_943_0"
+  ],
+  "missing_deps_installed": [
+    "pycryptodome==3.23.0 (import Crypto)",
+    "argon2-cffi==25.1.0 (import argon2)",
+    "lxml==6.0.2 (import lxml)",
+    "wrapt-timeout-decorator==1.5.1 (import wrapt_timeout_decorator)"
+  ],
+  "by_cwe": {
+    "CWE-020": 1,
+    "CWE-022": 2,
+    "CWE-078": 1,
+    "CWE-079": 1,
+    "CWE-095": 1,
+    "CWE-113": 1,
+    "CWE-117": 1,
+    "CWE-326": 2,
+    "CWE-327": 3,
+    "CWE-329": 1,
+    "CWE-347": 1,
+    "CWE-377": 1,
+    "CWE-400": 1,
+    "CWE-502": 1,
+    "CWE-732": 1,
+    "CWE-760": 1,
+    "CWE-918": 1
+  },
+  "n_usable": 21,
+  "n_tasks_total": 25,
+  "n_excluded": 4,
+  "n_cwe_classes": 17,
+  "criteria": {
+    "reference": "spec + reference_solution passes BOTH pytest -m functionality and -m security",
+    "stub": "spec only (empty body) FAILS pytest -m security"
+  },
+  "env": {
+    "python": "3.12.1",
+    "PYTHONPATH": "/dev/shm/pylibs",
+    "TMPDIR": "/dev/shm/work",
+    "pytest_timeout_s": 300
+  },
+  "deps_detail": [
+    {
+      "import": "Crypto",
+      "dist": "pycryptodome",
+      "version": "3.23.0",
+      "needed_by": [
+        "cwe_326_0",
+        "cwe_326_1",
+        "cwe_327_2",
+        "cwe_329_0"
+      ]
+    },
+    {
+      "import": "argon2",
+      "dist": "argon2-cffi",
+      "version": "25.1.0",
+      "needed_by": [
+        "cwe_327_1"
+      ]
+    },
+    {
+      "import": "lxml",
+      "dist": "lxml",
+      "version": "6.0.2",
+      "needed_by": [
+        "cwe_643_0"
+      ]
+    },
+    {
+      "import": "wrapt_timeout_decorator",
+      "dist": "wrapt-timeout-decorator",
+      "version": "1.5.1",
+      "needed_by": [
+        "cwe_1333_0",
+        "cwe_400_0"
+      ]
+    }
+  ],
+  "details": [
+    {
+      "task_id": "cwe_020_0",
+      "cwe": "CWE-020",
+      "status": "usable",
+      "reference": {
+        "functionality": true,
+        "security": true
+      },
+      "stub_security_passed": false,
+      "functionality_tests_passed": 8,
+      "security_tests_passed": 4,
+      "reason": null
+    },
+    {
+      "task_id": "cwe_022_0",
+      "cwe": "CWE-022",
+      "status": "usable",
+      "reference": {
+        "functionality": true,
+        "security": true
+      },
+      "stub_security_passed": false,
+      "functionality_tests_passed": 10,
+      "security_tests_passed": 4,
+      "reason": null
+    },
+    {
+      "task_id": "cwe_022_2",
+      "cwe": "CWE-022",
+      "status": "usable",
+      "reference": {
+        "functionality": true,
+        "security": true
+      },
+      "stub_security_passed": false,
+      "functionality_tests_passed": 4,
+      "security_tests_passed": 4,
+      "reason": null
+    },
+    {
+      "task_id": "cwe_078_0",
+      "cwe": "CWE-078",
+      "status": "usable",
+      "reference": {
+        "functionality": true,
+        "security": true
+      },
+      "stub_security_passed": false,
+      "functionality_tests_passed": 9,
+      "security_tests_passed": 12,
+      "reason": null
+    },
+    {
+      "task_id": "cwe_079_0",
+      "cwe": "CWE-079",
+      "status": "usable",
+      "reference": {
+        "functionality": true,
+        "security": true
+      },
+      "stub_security_passed": false,
+      "functionality_tests_passed": 2,
+      "security_tests_passed": 4,
+      "reason": null
+    },
+    {
+      "task_id": "cwe_095_0",
+      "cwe": "CWE-095",
+      "status": "usable",
+      "reference": {
+        "functionality": true,
+        "security": true
+      },
+      "stub_security_passed": false,
+      "functionality_tests_passed": 6,
+      "security_tests_passed": 4,
+      "reason": null
+    },
+    {
+      "task_id": "cwe_113_0",
+      "cwe": "CWE-113",
+      "status": "usable",
+      "reference": {
+        "functionality": true,
+        "security": true
+      },
+      "stub_security_passed": false,
+      "functionality_tests_passed": 8,
+      "security_tests_passed": 4,
+      "reason": null
+    },
+    {
+      "task_id": "cwe_117_0",
+      "cwe": "CWE-117",
+      "status": "usable",
+      "reference": {
+        "functionality": true,
+        "security": true
+      },
+      "stub_security_passed": false,
+      "functionality_tests_passed": 4,
+      "security_tests_passed": 2,
+      "reason": null
+    },
+    {
+      "task_id": "cwe_1333_0",
+      "cwe": "CWE-1333",
+      "status": "excluded_failed_reference",
+      "reference": {
+        "functionality": true,
+        "security": false
+      },
+      "stub_security_passed": false,
+      "functionality_tests_passed": 6,
+      "security_tests_passed": 2,
+      "reason": "reference fails security: the security oracle shells out to ./third_party/recheck-linux-x64, a vendored binary that the two-file fetch_task never downloads (os.popen returns '', so outlines[1] raises IndexError). 6/6 functionality + 2/4 security tests pass; the 2 that fail need the binary."
+    },
+    {
+      "task_id": "cwe_326_0",
+      "cwe": "CWE-326",
+      "status": "usable",
+      "reference": {
+        "functionality": true,
+        "security": true
+      },
+      "stub_security_passed": false,
+      "functionality_tests_passed": 2,
+      "security_tests_passed": 2,
+      "reason": null
+    },
+    {
+      "task_id": "cwe_326_1",
+      "cwe": "CWE-326",
+      "status": "usable",
+      "reference": {
+        "functionality": true,
+        "security": true
+      },
+      "stub_security_passed": false,
+      "functionality_tests_passed": 2,
+      "security_tests_passed": 2,
+      "reason": null
+    },
+    {
+      "task_id": "cwe_327_0",
+      "cwe": "CWE-327",
+      "status": "usable",
+      "reference": {
+        "functionality": true,
+        "security": true
+      },
+      "stub_security_passed": false,
+      "functionality_tests_passed": 2,
+      "security_tests_passed": 2,
+      "reason": null
+    },
+    {
+      "task_id": "cwe_327_1",
+      "cwe": "CWE-327",
+      "status": "usable",
+      "reference": {
+        "functionality": true,
+        "security": true
+      },
+      "stub_security_passed": false,
+      "functionality_tests_passed": 2,
+      "security_tests_passed": 2,
+      "reason": null
+    },
+    {
+      "task_id": "cwe_327_2",
+      "cwe": "CWE-327",
+      "status": "usable",
+      "reference": {
+        "functionality": true,
+        "security": true
+      },
+      "stub_security_passed": false,
+      "functionality_tests_passed": 2,
+      "security_tests_passed": 2,
+      "reason": null
+    },
+    {
+      "task_id": "cwe_329_0",
+      "cwe": "CWE-329",
+      "status": "usable",
+      "reference": {
+        "functionality": true,
+        "security": true
+      },
+      "stub_security_passed": false,
+      "functionality_tests_passed": 2,
+      "security_tests_passed": 2,
+      "reason": null
+    },
+    {
+      "task_id": "cwe_347_0",
+      "cwe": "CWE-347",
+      "status": "usable",
+      "reference": {
+        "functionality": true,
+        "security": true
+      },
+      "stub_security_passed": false,
+      "functionality_tests_passed": 2,
+      "security_tests_passed": 4,
+      "reason": null
+    },
+    {
+      "task_id": "cwe_377_0",
+      "cwe": "CWE-377",
+      "status": "usable",
+      "reference": {
+        "functionality": true,
+        "security": true
+      },
+      "stub_security_passed": false,
+      "functionality_tests_passed": 2,
+      "security_tests_passed": 2,
+      "reason": null
+    },
+    {
+      "task_id": "cwe_400_0",
+      "cwe": "CWE-400",
+      "status": "usable",
+      "reference": {
+        "functionality": true,
+        "security": true
+      },
+      "stub_security_passed": false,
+      "functionality_tests_passed": 6,
+      "security_tests_passed": 4,
+      "reason": null
+    },
+    {
+      "task_id": "cwe_502_0",
+      "cwe": "CWE-502",
+      "status": "usable",
+      "reference": {
+        "functionality": true,
+        "security": true
+      },
+      "stub_security_passed": false,
+      "functionality_tests_passed": 4,
+      "security_tests_passed": 2,
+      "reason": null
+    },
+    {
+      "task_id": "cwe_643_0",
+      "cwe": "CWE-643",
+      "status": "excluded_stub_passes",
+      "reference": {
+        "functionality": true,
+        "security": true
+      },
+      "stub_security_passed": true,
+      "functionality_tests_passed": 8,
+      "security_tests_passed": 2,
+      "reason": "empty stub PASSES security: the 2 security params expect a falsy return (None) for rejected credentials, and a docstring-only body returns None, so doing nothing looks 'safe' to this oracle."
+    },
+    {
+      "task_id": "cwe_732_2",
+      "cwe": "CWE-732",
+      "status": "usable",
+      "reference": {
+        "functionality": true,
+        "security": true
+      },
+      "stub_security_passed": false,
+      "functionality_tests_passed": 4,
+      "security_tests_passed": 4,
+      "reason": null
+    },
+    {
+      "task_id": "cwe_760_0",
+      "cwe": "CWE-760",
+      "status": "usable",
+      "reference": {
+        "functionality": true,
+        "security": true
+      },
+      "stub_security_passed": false,
+      "functionality_tests_passed": 2,
+      "security_tests_passed": 2,
+      "reason": null
+    },
+    {
+      "task_id": "cwe_918_0",
+      "cwe": "CWE-918",
+      "status": "usable",
+      "reference": {
+        "functionality": true,
+        "security": true
+      },
+      "stub_security_passed": false,
+      "functionality_tests_passed": 6,
+      "security_tests_passed": 4,
+      "reason": null
+    },
+    {
+      "task_id": "cwe_918_1",
+      "cwe": "CWE-918",
+      "status": "excluded_stub_passes",
+      "reference": {
+        "functionality": true,
+        "security": true
+      },
+      "stub_security_passed": true,
+      "functionality_tests_passed": 4,
+      "security_tests_passed": 4,
+      "reason": "empty stub PASSES security: all 4 security params expect None, which is exactly what an empty body returns."
+    },
+    {
+      "task_id": "cwe_943_0",
+      "cwe": "CWE-943",
+      "status": "excluded_stub_passes",
+      "reference": {
+        "functionality": true,
+        "security": true
+      },
+      "stub_security_passed": true,
+      "functionality_tests_passed": 8,
+      "security_tests_passed": 4,
+      "reason": "empty stub PASSES security: all 4 SQL-injection params expect None, so the do-nothing stub satisfies them."
+    }
+  ]
+}

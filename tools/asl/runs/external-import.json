@@ -1,0 +1,164 @@
+{
+  "schema": "asl-external-import/v2",
+  "source": {
+    "repo": "s2e-lab/SecurityEval",
+    "url": "https://raw.githubusercontent.com/s2e-lab/SecurityEval/main/dataset.jsonl",
+    "license": "none published - fetched, never vendored",
+    "citation": "SecurityEval: S. Siddiq et al., 'SecurityEval Dataset: Mining Vulnerability-Contributing Code from LLMs', 2022",
+    "sha256": "e46918698e190e481399c51330c60049ed34a38ccc2546c9a81f0c84d446335f"
+  },
+  "oracles": {
+    "bandit": "1.9.4",
+    "custom_rules": [
+      "CWE-117",
+      "CWE-321",
+      "CWE-347",
+      "CWE-601",
+      "CWE-730"
+    ]
+  },
+  "custom_self_check": {
+    "CWE-601": {
+      "n": 5,
+      "fires": 5,
+      "note": "open redirect: user-controlled destination"
+    },
+    "CWE-730": {
+      "n": 3,
+      "fires": 3,
+      "note": "ReDoS: user-controlled or catastrophic regex"
+    },
+    "CWE-347": {
+      "n": 3,
+      "fires": 3,
+      "note": "signature verification skipped"
+    },
+    "CWE-117": {
+      "n": 3,
+      "fires": 1,
+      "note": "log injection: unescaped value concatenated into a log line"
+    },
+    "CWE-321": {
+      "n": 2,
+      "fires": 2,
+      "note": "hardcoded cryptographic key"
+    }
+  },
+  "custom_false_positives": [
+    "CWE-601"
+  ],
+  "counts": {
+    "total": 121,
+    "usable": 37,
+    "by_bandit": 23,
+    "by_custom": 14,
+    "cwe_mismatch": 26,
+    "no_hit": 58
+  },
+  "usable_cwe": {
+    "CWE-020": 2,
+    "CWE-022": 1,
+    "CWE-078": 2,
+    "CWE-089": 2,
+    "CWE-117": 1,
+    "CWE-259": 2,
+    "CWE-295": 1,
+    "CWE-319": 1,
+    "CWE-321": 2,
+    "CWE-326": 2,
+    "CWE-327": 3,
+    "CWE-330": 1,
+    "CWE-347": 3,
+    "CWE-377": 1,
+    "CWE-502": 2,
+    "CWE-601": 5,
+    "CWE-605": 1,
+    "CWE-703": 1,
+    "CWE-730": 3,
+    "CWE-732": 1
+  },
+  "usable_ids": [
+    "CWE-020_author_1.py",
+    "CWE-020_author_2.py",
+    "CWE-022_author_2.py",
+    "CWE-078_author_1.py",
+    "CWE-078_codeql_1.py",
+    "CWE-089_author_1.py",
+    "CWE-089_codeql_1.py",
+    "CWE-117_codeql_1.py",
+    "CWE-259_author_1.py",
+    "CWE-259_author_2.py",
+    "CWE-295_codeql_1.py",
+    "CWE-319_author_2.py",
+    "CWE-321_author_1.py",
+    "CWE-321_author_2.py",
+    "CWE-326_author_1.py",
+    "CWE-326_author_2.py",
+    "CWE-327_codeql_1.py",
+    "CWE-327_codeql_2.py",
+    "CWE-327_codeql_3.py",
+    "CWE-330_author_1.py",
+    "CWE-347_sonar_1.py",
+    "CWE-347_sonar_2.py",
+    "CWE-347_sonar_3.py",
+    "CWE-377_codeql_1.py",
+    "CWE-502_author_1.py",
+    "CWE-502_codeql_1.py",
+    "CWE-601_codeql_1.py",
+    "CWE-601_sonar_1.py",
+    "CWE-601_sonar_2.py",
+    "CWE-601_sonar_3.py",
+    "CWE-601_sonar_4.py",
+    "CWE-605_author_1.py",
+    "CWE-703_author_3.py",
+    "CWE-730_author_1.py",
+    "CWE-730_codeql_1.py",
+    "CWE-730_codeql_2.py",
+    "CWE-732_author_1.py"
+  ],
+  "cyberseceval": {
+    "repo": "meta-llama/PurpleLlama",
+    "license": "MIT",
+    "sha256": "8913f770ccd50921ba5a4e94e504b224dbeeb39afc6618a3e9bf941a8eafbe3e",
+    "python_samples": 351,
+    "oracle_valid": 27,
+    "by_cwe": {
+      "CWE-78": 20,
+      "CWE-502": 6,
+      "CWE-89": 1
+    },
+    "by_oracle": {
+      "bandit": 27
+    },
+    "cwe_mismatch": 18,
+    "no_hit": 306
+  },
+  "combined": {
+    "usable": 64,
+    "cwe_classes": 22,
+    "cwe": {
+      "CWE-020": 2,
+      "CWE-022": 1,
+      "CWE-078": 2,
+      "CWE-089": 2,
+      "CWE-117": 1,
+      "CWE-259": 2,
+      "CWE-295": 1,
+      "CWE-319": 1,
+      "CWE-321": 2,
+      "CWE-326": 2,
+      "CWE-327": 3,
+      "CWE-330": 1,
+      "CWE-347": 3,
+      "CWE-377": 1,
+      "CWE-502": 8,
+      "CWE-601": 5,
+      "CWE-605": 1,
+      "CWE-703": 1,
+      "CWE-730": 3,
+      "CWE-732": 1,
+      "CWE-78": 20,
+      "CWE-89": 1
+    }
+  }
+}
