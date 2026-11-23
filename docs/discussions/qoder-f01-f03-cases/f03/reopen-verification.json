@@ -1,0 +1,48 @@
+{
+  "workspace": {
+    "quick": {
+      "exit": 0,
+      "pass": 3,
+      "fail": 0,
+      "skipped": 9,
+      "failed_tests": []
+    },
+    "full": {
+      "exit": 0,
+      "pass": 12,
+      "fail": 0,
+      "skipped": 0,
+      "failed_tests": []
+    },
+    "publisher": {
+      "exit": 0,
+      "pass": 2,
+      "fail": 0,
+      "skipped": 0,
+      "failed_tests": []
+    }
+  },
+  "desktop_only": {
+    "quick": {
+      "exit": 0,
+      "pass": 3,
+      "fail": 0,
+      "skipped": 9,
+      "failed_tests": []
+    },
+    "full": {
+      "exit": 0,
+      "pass": 12,
+      "fail": 0,
+      "skipped": 0,
+      "failed_tests": []
+    },
+    "publisher": {
+      "exit": 0,
+      "pass": 2,
+      "fail": 0,
+      "skipped": 0,
+      "failed_tests": []
+    }
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "frozen_differences": 1,
+  "seal_verified": true,
+  "visible": {
+    "tests": 24,
+    "pass": 24,
+    "fail": 0,
+    "cancelled": 0,
+    "skipped": 0,
+    "exit": 0,
+    "failed_cases": []
+  },
+  "external": {
+    "tests": 27,
+    "pass": 27,
+    "fail": 0,
+    "cancelled": 0,
+    "skipped": 0,
+    "exit": 0,
+    "failed_cases": []
+  },
+  "original": {
+    "exit": 0,
+    "total": 138,
+    "passed": 138,
+    "failed": 0,
+    "pending": 0,
+    "snapshots": 55,
+    "same_test_instances": true
+  },
+  "additional": {
+    "exit": 0,
+    "old_suite_and_new_total": 12,
+    "all_passed": 12,
+    "added_total": 6,
+    "added_passed": 6
+  }
+}

@@ -1,0 +1,44 @@
+{
+  "exit_codes": {
+    "native": 0,
+    "oracle": 1
+  },
+  "observer_seal_verified": true,
+  "verified_at": "2026-11-03T12:14:45.826592+08:00",
+  "native": {
+    "numTotalTestSuites": 7,
+    "numTotalTests": 132,
+    "numPassedTests": 132,
+    "numFailedTests": 0,
+    "numPendingTests": 0,
+    "success": true
+  },
+  "inventory": {
+    "expected_count_in_selected_suites": 132,
+    "reported_count": 132,
+    "missing": [],
+    "not_executed": [],
+    "selected_suites": [
+      "config-resolution.js",
+      "file-info-compatibility.js",
+      "file-info.js",
+      "ignore-in-subdirectories.js",
+      "ignore-path.js",
+      "infer-parser.js",
+      "plugin-resolution.js"
+    ],
+    "missing_full_suite_files": []
+  },
+  "oracle": {
+    "total": 18,
+    "passed": 17,
+    "failed": 1
+  },
+  "additional_exit_code": 0,
+  "additional": {
+    "numTotalTests": 6,
+    "numPassedTests": 6,
+    "numFailedTests": 0,
+    "numPendingTests": 0
+  }
+}

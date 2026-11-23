@@ -1,0 +1,32 @@
+{
+  "baseline": {
+    "desktop": [
+      3,
+      6
+    ],
+    "publish": [
+      2,
+      0
+    ]
+  },
+  "shared": {
+    "desktop": [
+      9,
+      0
+    ],
+    "publish": [
+      0,
+      2
+    ]
+  },
+  "local": {
+    "desktop": [
+      9,
+      0
+    ],
+    "publish": [
+      2,
+      0
+    ]
+  }
+}
