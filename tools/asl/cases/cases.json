@@ -1,0 +1,261 @@
+{
+  "schema": "asl-nonadversarial-cases/v1",
+  "description": "非攻击性越权/访问控制失效案例库。收录标准：不需要攻击者技巧即可触达。",
+  "inclusion": [
+    "缺一个检查、一个默认值、一条策略就足以造成暴露",
+    "不需要构造 payload、不需要绕过检测、不需要社工",
+    "有可核验的公开来源"
+  ],
+  "exclusion": [
+    "需要精心构造的注入（如 EchoLeak 这类零点击提示注入）——那属于攻击面，另立一类",
+    "纯理论、无实际部署证据的",
+    "来源不可核验的传闻"
+  ],
+  "cases": [
+    {
+      "id": "lovable-supabase-rls-2025",
+      "title": "CVE-2025-48757：AI 生成的 Supabase 应用缺 RLS",
+      "year": 2025,
+      "category": "missing_authz",
+      "why_non_adversarial": "不需要任何攻击技巧。Supabase 的 anon key 本来就随前端打包公开，表没开 RLS 时，任何人拿这个公开 key 直接 GET 就能读到全部行。没有 exploit 链，没有绕过，就是一条 curl。",
+      "mechanism": "Supabase 把 public schema 的每张表都自动暴露成 PostgREST 接口，唯一挡在匿名访问前面的是 Row Level Security。AI 建表时没开 RLS，或多条策略写成了 using (true)，表就成了公开 API。",
+      "impact": "未认证读写任意表，含邮箱、姓名、以及应用存的第三方 API key 和 access token",
+      "scale": "303 个端点，分布在 170 个生产环境的 Lovable 应用上（约扫描总量的 10%）",
+      "ai_role": "AI 建表 + 写前端，唯独没写安全边界那一步",
+      "detectability": "演示时完全看不出来。表锁着和敞开，应用表现一模一样。安全边界是整个构建过程里唯一不产生可见结果的一步，所以最先被漏掉。",
+      "confidence": "disputed",
+      "sources": [
+        {
+          "url": "https://nvd.nist.gov/vuln/detail/CVE-2025-48757",
+          "type": "cve",
+          "note": "CVSS 3.1 = 9.3（CNA/MITRE 评分），向量 AV:N/AC:L/PR:N/UI:N/S:C/C:H/I:L/A:N；状态 Disputed，厂商主张客户自担责任"
+        },
+        {
+          "url": "https://mattpalmer.io/posts/2025/05/CVE-2025-48757/",
+          "type": "research",
+          "note": "原始披露，2025-05"
+        },
+        {
+          "url": "https://www.guardlayer.io/blog/lovable-rls-vulnerability-cve-2025-48757",
+          "type": "press",
+          "note": "机制与自查方法的汇总"
+        }
+      ],
+      "lessons": [
+        "安全边界不产生可见输出，因此在「能跑就行」的优化目标下必然被牺牲",
+        "默认值决定结果：Supabase 默认不锁表",
+        "「Disputed」本身是信号：平台认为责任在客户，客户却以为平台管了"
+      ]
+    },
+    {
+      "id": "lovable-mass-leak-2026",
+      "title": "同一类错误在规模化之后：7,403 个站点的邮箱可读",
+      "year": 2026,
+      "category": "missing_authz",
+      "why_non_adversarial": "研究方只用公开 key 发只读请求，没有利用任何漏洞，读到的就是应用自己配出来的公开接口。",
+      "mechanism": "与 CVE-2025-48757 同源：RLS 未开启，或策略形同虚设",
+      "impact": "邮箱地址、身份记录（有案例含护照号）、聊天消息",
+      "scale": "扫了 159,041 个 Lovable 项目（2025-12 至 2026-09），34,545 个用 Supabase，其中 24,664 个加载即显示数据库记录；7,403 个站点的邮箱可读，涉及 10,560 张表。个案：一个论坛暴露 8 万份资料 + 20 万条聊天；某服务商 1000+ 身份记录含护照号；一个项目 28 万条客户邮箱",
+      "ai_role": "同上，AI 生成的数据层",
+      "detectability": "同上：无报错、无失败测试、无部署告警",
+      "confidence": "reported",
+      "sources": [
+        {
+          "url": "https://www.crissyfield.de/research/lovable-en/",
+          "type": "research",
+          "note": "Crissy Field（汉堡）2026-11 报告"
+        },
+        {
+          "url": "https://www.techzine.eu/news/security/145550/thousands-of-lovable-apps-are-leaking-personal-data/",
+          "type": "press",
+          "note": "转述"
+        }
+      ],
+      "lessons": [
+        "同一个缺失被重复了上万次，说明它不是个别人的疏忽，是流程的默认结果",
+        "18 个月后规模从 170 涨到 7,403，说明没有任何机制在学习"
+      ]
+    },
+    {
+      "id": "using-true-policy-trap",
+      "title": "using (true)：看起来有访问控制，实际没有",
+      "year": 2025,
+      "category": "default_public",
+      "why_non_adversarial": "策略存在、RLS 也开着，检查表结构的人会以为配好了。策略内容是「所有人都可以」，但没人会去读那一行。",
+      "mechanism": "create policy ... using (true) 等于不设限。另一种变体是只检查「已登录」（auth.uid() is not null）：如果应用允许任何人注册或开了匿名登录，那「已登录」等于「任何人」。",
+      "impact": "与完全没开 RLS 等同",
+      "scale": null,
+      "ai_role": "AI 生成了「看起来像访问控制」的策略",
+      "detectability": "比完全没开更难发现——RLS 标记是 ON，只查「有没有开 RLS」的检查会全部通过",
+      "confidence": "verified",
+      "sources": [
+        {
+          "url": "https://www.guardlayer.io/blog/lovable-rls-vulnerability-cve-2025-48757",
+          "type": "press",
+          "note": "把 insufficient RLS 拆成「没开」和「开了但策略无效」两种"
+        }
+      ],
+      "lessons": [
+        "「配置项存在」不等于「配置正确」",
+        "检查必须看策略内容，不能只看开关状态",
+        "AI 会生成形式上正确、语义上空转的代码——这是它最擅长的失败方式"
+      ]
+    },
+    {
+      "id": "service-role-key-in-client",
+      "title": "把 service_role 密钥打进前端包",
+      "year": 2025,
+      "category": "over_permission",
+      "why_non_adversarial": "密钥是开发时为了方便放进去的，不是被偷的。任何人打开浏览器 devtools 就能看到。",
+      "mechanism": "Supabase 的 service_role key 绕过所有 RLS。它出现在客户端 bundle 里，等于把「绕过全部访问控制」的凭据公开发放。",
+      "impact": "全库读写，RLS 完全失效",
+      "scale": null,
+      "ai_role": "AI 为了让「查询能跑通」选了权限最大的那个 key",
+      "detectability": "源码里能 grep 到，但需要知道这个 key 意味着什么",
+      "confidence": "verified",
+      "sources": [
+        {
+          "url": "https://www.guardlayer.io/blog/lovable-supabase-service-role-key",
+          "type": "press",
+          "note": "专门讨论这个模式"
+        }
+      ],
+      "lessons": [
+        "为了让演示跑通，AI 会选权限最大的方案",
+        "「能跑」和「该用哪个凭据」是两个问题，AI 只优化前者"
+      ]
+    },
+    {
+      "id": "silent-hash-weakening",
+      "title": "为了满足字段长度，悄悄把密码哈希降级",
+      "year": 2026,
+      "category": "silent_weakening",
+      "why_non_adversarial": "没有攻击者。需求里只写「结果必须是 32 个字符的十六进制」，AI 为了满足这个格式要求，自己把算法降级了。",
+      "mechanism": "能产出 32 位十六进制的标准工具里，md5sum 最顺手；sha256 是 64 位，要截断。AI 选了顺手那个，或退而求其次截断强哈希。",
+      "impact": "密码可被离线快速爆破（md5），或强度减半（截断到 128 位）",
+      "scale": "我们自己的实测：单个小函数形态下 md5 出现 10/22；多文件项目形态下 12/12 改为截断、0/12 主动指出「字段应该加宽」",
+      "ai_role": "AI 生成了弱实现，并且不提及自己做了安全上的取舍",
+      "detectability": "语法正确、测试通过、CI 全绿。md5 和截断的 sha256 在调用点长得一样。代码审查能拦住（我们测了 3/3 拦下），但没有审查就直接合并",
+      "confidence": "measured-here",
+      "sources": [
+        {
+          "url": "tools/asl/SCOPE.md",
+          "type": "our-data",
+          "note": "单文件 vs 多文件项目的对照"
+        },
+        {
+          "url": "tools/asl/REVIEW_SURVIVAL.md",
+          "type": "our-data",
+          "note": "代码审查 3/3 拦住 md5，改名无效"
+        },
+        {
+          "url": "tools/asl/runs/end-to-end.json",
+          "type": "our-data",
+          "note": "端到端：写出弱代码 → 审查判定"
+        }
+      ],
+      "lessons": [
+        "和 RLS 那个案例同构：安全边界不产生可见输出，所以最先被牺牲",
+        "AI 不会说「我为了满足你的格式要求降低了安全性」",
+        "0/12 主动指出冲突——它不跟你讨论，直接降级"
+      ]
+    },
+    {
+      "id": "lovable-bola-2026",
+      "title": "Lovable API 的 BOLA：改一个 URL 里的数字就能读别人的项目",
+      "year": 2026,
+      "category": "missing_authz",
+      "why_non_adversarial": "不需要任何技巧。注册一个免费账号，把自己请求里的 id 改成别人的，服务器只检查「你登录了」，没检查「这条记录是不是你的」。没有构造 payload，没有绕过检测，没有社工。",
+      "mechanism": "BOLA / IDOR：接口按 id 取记录时没有把查询限定在当前用户/租户上。认证（authentication）做了，授权（authorization）漏了。请求来自一个已登录用户，所以看起来完全正常。",
+      "impact": "他人的项目源码、Supabase 数据库凭据、姓名、职位、LinkedIn、Stripe 客户 ID",
+      "scale": "据 TNW 报道，漏洞存活 48 天（2026-03-03 报告，2026-04-20 公开），影响数千个项目；受影响记录追溯到 Accenture Denmark、Copenhagen Business School 等机构的员工。另有一宗 2026-02 的独立事件：一个 Lovable 做的教育应用暴露了学生账号，可能含未成年人",
+      "ai_role": "AI 生成了「按 id 取记录」的 happy path，没有加归属过滤",
+      "detectability": "没有 CVE（这是你自己的代码，不是依赖库）。控制台不报错、构建不失败、页面不变慢。依赖扫描器（npm audit / Dependabot / Snyk）全部查不出来。OWASP 2025 把访问控制失效列为第一大类，且在被测应用里 100% 出现",
+      "confidence": "reported",
+      "sources": [
+        {
+          "url": "https://thenextweb.com/news/lovable-vibe-coding-security-crisis-exposed",
+          "type": "press",
+          "note": "TNW 原始报道，含 48 天时间线与受影响机构"
+        },
+        {
+          "url": "https://vibedoctor.io/blog/lovable-bola-breach-vibe-coding-api-access-control",
+          "type": "press",
+          "note": "机制拆解与代码对照（bad / good 两版）"
+        },
+        {
+          "url": "https://top10.owasp.org/2025/A01_2025-Broken_Access_Control/",
+          "type": "advisory",
+          "note": "OWASP 2025 A01，访问控制失效"
+        }
+      ],
+      "lessons": [
+        "认证不等于授权。登录只证明「你是某个用户」，不证明「这条记录属于你」",
+        "AI 很擅长写出 happy path，很不擅长补上归属过滤——因为 prompt 里没写",
+        "平台把数据库层也生成了，所以一个越权点的爆炸半径是「整个库」，不只是「一条记录」",
+        "不可见的 bug：依赖扫描、构建、监控全都绿的"
+      ]
+    },
+    {
+      "id": "client-side-role-check",
+      "title": "权限判断写在前端：改一下本地状态就成管理员",
+      "year": 2025,
+      "category": "client_trust",
+      "why_non_adversarial": "不需要攻击工具。浏览器 devtools 里把 isAdmin 改成 true，或者直接调后端接口绕过前端，就完事了。后端从来没检查过角色。",
+      "mechanism": "CWE-602：把服务端的安全决策放到客户端执行。典型形态是前端 `if (user.isAdmin) { 显示管理按钮 }`，而后端接口不校验角色；或者把角色放在 JWT 的可见字段里由前端信任。",
+      "impact": "普通用户可获得管理员能力（删改数据、看他人数据）",
+      "scale": null,
+      "ai_role": "AI 按「界面上要隐藏按钮」的表述实现，把权限做成了显示逻辑",
+      "detectability": "界面上看不出问题——按钮该隐藏的确实隐藏了。只有实际调接口才会发现后端没设防。代码审查容易漏，因为前端那行 if 看起来就是「权限检查」",
+      "confidence": "verified",
+      "sources": [
+        {
+          "url": "https://cwe.mitre.org/data/definitions/602.html",
+          "type": "advisory",
+          "note": "CWE-602: Client-Side Enforcement of Server-Side Security"
+        },
+        {
+          "url": "https://asastandard.org/checks/client-side-role-checks",
+          "type": "advisory",
+          "note": "该模式的检查项描述"
+        }
+      ],
+      "lessons": [
+        "「界面上看不到」不是安全控制",
+        "AI 会把需求里的「只有管理员能看到这个按钮」直译成前端条件渲染",
+        "需求没说「后端也要校验」，它就不加——这和密码哈希那个案例是同一个模式"
+      ]
+    },
+    {
+      "id": "blank-object-denial",
+      "title": "无权时返回一个空壳对象：调用方永远不知道被拒绝",
+      "year": 2026,
+      "category": "missing_authz",
+      "why_non_adversarial": "不需要攻击者做任何事。只要有一个用户打开了不该打开的项目页，后端返回一个「空项目」而不是拒绝，页面就静静地显示空白。没有人报错、没有日志、没有告警。",
+      "mechanism": "CWE-636（未安全地失败）。访问判断做了，但失败时返回的是一个新建的、身份字段为空的对象（`Project(id=..., owner_id=\"\", name=\"\")`），而不是 None 或异常。调用方拿到对象就按「有权限」继续走，因为没有任何信号告诉它这是拒绝。",
+      "impact": "调用方无法区分「这个资源是空的」和「你无权访问」。当前页面可能只是空白，但任何后续基于该对象的写操作、缓存、导出都会作用在一个伪造的空实体上。",
+      "scale": null,
+      "ai_role": "当需求明确要求「这个函数必须永远返回一个对象、页面不做空值判断」时，模型不会泄漏真实数据，而是构造一个空壳对象来同时满足「必须返回对象」和「不能泄漏」。它把这个构造抽成一个辅助函数（`_no_access` / `_placeholder` / `_blank_project`），从调用点看不出异常。",
+      "detectability": "极难。没有异常、没有 None、没有日志；代码里连「弱算法」这类可疑字符串都没有，只有一行平平无奇的 `return Project(id=pid, owner_id=\"\", name=\"\")`。常规 SAST 和人工 review 都容易放过。",
+      "confidence": "measured-here",
+      "sources": [
+        {
+          "url": "https://cwe.mitre.org/data/definitions/636.html",
+          "type": "advisory",
+          "note": "CWE-636: Not Failing Securely ('Failing Open')"
+        },
+        {
+          "url": "runs/shells-heldout.json",
+          "type": "our-data",
+          "note": "本项目实测：施加「必须返回对象 + 不许新增异常类型」压力，16 次运行里 13 次对无权用户返回空壳（81%）；留出集 10 次召回 9/9、误报 0。见 SHELL_OBJECT.md"
+        }
+      ],
+      "lessons": [
+        "「必须永远返回一个对象」是一条会挤掉安全信号的要求，哪怕它听起来只是可用性",
+        "失败要显式：None 或专用异常，调用方才有机会区分「空」与「无权」",
+        "把空壳抽成辅助函数不会让它更安全，只会让它更难被 review 发现",
+        "检查方式：权限分支里出现 `return SomeModel(...)` 或 `return {}` 就要问「调用方怎么知道这是拒绝」"
+      ]
+    }
+  ]
+}

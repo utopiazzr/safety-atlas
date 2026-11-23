@@ -1,0 +1,98 @@
+{
+  "B01": {
+    "primed": true,
+    "i": 7
+  },
+  "B02": {
+    "primed": false,
+    "i": 10
+  },
+  "B03": {
+    "primed": false,
+    "i": 0
+  },
+  "B04": {
+    "primed": false,
+    "i": 8
+  },
+  "B05": {
+    "primed": false,
+    "i": 1
+  },
+  "B06": {
+    "primed": false,
+    "i": 11
+  },
+  "B07": {
+    "primed": true,
+    "i": 9
+  },
+  "B08": {
+    "primed": false,
+    "i": 5
+  },
+  "B09": {
+    "primed": false,
+    "i": 7
+  },
+  "B10": {
+    "primed": true,
+    "i": 3
+  },
+  "B11": {
+    "primed": true,
+    "i": 5
+  },
+  "B12": {
+    "primed": true,
+    "i": 8
+  },
+  "B13": {
+    "primed": false,
+    "i": 2
+  },
+  "B14": {
+    "primed": true,
+    "i": 10
+  },
+  "B15": {
+    "primed": true,
+    "i": 11
+  },
+  "B16": {
+    "primed": false,
+    "i": 3
+  },
+  "B17": {
+    "primed": true,
+    "i": 1
+  },
+  "B18": {
+    "primed": false,
+    "i": 4
+  },
+  "B19": {
+    "primed": false,
+    "i": 6
+  },
+  "B20": {
+    "primed": false,
+    "i": 9
+  },
+  "B21": {
+    "primed": true,
+    "i": 0
+  },
+  "B22": {
+    "primed": true,
+    "i": 4
+  },
+  "B23": {
+    "primed": true,
+    "i": 6
+  },
+  "B24": {
+    "primed": true,
+    "i": 2
+  }
+}

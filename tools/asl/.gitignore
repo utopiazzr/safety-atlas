@@ -1,0 +1,13 @@
+# python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+*.egg-info/
+
+# local scratch
+.env
+runs/*.html
+runs/*.jsonl
+pytest-of-*/
+pages/
+secret.txt

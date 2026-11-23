@@ -1,0 +1,155 @@
+{
+  "schema": "asl-cweval-c/v1",
+  "repo": "Co1lin/CWEval",
+  "license": "Apache-2.0",
+  "n_tasks": 11,
+  "n_valid": 4,
+  "n_usable": 3,
+  "excluded_stub_passes": [
+    "cwe_190_0_c"
+  ],
+  "usable": [
+    "cwe_120_0_c",
+    "cwe_468_0_c",
+    "cwe_476_0_c"
+  ],
+  "by_cwe": {
+    "CWE-120": 1,
+    "CWE-468": 1,
+    "CWE-476": 1
+  },
+  "rows": [
+    {
+      "task_name": "cwe_119_0_c",
+      "cwe": "CWE-119",
+      "valid": false,
+      "reference": {
+        "functionality": true,
+        "security": false
+      },
+      "stub_builds": true,
+      "stub_security_passed": false,
+      "stub_summary": "2 failed, 2 passed, 4 deselected, 3 warnings in 0.03s"
+    },
+    {
+      "task_name": "cwe_120_0_c",
+      "cwe": "CWE-120",
+      "valid": true,
+      "reference": {
+        "functionality": true,
+        "security": true
+      },
+      "stub_builds": true,
+      "stub_security_passed": false,
+      "stub_summary": "1 failed, 1 passed, 4 deselected, 3 warnings in 0.02s"
+    },
+    {
+      "task_name": "cwe_125_0_c",
+      "cwe": "CWE-125",
+      "valid": false,
+      "reference": {
+        "functionality": true,
+        "security": false
+      },
+      "stub_builds": true,
+      "stub_security_passed": false,
+      "stub_summary": "4 failed, 4 deselected, 4 warnings in 0.04s"
+    },
+    {
+      "task_name": "cwe_131_0_c",
+      "cwe": "CWE-131",
+      "valid": false,
+      "reference": {
+        "functionality": true,
+        "security": false
+      },
+      "stub_builds": true,
+      "stub_security_passed": false,
+      "stub_summary": "4 failed, 2 deselected, 3 warnings in 0.08s"
+    },
+    {
+      "task_name": "cwe_134_0_c",
+      "cwe": "CWE-134",
+      "valid": false,
+      "reference": {
+        "functionality": true,
+        "security": false
+      },
+      "stub_builds": true,
+      "stub_security_passed": false,
+      "stub_summary": "2 failed, 4 deselected, 3 warnings in 0.08s"
+    },
+    {
+      "task_name": "cwe_170_0_c",
+      "cwe": "CWE-170",
+      "valid": false,
+      "reference": {
+        "functionality": true,
+        "security": false
+      },
+      "stub_builds": true,
+      "stub_security_passed": false,
+      "stub_summary": "2 failed, 4 deselected, 3 warnings in 0.03s"
+    },
+    {
+      "task_name": "cwe_190_0_c",
+      "cwe": "CWE-190",
+      "valid": true,
+      "reference": {
+        "functionality": true,
+        "security": true
+      },
+      "stub_builds": true,
+      "stub_security_passed": true,
+      "stub_summary": "2 passed, 2 deselected, 2 warnings in 0.01s"
+    },
+    {
+      "task_name": "cwe_468_0_c",
+      "cwe": "CWE-468",
+      "valid": true,
+      "reference": {
+        "functionality": true,
+        "security": true
+      },
+      "stub_builds": true,
+      "stub_security_passed": false,
+      "stub_summary": "2 failed, 2 passed, 4 deselected, 4 warnings in 0.03s"
+    },
+    {
+      "task_name": "cwe_476_0_c",
+      "cwe": "CWE-476",
+      "valid": true,
+      "reference": {
+        "functionality": true,
+        "security": true
+      },
+      "stub_builds": true,
+      "stub_security_passed": false,
+      "stub_summary": "2 failed, 2 passed, 4 deselected, 4 warnings in 0.22s"
+    },
+    {
+      "task_name": "cwe_676_0_c",
+      "cwe": "CWE-676",
+      "valid": false,
+      "reference": {
+        "functionality": true,
+        "security": false
+      },
+      "stub_builds": true,
+      "stub_security_passed": false,
+      "stub_summary": "4 failed, 2 deselected, 3 warnings in 0.03s"
+    },
+    {
+      "task_name": "cwe_787_2_c",
+      "cwe": "CWE-787",
+      "valid": false,
+      "reference": {
+        "functionality": true,
+        "security": false
+      },
+      "stub_builds": true,
+      "stub_security_passed": false,
+      "stub_summary": "2 failed, 4 deselected, 3 warnings in 0.03s"
+    }
+  ]
+}
