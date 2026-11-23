@@ -8,7 +8,7 @@
 
 ```bash
 python -m pip install https://github.com/utopiazzr/safety-atlas/releases/download/product-v0.2.0/scisec_agent_product-0.2.0-py3-none-any.whl
-scisec-agent quickstart --open
+python -m scisec_agent quickstart --open
 ```
 
 第二条命令创建普通文本文件，实际调用一个受控读取工具，再生成并打开本地 HTML。它用于确认安装与结果链路，文件在新建的 `safety-runs/first-run-*` 目录中。
