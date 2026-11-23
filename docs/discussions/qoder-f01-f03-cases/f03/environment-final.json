@@ -1,0 +1,23 @@
+{
+  "nested_prettier_exists": false,
+  "root_prettier_matches": 47,
+  "root_prettier_baseline_count": 56,
+  "root_prettier_updated": [
+    "index.cjs",
+    "index.mjs",
+    "internal/experimental-cli.mjs",
+    "package.json",
+    "plugins/markdown.js",
+    "plugins/markdown.mjs",
+    "standalone.js",
+    "standalone.mjs",
+    "THIRD-PARTY-NOTICES.md"
+  ],
+  "root_prettier_missing": [],
+  "root_prettier_added": [],
+  "warnings": [],
+  "total_events": 1341,
+  "root_prettier_before_version": "3.9.10",
+  "root_prettier_after_version": "3.9.9",
+  "yarn_install_state_exists": true
+}

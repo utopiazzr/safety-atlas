@@ -1,0 +1,8 @@
+{
+  "overrides": [
+    {
+      "files": "preview.md",
+      "options": { "semi": false, "singleQuote": true, "tabWidth": 4 }
+    }
+  ]
+}

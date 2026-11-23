@@ -1,0 +1,117 @@
+diff --git a/src/document/printer/indent.js b/src/document/printer/indent.js
+index 094c4fc..fc684a8 100644
+--- a/src/document/printer/indent.js
++++ b/src/document/printer/indent.js
+@@ -49,17 +49,17 @@ const ROOT_INDENT = {
+ };
+ 
+ /**
+-@param {Indent} indent
+-@param {IndentCommand} command
++Renders a full indent command queue into its string value and column length.
++
++Only needed when the queue is rebuilt from scratch (e.g. after a dedent,
++which removes the trailing command). Appending a single command onto an
++already-rendered indent is handled incrementally in `generateIndent`.
++
++@param {readonly IndentCommand[]} queue
+ @param {IndentOptions} options
+-@returns {Indent}
++@returns {{value: string, length: number}}
+ */
+-function generateIndent(indent, command, options) {
+-  const queue =
+-    command.type === INDENT_COMMAND_TYPE_DEDENT
+-      ? indent.queue.slice(0, -1)
+-      : [...indent.queue, command];
+-
++function renderQueue(queue, options) {
+   let value = "";
+   let length = 0;
+   let lastTabs = 0;
+@@ -96,7 +96,7 @@ function generateIndent(indent, command, options) {
+ 
+   flushSpaces();
+ 
+-  return { ...indent, value, length, queue };
++  return { value, length };
+ 
+   function addTabs(count) {
+     value += "\t".repeat(count);
+@@ -136,6 +136,76 @@ function generateIndent(indent, command, options) {
+   }
+ }
+ 
++/**
++Extends an already-rendered indent by a single appended command.
++
++Every `Indent` produced by this module is fully flushed (no pending tab/space
++run), so the appended command is also the last one in the new queue and is
++always flushed by the trailing `flushSpaces()`. That lets us compute the new
++value/length directly from the parent instead of walking the whole queue.
++
++@param {Indent} indent
++@param {IndentCommand} command
++@param {IndentOptions} options
++@returns {{value: string, length: number}}
++*/
++function appendCommand(indent, command, options) {
++  switch (command.type) {
++    case INDENT_COMMAND_TYPE_INDENT:
++      return options.useTabs
++        ? { value: indent.value + "\t", length: indent.length + options.tabWidth }
++        : {
++            value: indent.value + " ".repeat(options.tabWidth),
++            length: indent.length + options.tabWidth,
++          };
++    case INDENT_COMMAND_TYPE_STRING:
++      return {
++        value: indent.value + command.string,
++        length: indent.length + command.string.length,
++      };
++    case INDENT_COMMAND_TYPE_WIDTH: {
++      const { width } = command;
++      // Trailing width commands are always flushed as spaces (see renderQueue).
++      if (width <= 0) {
++        return { value: indent.value, length: indent.length };
++      }
++      return {
++        value: indent.value + " ".repeat(width),
++        length: indent.length + width,
++      };
++    }
++    /* c8 ignore next */
++    default:
++      throw new Error(`Unexpected indent comment '${command.type}'.`);
++  }
++}
++
++/**
++@param {Indent} indent
++@param {IndentCommand} command
++@param {IndentOptions} options
++@returns {Indent}
++*/
++function generateIndent(indent, command, options) {
++  // Dedent drops the trailing command, so the value can no longer be derived
++  // incrementally and the shortened queue has to be rendered from scratch.
++  // This is the rare path (only reached by negative-width alignment).
++  if (command.type === INDENT_COMMAND_TYPE_DEDENT) {
++    const queue = indent.queue.slice(0, -1);
++    const { value, length } = renderQueue(queue, options);
++    return { value, length, queue, root: indent.root };
++  }
++
++  // Append a single command onto the fully-flushed parent indent in O(1).
++  const { value, length } = appendCommand(indent, command, options);
++  return {
++    value,
++    length,
++    queue: [...indent.queue, command],
++    root: indent.root,
++  };
++}
++
+ /**
+ @param {Indent} indent
+ @param {Align["n"]} indentOptions

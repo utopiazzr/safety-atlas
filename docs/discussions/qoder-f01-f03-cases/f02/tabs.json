@@ -1,0 +1,23 @@
+{
+  "input": "type Choice = { firstProperty: string; secondProperty: number } | { thirdProperty: boolean; fourthProperty: string };",
+  "records": [
+    {
+      "simple": {
+        "formatted": "a\n\t\tX",
+        "cursorNodeStart": 4,
+        "cursorNodeText": "X"
+      },
+      "formatted": "type Choice =\n\t| {\n\t\t\tfirstProperty: string;\n\t\t\tsecondProperty: number;\n\t  }\n\t| {\n\t\t\tthirdProperty: boolean;\n\t\t\tfourthProperty: string;\n\t  };\n",
+      "cursorOffset": 112
+    },
+    {
+      "simple": {
+        "formatted": "a\n   \tX",
+        "cursorNodeStart": 6,
+        "cursorNodeText": "X"
+      },
+      "formatted": "type Choice =\n\t| {\n\t  \tfirstProperty: string;\n\t  \tsecondProperty: number;\n\t  }\n\t| {\n\t  \tthirdProperty: boolean;\n\t  \tfourthProperty: string;\n\t  };\n",
+      "cursorOffset": 116
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "apps/desktop-import/batch.mjs": "9174fa195057f586615f77af67fcf7555c8973008a8efc8b9962b7c83156061c",
+  "apps/desktop-import/languages.json": "3324b283f99f941e79ee239eed8658242022dee41c70e55386847a1cb913a820",
+  "apps/desktop-import/preview.mjs": "d8b15ed8ae120b898594fc4f96de1995feff2f13cdee5498b7fd3bf328e125ef",
+  "apps/desktop-import/README.md": "c1cdb9eef209c8cc55d724970053d6f459462f3f8aca8685dbc702f8fba63278",
+  "apps/desktop-import/worker.mjs": "902a79c8504663b60edbdac167c192095700d1ab9dbda7339bab38c98d17ba13",
+  "apps/release-import/publish.mjs": "6fdba0be0d2a59e81abaa39289d623793d88c0bcb607d9d4b2748b42875b69b3",
+  "packages/format-import/index.mjs": "79aa735e1dce13ada0bb46be60cf834f30938058fdb815e08b45d5e91d0bf6d2",
+  "packages/format-import/README.md": "8fe1ff5b22d5f5024f61e23e974ac56c49f50c3e96e77c45b0602eb3762d062e",
+  "integration-fixtures/f03-import/cases.mjs": "b86f0d21dfd988f1deb02fa970547551f27cab8274c50261586d233bb2d753b4",
+  "integration-fixtures/f03-import/installed.test.mjs": "bd04a3ae5c2653b6956265d3e72bf786226a4be918787cb87db70fb0c0298b3a",
+  "integration-fixtures/f03-import/project/.editorconfig": "7541537e73e3cbc6bf9c1f570ef68595c62db32f56b828f24ea2c931e3d9fc4b",
+  "integration-fixtures/f03-import/project/.prettierrc.json": "19d7999d1fe0da762966ffc117ee3a0b6f55e0c048cdf7e8957eb7e4f50d6e88",
+  "integration-fixtures/f03-import/quick.test.mjs": "b9899c65681560b3f57e760314dc56d2d2902600ac6419e46b9e4852efc52a0f"
+}

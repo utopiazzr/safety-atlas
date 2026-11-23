@@ -1,0 +1,12 @@
+{
+  ".cjs": "babel",
+  ".js": "babel",
+  ".jsx": "babel",
+  ".json": "json",
+  ".json5": "json5",
+  ".mjs": "babel",
+  ".ts": "typescript",
+  ".tsx": "typescript",
+  ".yaml": "yaml",
+  ".yml": "yaml"
+}

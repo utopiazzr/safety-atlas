@@ -1,0 +1,50 @@
+diff --git a/src/config/resolve-config.js b/src/config/resolve-config.js
+index 1cb48ed..c8b513e 100644
+--- a/src/config/resolve-config.js
++++ b/src/config/resolve-config.js
+@@ -1,4 +1,6 @@
+ import path from "node:path";
++import { pathToFileURL } from "node:url";
++import { resolve as resolveModule } from "import-meta-resolve";
+ import micromatch from "micromatch";
+ import { toPath } from "url-or-path";
+ import {
+@@ -92,11 +94,33 @@ async function resolveConfig(fileUrlOrPath, options) {
+   };
+ 
+   if (Array.isArray(merged.plugins)) {
+-    merged.plugins = merged.plugins.map((value) =>
+-      typeof value === "string" && value.startsWith(".") // relative path
+-        ? path.resolve(path.dirname(result.configFile), value)
+-        : value,
+-    );
++    const configDirectory = path.dirname(result.configFile);
++    // Resolve a package specifier from the config's own directory, so a
++    // plugin a configuration declares belongs to that directory rather than
++    // the invoking process's working directory. Explicit CLI/API plugins are
++    // untouched here and keep resolving against the process.
++    const parentURL = pathToFileURL(path.join(configDirectory, "noop.js")).href;
++    merged.plugins = merged.plugins.map((value) => {
++      if (typeof value !== "string") {
++        return value;
++      }
++      // Relative path: resolve against the config directory.
++      if (value.startsWith(".")) {
++        return path.resolve(configDirectory, value);
++      }
++      // Already absolute: points at a file.
++      if (path.isAbsolute(value)) {
++        return value;
++      }
++      // Bare package specifier, including subpath exports: resolve against
++      // the config directory. Fall back to the original specifier when it is
++      // not installed there, keeping the loader's established resolution.
++      try {
++        return new URL(resolveModule(value, parentURL));
++      } catch {
++        return value;
++      }
++    });
+   }
+ 
+   return merged;

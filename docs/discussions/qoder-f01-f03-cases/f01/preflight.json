@@ -1,0 +1,93 @@
+{
+  "starting": {
+    "profiles": {
+      "tests": 6,
+      "pass": 4,
+      "fail": 2,
+      "cancelled": 0,
+      "skipped": 0,
+      "exit": 1,
+      "failed_cases": [
+        "desktop export / handbook cell",
+        "desktop export / second handbook"
+      ]
+    },
+    "external": {
+      "tests": 9,
+      "pass": 5,
+      "fail": 4,
+      "cancelled": 0,
+      "skipped": 0,
+      "exit": 1,
+      "failed_cases": [
+        "desktop export / handbook cell",
+        "desktop export / second handbook",
+        "other project as launcher",
+        "nested tool directory"
+      ]
+    },
+    "api_exit": 1,
+    "api_values": [
+      "studio-preview",
+      "studio-preview",
+      "studio-preview"
+    ]
+  },
+  "weakened": {
+    "profiles": {
+      "tests": 6,
+      "pass": 6,
+      "fail": 0,
+      "cancelled": 0,
+      "skipped": 0,
+      "exit": 0,
+      "failed_cases": []
+    },
+    "external": {
+      "tests": 9,
+      "pass": 5,
+      "fail": 4,
+      "cancelled": 0,
+      "skipped": 0,
+      "exit": 1,
+      "failed_cases": [
+        "desktop export / handbook cell",
+        "desktop export / second handbook",
+        "other project as launcher",
+        "nested tool directory"
+      ]
+    },
+    "api_exit": 1,
+    "api_values": [
+      "studio-preview",
+      "studio-preview",
+      "studio-preview"
+    ]
+  },
+  "reference": {
+    "profiles": {
+      "tests": 6,
+      "pass": 6,
+      "fail": 0,
+      "cancelled": 0,
+      "skipped": 0,
+      "exit": 0,
+      "failed_cases": []
+    },
+    "external": {
+      "tests": 9,
+      "pass": 9,
+      "fail": 0,
+      "cancelled": 0,
+      "skipped": 0,
+      "exit": 0,
+      "failed_cases": []
+    },
+    "api_exit": 0,
+    "api_values": [
+      "birch-notebook",
+      "cedar-notebook",
+      "birch-notebook"
+    ]
+  }
+}

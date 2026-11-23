@@ -1,0 +1,37 @@
+{
+  "baseline": {
+    "quick": {
+      "exit": 1,
+      "desktop": 0,
+      "publisher": 0,
+      "self_reference_missing_diff": true
+    },
+    "installed": {
+      "exit": 1,
+      "desktop": 1,
+      "publisher": 2,
+      "self_reference_missing_diff": false
+    }
+  },
+  "desktop_only": {
+    "quick": {
+      "exit": 0,
+      "desktop": 1,
+      "publisher": 0,
+      "self_reference_missing_diff": false
+    },
+    "installed": {
+      "exit": 0,
+      "desktop": 6,
+      "publisher": 2,
+      "self_reference_missing_diff": false
+    }
+  },
+  "changed_frozen_paths": [
+    "apps/desktop-import/preview.mjs",
+    "apps/desktop-import/worker.mjs"
+  ],
+  "root_package_sha256": "d3752084a43e0b5ec2f7d110b7478d5e16b2eff9f0c2ff46355a33a46792a3a4",
+  "root_source_commit": "5d6c82293d13a7a2eb6fddb2740bfce38e7c8a45",
+  "result": true
+}

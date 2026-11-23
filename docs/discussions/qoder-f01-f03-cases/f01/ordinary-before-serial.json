@@ -1,0 +1,22 @@
+{
+  "info-project": {
+    "code": 0,
+    "stdout": "{ \"ignored\": false, \"inferredParser\": \"project-parser\" }",
+    "stderr": ""
+  },
+  "info-studio": {
+    "code": 0,
+    "stdout": "{ \"ignored\": false, \"inferredParser\": \"studio-parser\" }",
+    "stderr": ""
+  },
+  "format-project": {
+    "code": 0,
+    "stdout": "project",
+    "stderr": ""
+  },
+  "format-studio": {
+    "code": 0,
+    "stdout": "studio",
+    "stderr": ""
+  }
+}

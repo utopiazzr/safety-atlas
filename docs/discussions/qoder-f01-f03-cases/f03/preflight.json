@@ -1,0 +1,84 @@
+{
+  "initial": {
+    "quick": {
+      "exit": 1,
+      "desktop": 0,
+      "publisher": 0,
+      "failures": [
+        "JavaScript preview uses destination project's quotes and semicolons"
+      ],
+      "missing_formatter_dependency": false
+    },
+    "installed": {
+      "exit": 1,
+      "desktop": 1,
+      "publisher": 2,
+      "failures": [
+        "desktop installed / JavaScript preview uses destination project's quotes and semicolons",
+        "desktop installed / TypeScript cell retains its language in a generic cache path",
+        "desktop installed / JSON cell formats as JSON",
+        "desktop installed / YAML cell formats as YAML",
+        "desktop installed / background uses the same results for all supported cells"
+      ],
+      "missing_formatter_dependency": false
+    }
+  },
+  "desktop_runtime_shortcut": {
+    "quick": {
+      "exit": 0,
+      "desktop": 1,
+      "publisher": 0,
+      "failures": [],
+      "missing_formatter_dependency": false
+    },
+    "installed": {
+      "exit": 1,
+      "desktop": 0,
+      "publisher": 2,
+      "failures": [
+        "desktop installed / JavaScript preview uses destination project's quotes and semicolons",
+        "desktop installed / TypeScript cell retains its language in a generic cache path",
+        "desktop installed / JSON cell formats as JSON",
+        "desktop installed / YAML cell formats as YAML",
+        "desktop installed / Imported language outside the desktop list retains destination fallback",
+        "desktop installed / background uses the same results for all supported cells"
+      ],
+      "missing_formatter_dependency": true
+    }
+  },
+  "shared_shortcut": {
+    "quick": {
+      "exit": 0,
+      "desktop": 1,
+      "publisher": 0,
+      "failures": [],
+      "missing_formatter_dependency": false
+    },
+    "installed": {
+      "exit": 1,
+      "desktop": 6,
+      "publisher": 0,
+      "failures": [
+        "publisher installed / markdown preserves an imported JavaScript example as literal prose",
+        "publisher installed / markdown preserves an imported TypeScript example as literal prose"
+      ],
+      "missing_formatter_dependency": false
+    }
+  },
+  "desktop_supported_fix": {
+    "quick": {
+      "exit": 0,
+      "desktop": 1,
+      "publisher": 0,
+      "failures": [],
+      "missing_formatter_dependency": false
+    },
+    "installed": {
+      "exit": 0,
+      "desktop": 6,
+      "publisher": 2,
+      "failures": [],
+      "missing_formatter_dependency": false
+    }
+  }
+}

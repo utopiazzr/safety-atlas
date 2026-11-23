@@ -1,0 +1,2 @@
+*.patch text eol=lf whitespace=-blank-at-eol
+f03/baseline/** text eol=lf
