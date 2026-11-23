@@ -21,7 +21,7 @@ flowchart LR
     P[私密线索] --> Q[负责人选择可公开摘要]
     Q --> B
     B --> C[社区补证、异议、关联已有档案]
-    C --> D[协作者添加 atlas:propose]
+    C --> D[自动挑选完整公开提案]
     D --> E[自动填充字段、检查来源重复、测试、草稿 PR]
     E --> F[审查差异与证据]
     F --> G[合并 → Pages 发布]
@@ -34,11 +34,11 @@ Cloud intake bridge 约每小时同步一次（GitHub 调度可能延迟），�
 ## 协作者不用重复填表
 
 1. 阅读 Issue 的公开快照、来源、补充评论和适用条件。
-2. 有仓库 triage / write / maintain / admin 角色的协作者，可添加 **`atlas:propose`** 标签；也可运行 [Curate public proposal](https://github.com/utopiazzr/safety-atlas/actions/workflows/community-curate.yml)，只填 Issue 编号。
+2. 完整的站内公开提案同步到 GitHub 后，由定时队列自动准备草稿 PR，不需逐条贴标签。普通 GitHub 材料仍需分流；有仓库 triage / write / maintain / admin 角色的协作者，可用 **`atlas:propose`** 主动整理已桥接的提案，也可运行 [Curate public proposal](https://github.com/utopiazzr/safety-atlas/actions/workflows/community-curate.yml)，只填 Issue 编号。
 3. 自动化复用公开字段，运行测试与构建，创建草稿 PR。补证保留原摘要，更正会使旧动画失效；同源新提案会停止自动建卡，交由协作者选择关联对象。一次 Issue 同时只保留一份自动创建的开放草稿 PR。
 4. 审查差异、分类、条件、局限、来源与评论。必要时修改 PR 或要求补证，再由有合并权限的维护者合并。
 
-普通访客不能添加触发标签，也不能直接写入 main。后台通过 GitHub API 检查操作者角色；自动化仅从 main 运行，不拉取或执行投稿者的项目。自动校验能检查格式、权限与证据快照，不能判断结论是否真实。云端私密附件仍只向指定负责人开放，仓库协作者不自动获得附件权限。
+普通访客不能添加触发标签，也不能直接写入 main。人工触发的整理通过 GitHub API 检查操作者角色；定时队列只接收桥接机器人创建、可验证公开快照的 Issue。自动化仅从 main 运行，不拉取或执行投稿者的项目。自动校验能检查格式、权限与证据快照，不能判断结论是否真实。云端私密附件仍只向指定负责人开放，仓库协作者不自动获得附件权限。
 
 自动草稿使用拟发布的 `review: approved` 数据格式；它存在于独立分支，**最终发布决定是审阅与合并**。`source-linked` 仅表示来源可追溯；`verified` 必须有独立复现记录 `reproduction.url`。没有根据投稿票数或标签自动授予核验等级。
 

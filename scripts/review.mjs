@@ -94,7 +94,7 @@ export function createProposal(
   candidate,
   catalogue,
   input,
-  { actor, revision, now = new Date().toISOString() } = {},
+  { actor, revision, automatic = false, now = new Date().toISOString() } = {},
 ) {
   const update = input.decision === "draft-update",
     existing = update ? catalogue.find((e) => e.id === input.target_id) : null;
@@ -125,7 +125,10 @@ export function createProposal(
     throw Error(
       "Supplements and corrections must use draft-update with a target",
     );
-  const source = { url: input.source_url, label: "维护者核对的来源" };
+  const source = {
+    url: input.source_url,
+    label: automatic ? "公开提案提供的来源（待核对）" : "维护者核对的来源",
+  };
   const sources = existing
     ? [...existing.sources]
     : [{ url: candidate.intake.issueUrl, label: "社区投稿与审核讨论" }];

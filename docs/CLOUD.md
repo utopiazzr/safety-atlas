@@ -10,7 +10,7 @@ GitHub Pages 保留公共网站。Sites Worker 接收匿名投稿，D1 存状态
 2. 审阅材料。可要求补证、暂不收录，或填写可以公开的标题、摘要、来源、证据类型、条件、局限与理由。原始附件不自动公开。
 3. Cloud intake bridge 每小时尝试导入已审核摘要；也可手动运行。任务用 GitHub OIDC 认证，无需 PAT。公开 Issue 是候选材料，不等于网站已收录。GitHub 定时任务可能延迟，长期无仓库活动也可能被暂停，请检查 Actions 状态。
 4. 对公开 Issue 手动运行 Receive community signal，或添加 atlas:triage 标签，得到关联建议与补证检查。任意公开评论、编辑不再触发接收任务。
-5. 已同步的摘要可添加 atlas:propose 标签，复用字段生成草稿 PR；需要修改字段时用 Review community signal。人工核对差异后合并，Pages 自动部署。
+5. 完整的已同步公开摘要进入自动拟稿队列；每小时尝试一份，待处理机器人 PR 上限 10 个。重复或失败的提案暂停重试。协作者仍可用 atlas:propose 主动整理；需修改字段时用 Review community signal。人工核对差异与检查结果后合并，Pages 自动部署。
 6. 若原始材料或公开 Issue 后续发生变化，重新审核；证据快照不匹配时不要合并旧提案。
 
 ## 上传、回执与保留
@@ -35,9 +35,8 @@ Fork 必须创建自己的接收服务，替换 cloud/.openai/hosting.json 的�
 
 仅给模型提供经确认可公开的来源摘录；不自动获取任意 URL、不执行项目、不下载权重。分镜必须引用已有来源，输出只能是草稿，由人审核后进入目录。
 
-
 ## Community proposals
 
 Opt-in public proposals now bypass the private owner-review queue. The separate `community` envelope requires `publicConsent: true`; raw notes, code, file paths, attachments and receipt secrets are never included in it. `GET /api/community` lists the latest 30 proposals. New migration `0001_community` preserves legacy private submissions. Do not edit the applied initial migration.
 
-The hourly OIDC bridge imports both explicit public proposals and owner-curated summaries. It acknowledges an immutable public snapshot. GitHub collaborators use `atlas:propose` or Curate public proposal to generate a draft PR without retyping fields. Automation never merges. The private desk prioritizes unresolved private material and can hide public proposals with an audit reason; already exported GitHub content must be moderated there too.
+The hourly OIDC bridge imports both explicit public proposals and owner-curated summaries. It acknowledges an immutable public snapshot. The separate hourly community-drafts workflow prepares at most one eligible public proposal, capped at 10 open bot PRs. It verifies the bridge author and immutable public record again before creation. Failed attempts are labeled and stopped; collaborators can use `atlas:propose` or Curate public proposal to retry after inspection. Automation never merges. The private desk prioritizes unresolved private material and can hide public proposals with an audit reason; already exported GitHub content must be moderated there too.

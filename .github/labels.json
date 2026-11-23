@@ -68,5 +68,15 @@
     "name": "atlas:published",
     "color": "227766",
     "description": "Merged into the catalogue; not a verification badge"
+  },
+  {
+    "name": "atlas:auto-attempted",
+    "color": "716e66",
+    "description": "Automatic preparation attempted; inspect before retrying"
+  },
+  {
+    "name": "atlas:hold",
+    "color": "716e66",
+    "description": "Pause automatic preparation for this proposal"
   }
 ]
