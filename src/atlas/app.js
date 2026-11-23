@@ -4,8 +4,10 @@ import {createPlayback,createPlaybackDriver} from './playback.mjs';
 import {navigatePoster,refreshPosters} from './motion-interface.mjs';
 import {catalogue as entries} from './catalogue.mjs';
 import {contexts,categories,searchRecords,inspectMaterial,makeDraft,webUrl} from './product-core.mjs';
+import {mountProductReport} from './product-report.mjs';
+import {mountWorkbench} from './product-workbench.mjs';
 const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
-const modules=['cases','record','theatre','submit'];
+const modules=['cases','record','theatre','product','submit'];
 history.scrollRestoration='manual';
 let activeModule='cases',archiveY=0,lastCard=null,relatedId=null;
 const params=new URLSearchParams(location.search);
@@ -36,7 +38,8 @@ function selectModule(id,{scroll=true,updateUrl=true}={}){
  if(activeModule==='theatre'&&id!=='theatre')pause();
  activeModule=id;
  $$('.module').forEach(s=>s.hidden=s.id!==id);
- $$('[data-module]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.module===(id==='submit'?'submit':'cases'))));
+ const navModule=['submit','product'].includes(id)?id:'cases';
+ $$('[data-module]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.module===navModule)));
  document.body.dataset.module=id;document.body.dataset.world=id;
  $('.cover-sequence').hidden=id!=='cases';$('#intro').hidden=id!=='cases';
  $('#world-motion').hidden=id!=='cases';
@@ -105,7 +108,7 @@ function renderDetail(e,{push=true,scroll=true}={}){
 function route(){
  const hash=location.hash;if(['#home','#intro'].includes(hash)){selectModule('cases',{scroll:false,updateUrl:false});requestAnimationFrame(()=>$(hash).scrollIntoView({behavior:'smooth',block:'start'}));return;}
  if(hash.startsWith('#case/')){const e=entries.find(x=>x.id===hash.slice(6));if(e){openDetail(e,{push:false});return}}
- selectModule(['cases','theatre','submit'].includes(hash.slice(1))?hash.slice(1):'cases',{scroll:true,updateUrl:false});
+ selectModule(['cases','theatre','product','submit'].includes(hash.slice(1))?hash.slice(1):'cases',{scroll:true,updateUrl:false});
 }
 $$('[data-module]').forEach(b=>b.addEventListener('click',()=>{if(b.dataset.module==='cases'&&activeModule==='record'){backToCases();return}selectModule(b.dataset.module)}));
 window.addEventListener('hashchange',route);
@@ -158,7 +161,9 @@ function loadComposer(){
 }
 function startContribution(e){contributionRequest={kind:e.kind||'suspicion',seq:contributionRequest.seq+1,relatedId:e.id,intent:'evidence'};selectModule('submit');loadComposer().then(m=>m?.updateSubmission(contributionRequest));}
 document.addEventListener('atlas:module',()=>{if(activeModule==='submit')loadComposer()});
+let productMounted=false;
+document.addEventListener('atlas:module',()=>{if(activeModule==='product'&&!productMounted){productMounted=true;mountWorkbench($('#product'));mountProductReport($('#product-report'),$('#product-report-file'),'./product-report.json')}});
 renderCases();updatePhase();
 if(['#signals','#archive'].includes(location.hash))history.replaceState(null,'','#cases');
 if(location.hash==='#contribute')history.replaceState(null,'','#submit');
-if(location.hash.startsWith('#case/'))route();else{const initial=location.hash.slice(1);selectModule(['cases','theatre','submit'].includes(initial)?initial:'cases',{scroll:false,updateUrl:false});if(modules.includes(initial))requestAnimationFrame(()=>document.querySelector('#atlas-content').scrollIntoView({behavior:'instant',block:'start'}))}
+if(location.hash.startsWith('#case/'))route();else{const initial=location.hash.slice(1);selectModule(['cases','theatre','product','submit'].includes(initial)?initial:'cases',{scroll:false,updateUrl:false});if(modules.includes(initial))requestAnimationFrame(()=>document.querySelector('#atlas-content').scrollIntoView({behavior:'instant',block:'start'}))}

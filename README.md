@@ -10,6 +10,8 @@ A community-maintained atlas of agent safety incidents, research and defenses.
 
 [探索档案](https://utopiazzr.github.io/safety-atlas/) · [免登录投稿](https://utopiazzr.github.io/safety-atlas/#contribute) · [社区讨论](https://github.com/utopiazzr/safety-atlas/discussions) · [参与协作](docs/COMMUNITY.md)
 
+站内新增[智能体安全插件](https://utopiazzr.github.io/safety-atlas/#product)：Python 三步接入工具观察、可选权限拦截、行为诚实性与回答依据检查，生成修复队列并支持同任务回归。网站提供安装引导、技术路线、可核对成果案例和本地浏览器评测。源码与安装说明见 [product/](product/) 和 [产品说明](docs/PRODUCT.md)。
+
 <img src="public/orbital-observatory.webp" width="760" alt="深空轨道与银铬机器人：Safety Atlas 社区观测站" />
 
 </div>
