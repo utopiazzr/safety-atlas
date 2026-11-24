@@ -8,7 +8,7 @@
     "validate": "node scripts/validate-artifact.mjs"
   },
   "dependencies": {
-    "altcha-lib": "2.8.0",
+    "altcha-lib": "2.9.0",
     "esbuild": "0.28.2",
     "jose": "6.2.14"
   }
